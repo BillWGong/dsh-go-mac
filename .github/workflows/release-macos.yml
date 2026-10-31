@@ -69,7 +69,9 @@ jobs:
       - name: Cache runtime archive
         uses: actions/cache@v4
         with:
-          path: app/assets/runtime-macos/runtime-arm64.tar.gz
+          path: |
+            app/assets/runtime-macos/runtime-arm64.tar.gz
+            app/assets/runtime-macos/manifest.json
           key: runtime-${{ hashFiles('runtime/build-runtime-macos.sh', 'runtime/locks/**', 'runtime/bridge/**') }}
           restore-keys: |
             runtime-
@@ -78,6 +80,8 @@ jobs:
         run: |
           echo "DEVELOPER_DIR=$DEVELOPER_DIR"
           xcrun --sdk macosx --show-sdk-path
+          # 缓存可能只恢复了 tar；缺清单的包装上后「安装运行环境」会失败。
+          test -f app/assets/runtime-macos/manifest.json || bash runtime/build-runtime-macos.sh
           bash tooling/build-macos.sh --dmg
         env:
           DEVELOPER_DIR: ${{ env.DEVELOPER_DIR }}
