@@ -113,18 +113,27 @@ class HostSheet extends ConsumerWidget {
     // 切换「本机」用哪套引擎：DSH Go 自带的运行时，或正在运行的官方 DSH。
     Future<void> pickLocal({required bool official}) async {
       final bridge = ref.read(macRuntimeBridgeProvider);
-      if (bridge.official != official) {
+      // 切到官方时总是调用一次：官方 App 的端口每次启动都变，点「官方」
+      // 就是在请求重新探测，不能因为开关值没变就跳过。
+      if (bridge.official != official || official) {
         try {
           final prefs = await SharedPreferences.getInstance();
           await prefs.setBool(macOfficialDshPref, official);
         } catch (_) {}
         await bridge.setOfficial(official);
       }
-      // 切回自带运行时：装好但没在跑时顺手启动它。
+      // 切回自带运行时：装好但没在跑时启动它，并等它真的起来再切过去——
+      // 不然 activateHost 会连到一个还没开始监听的端口。
       if (!official) {
         final state = ref.read(localRuntimeProvider);
         if (state.status.phase == RuntimePhase.installed) {
-          unawaited(ref.read(localRuntimeProvider.notifier).start());
+          try {
+            await ref.read(localRuntimeProvider.notifier).start();
+          } catch (_) {
+            // 启动失败：界面会显示引擎的错误状态，这里不再切换。
+            if (context.mounted) Navigator.of(context).pop();
+            return;
+          }
         }
       }
       if (!context.mounted) return;
