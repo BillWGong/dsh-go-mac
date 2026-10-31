@@ -3,8 +3,10 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../l10n/l10n.dart';
+import '../../state/ui_mode_state.dart';
 import '../common/pressable.dart';
 import '../common/ui_trace.dart';
 import '../common/side_insets.dart';
@@ -232,7 +234,18 @@ class _AppPageState extends State<AppPage> {
                         child: GlassIconButton(
                           icon: AppIcons.back,
                           tooltip: l10n.commonBack,
-                          onPressed: () => Navigator.of(context).maybePop(),
+                          // pop(), not maybePop(): a PopScope above the route can
+                          // veto maybePop and leave the page with no way out.
+                          onPressed: () {
+                            final navigator = Navigator.of(context);
+                            if (navigator.canPop()) {
+                              navigator.pop();
+                              return;
+                            }
+                            // Nothing to pop: the page is the root (网页模式),
+                            // so the way out is the native home.
+                            unawaited(ProviderScope.containerOf(context).read(uiModeProvider.notifier).set(UiMode.native));
+                          },
                         ),
                       ),
                       middle: ValueListenableBuilder<double>(

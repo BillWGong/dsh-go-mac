@@ -348,7 +348,10 @@ class _Line extends StatelessWidget {
             layoutBuilder: (current, previous) =>
                 Stack(alignment: Alignment.centerLeft, children: [...previous, ?current]),
             child: Row(
-              key: ValueKey('${a.title}\u0000$second'),
+              // The switcher keeps the outgoing child beside the incoming one,
+              // so two activities that read the same (the same command run
+              // twice) must still differ here or the Stack repeats a key.
+              key: ValueKey('${a.title}\u0000$second\u0000${a.since?.microsecondsSinceEpoch}\u0000${a.toolsDone}'),
               children: [
                 Text(a.title, style: titleStyle),
                 if (second.isNotEmpty) ...[
