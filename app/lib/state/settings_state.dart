@@ -4,6 +4,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../l10n/l10n.dart';
+import '../macos/macos_support.dart';
 import '../performance/performance_state.dart';
 import 'provider_keys.dart';
 import 'read_list_epoch.dart';
@@ -167,7 +168,10 @@ class SettingsController extends Notifier<AppSettings> {
       autoStartLocalExplicit: prefs.containsKey(_autoStartKey),
       autoApproveCommands: prefs.getBool(_autoApproveKey) ?? false,
       phoneStorage: prefs.getBool(_phoneStorageKey) ?? false,
-      webPhoneLayout: prefs.getBool(_webPhoneLayoutKey) ?? true,
+      // The phone layout squeezes DSH Web into a touch-sized column; in a Mac
+      // window that left the page stuck on its boot frame. The Mac default is
+      // the desktop layout (the setting still overrides it).
+      webPhoneLayout: prefs.getBool(_webPhoneLayoutKey) ?? !isMacDesktop,
       chatTextScale: _knownScale(prefs.getDouble(_chatTextScaleKey)),
       foldCompletedTurns: prefs.getBool(_foldTurnsKey) ?? true,
       sendOnEnter: prefs.getBool(_sendOnEnterKey) ?? false,
