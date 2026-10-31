@@ -6,6 +6,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../l10n/l10n.dart';
+import '../../macos/macos_support.dart';
+import '../../macos/window_chrome.dart';
 import '../../state/ui_mode_state.dart';
 import '../common/pressable.dart';
 import '../common/ui_trace.dart';
@@ -150,7 +152,8 @@ class _AppPageState extends State<AppPage> {
     final theme = Theme.of(context);
     final padding = MediaQuery.paddingOf(context);
     const barHeight = 56.0;
-    final top = padding.top + barHeight;
+    final macInset = isMacDesktop ? MacWindowChrome.titleBarHeight : 0.0;
+    final top = padding.top + macInset + barHeight;
     // Wide windows: one centred column (zero on phones). A phone on its side
     // keeps the column and the bar's keys clear of the cutout or navigation
     // bar, on both sides alike.
@@ -221,9 +224,12 @@ class _AppPageState extends State<AppPage> {
               Positioned(
                 left: 0,
                 right: 0,
-                top: padding.top,
+                top: padding.top + macInset,
                 height: barHeight,
-                child: BackdropGroup(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onPanStart: isMacDesktop ? (_) => MacWindowChrome.drag() : null,
+                  child: BackdropGroup(
                   child: Padding(
                     padding: EdgeInsets.symmetric(horizontal: 12 + inset),
                     child: NavigationToolbar(
@@ -274,6 +280,7 @@ class _AppPageState extends State<AppPage> {
                     ),
                   ),
                 ),
+              ),
               ),
             ],
           ),
