@@ -640,6 +640,7 @@ class MacRuntimeBridge implements RuntimeBridge {
         if (_safeState == SafeModeState.probation) _safeState = SafeModeState.off;
         _emit();
         await _saveState();
+        await _writeDiagnostics();
         _healthTimer?.cancel();
         _healthTimer = Timer(const Duration(milliseconds: _healthyMs), () {
           _log('[dsh-go] engine stayed healthy for ${_healthyMs ~/ 1000}s');
@@ -784,7 +785,8 @@ class MacRuntimeBridge implements RuntimeBridge {
       await Process.run('/bin/chmod', <String>['700', dir.path]);
       final st = await Process.run('/bin/ps', <String>['-p', '${process.pid}', '-o', 'lstart=']);
       await File('${dir.path}/web.pid').writeAsString('${process.pid}');
-      await File('${dir.path}/web.st').writeAsString('${st.stdout}'.trim());
+      // 手机端用 $(ps -p PID -o lstart=) 比较，保留列宽空格，只去掉行尾换行。
+      await File('${dir.path}/web.st').writeAsString('${st.stdout}'.replaceFirst(RegExp(r'\n+$'), ''));
       await File('${dir.path}/web.cmd').writeAsString('dsh web');
       await File('${dir.path}/web.log').writeAsString('dsh web: $base?token=$token\n');
       for (final name in <String>['web.pid', 'web.st', 'web.cmd', 'web.log']) {
