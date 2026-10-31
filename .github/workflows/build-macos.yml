@@ -1,0 +1,68 @@
+name: build-macos
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 60
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.47.7
+          channel: stable
+          cache: true
+
+      - name: select the newest Xcode
+        run: |
+          newest="$(ls -d /Applications/Xcode*.app | sort -V | tail -1)"
+          sudo xcode-select -s "$newest"
+          echo "DEVELOPER_DIR=$newest/Contents/Developer" >> "$GITHUB_ENV"
+          DEVELOPER_DIR="$newest/Contents/Developer" xcodebuild -version
+
+      - name: Cache SwiftPM
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/Library/Caches/org.swift.swiftpm
+            app/build/macos/SourcePackages
+          key: spm-${{ runner.os }}-${{ hashFiles('app/pubspec.lock') }}
+          restore-keys: |
+            spm-${{ runner.os }}-
+
+      - name: Cache runtime archive
+        uses: actions/cache@v4
+        with:
+          path: |
+            app/assets/runtime-macos/runtime-arm64.tar.gz
+            app/assets/runtime-macos/manifest.json
+          key: runtime-${{ hashFiles('runtime/build-runtime-macos.sh', 'runtime/locks/**', 'runtime/bridge/**') }}
+          restore-keys: |
+            runtime-
+
+      - name: build dmg
+        run: |
+          test -f app/assets/runtime-macos/manifest.json || bash runtime/build-runtime-macos.sh
+          bash tooling/build-macos.sh --dmg
+
+      - name: checksums
+        working-directory: app/build/macos
+        run: |
+          shasum -a 256 ./*.dmg | tee SHA256SUMS
+          ls -lh ./*.dmg
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dsh-go-mac-dmg
+          path: |
+            app/build/macos/*.dmg
+            app/build/macos/SHA256SUMS
+          if-no-files-found: error
+          retention-days: 7

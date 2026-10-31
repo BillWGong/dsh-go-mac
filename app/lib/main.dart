@@ -10,6 +10,7 @@ import 'dev/frame_probe.dart';
 import 'diagnostics/app_error_log.dart';
 import 'launch/launch_state.dart';
 import 'macos/mac_runtime.dart';
+import 'macos/menu_bar.dart';
 import 'macos/macos_support.dart';
 import 'macos/official_dsh.dart';
 import 'performance/performance_state.dart';
@@ -55,9 +56,8 @@ Future<void> _startApp() async {
       },
     );
   }
-  runApp(
-    ProviderScope(
-      overrides: [
+  final container = ProviderContainer(
+    overrides: [
         if (macRuntime != null) runtimeBridgeProvider.overrideWithValue(macRuntime),
         if (macRuntime != null) macRuntimeBridgeProvider.overrideWithValue(macRuntime),
         // Mac 是桌面性能档：别因为拿不到手机的性能快照就把默认判成「轻量」，
@@ -75,7 +75,7 @@ Future<void> _startApp() async {
             );
           }),
       ],
-      child: const DshApp(),
-    ),
   );
+  if (isMacDesktop) MacMenuBar(container).start();
+  runApp(UncontrolledProviderScope(container: container, child: const DshApp()));
 }
