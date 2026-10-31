@@ -228,6 +228,8 @@ class _RootGateState extends ConsumerState<RootGate> {
 
   void _maybeAutoStart() {
     if (_autoStartDone) return;
+    // 首帧时运行时的第一份状态可能还没到：等 loaded 再决定，别把这个机会丢掉。
+    if (!ref.read(localRuntimeProvider).loaded) return;
     _autoStartDone = true;
     final settings = ref.read(settingsProvider);
     if (!settings.autoStartLocal) return;

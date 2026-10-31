@@ -12,6 +12,7 @@ import 'launch/launch_state.dart';
 import 'macos/mac_runtime.dart';
 import 'macos/macos_support.dart';
 import 'macos/official_dsh.dart';
+import 'performance/performance_state.dart';
 import 'runtime/runtime_state.dart';
 import 'state/locale_state.dart';
 import 'ui/common/third_party_licenses.dart';
@@ -59,6 +60,20 @@ Future<void> _startApp() async {
       overrides: [
         if (macRuntime != null) runtimeBridgeProvider.overrideWithValue(macRuntime),
         if (macRuntime != null) macRuntimeBridgeProvider.overrideWithValue(macRuntime),
+        // Mac 是桌面性能档：别因为拿不到手机的性能快照就把默认判成「轻量」，
+        // 那会关掉自动启动和桌宠。
+        if (isMacDesktop)
+          performanceDefaultsProvider.overrideWith((ref) {
+            final prefs = ref.watch(performancePrefsProvider);
+            return PerformanceDefaults(
+              lightweight: false,
+              blur: prefs.blur ?? true,
+              reduceMotion: !(prefs.animations ?? true),
+              petEnabled: true,
+              autoStartLocal: true,
+              recommendRemote: false,
+            );
+          }),
       ],
       child: const DshApp(),
     ),

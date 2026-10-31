@@ -122,6 +122,8 @@ class MacRuntimeBridge implements RuntimeBridge {
     _officialAt = null;
     _officialNow = null;
     if (value) {
+      // 官方 DSH 与内置引擎是两套数据：切过去时清掉手机握手，避免指错实例。
+      await _clearPhoneAttach();
       final found = await _probeOfficial(force: true);
       _emitMap(_officialStatusMap(found));
     } else {
@@ -626,6 +628,8 @@ class MacRuntimeBridge implements RuntimeBridge {
         if (_safeState == SafeModeState.probation) _safeState = SafeModeState.off;
         _emit();
         await _saveState();
+        // 让手机端的 SSH 连接复用这个引擎：写 ~/.dsh-app-remote 握手文件。
+        if (!_official) await _publishPhoneAttach();
         _healthTimer?.cancel();
         _healthTimer = Timer(const Duration(milliseconds: _healthyMs), () {
           _log('[dsh-go] engine stayed healthy for ${_healthyMs ~/ 1000}s');
@@ -720,6 +724,7 @@ class MacRuntimeBridge implements RuntimeBridge {
     }
     _stopping = false;
     await _clearPidFile();
+    await _clearPhoneAttach();
   }
 
   /// 收掉上一次运行残留的引擎（pid 文件里的进程仍是本运行时启动的才动）。
@@ -751,6 +756,45 @@ class MacRuntimeBridge implements RuntimeBridge {
       final file = File('${(await _runtimeDir()).path}/tmp/dsh-web.pid');
       if (await file.exists()) await file.delete();
     } catch (_) {}
+  }
+
+  /// 手机端（DSH Go）用 SSH 连这台 Mac 时，会读 `~/.dsh-app-remote/` 里 dsh-app 的握手文件
+  /// 来复用已在运行的 `dsh web`（web.pid / web.st / web.cmd / web.log）。这里把内置引擎的
+  /// pid、启动时间、默认启动命令和带 token 的地址写进去——手机就不会再起第二个 DSH，
+  /// 也不会碰到官方 DSH 的 `~/.dsh`。
+  Future<void> _publishPhoneAttach() async {
+    final process = _process;
+    final base = _baseUrl;
+    final token = _token;
+    final home = Platform.environment['HOME'];
+    if (process == null || base == null || token == null || home == null) return;
+    try {
+      final dir = Directory('$home/.dsh-app-remote');
+      await dir.create(recursive: true);
+      await Process.run('/bin/chmod', <String>['700', dir.path]);
+      final st = await Process.run('/bin/ps', <String>['-p', '${process.pid}', '-o', 'lstart=']);
+      await File('${dir.path}/web.pid').writeAsString('${process.pid}');
+      await File('${dir.path}/web.st').writeAsString('${st.stdout}'.trim());
+      await File('${dir.path}/web.cmd').writeAsString('dsh web');
+      await File('${dir.path}/web.log').writeAsString('dsh web: $base?token=$token\n');
+      for (final name in <String>['web.pid', 'web.st', 'web.cmd', 'web.log']) {
+        await Process.run('/bin/chmod', <String>['600', '${dir.path}/$name']);
+      }
+      _log('[dsh-go] phone attach ready: ~/.dsh-app-remote (SSH reuses this engine)');
+    } catch (error) {
+      _log('[dsh-go] phone attach failed: $error', 'stderr');
+    }
+  }
+
+  Future<void> _clearPhoneAttach() async {
+    final home = Platform.environment['HOME'];
+    if (home == null) return;
+    for (final name in <String>['web.pid', 'web.st']) {
+      try {
+        final file = File('$home/.dsh-app-remote/$name');
+        if (await file.exists()) await file.delete();
+      } catch (_) {}
+    }
   }
 
   Future<int> _pickPort() async {

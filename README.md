@@ -42,6 +42,7 @@ DSH Go Mac 让你在 Mac 上使用 [DeepSeek Harness](https://github.com/deepsee
 - ✅ **本机官方 DSH（实验）**：直接连这台 Mac 上正在运行的 DeepSeek Harness，共享它的
   对话、模型和插件——不需要 SSH / DSH Remote，也不用装内置运行时
 - ✅ **切换主机**：本地 DSH（自带）/ 本地官方 DSH / 远程（SSH、DSH Remote），一个弹层切换
+- ✅ **手机连接**：App 内直接列出 Mac 的 IP/用户名/端口与密码说明，手机 SSH 复用内置引擎
 - ✅ 远程主机：SSH、DSH Remote（纯 Dart 实现，未改动）
 - ✅ 聊天、流式回复、工具审批、提问、插件面板、网页模式（WKWebView）
 - ✅ 系统通知：一轮结束 / 等你确认，通知上可直接「允许一次 / 拒绝」，点击回到对话
