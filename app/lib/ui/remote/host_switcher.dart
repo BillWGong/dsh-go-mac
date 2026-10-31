@@ -36,9 +36,9 @@ class HostChip extends ConsumerWidget {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final host = ref.watch(activeHostProvider);
-    final official = isMacDesktop && ref.watch(localRuntimeProvider.select((s) => s.status.official));
-    final base = ref.watch(hostNameProvider(host)) ?? (host.isLocal ? l10n.commonThisPhone : l10n.commonRemoteHost);
-    final name = official && host.isLocal ? '$base · ${AppLocale.isEnglish ? 'official' : '官方'}' : base;
+    // hostNameProvider already marks the local host as 官方 when the Mac runs
+    // against a live DeepSeek Harness, so no second suffix here.
+    final name = ref.watch(hostNameProvider(host)) ?? (host.isLocal ? l10n.commonThisPhone : l10n.commonRemoteHost);
     final view = watchHostStatus(ref, host);
     return Semantics(
       button: true,

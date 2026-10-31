@@ -29,7 +29,13 @@ abstract final class EngineControl {
   static Future<void> ensureStarted(ProviderContainer container) async {
     final phase = container.read(localRuntimeProvider).status.phase;
     if (phase == RuntimePhase.installed || phase == RuntimePhase.error) {
-      await container.read(localRuntimeProvider.notifier).start();
+      try {
+        await container.read(localRuntimeProvider.notifier).start();
+      } catch (_) {
+        // Failures reach the UI through the status stream (phase = error plus
+        // the failure record). Callers of ensureStarted do not await it, so
+        // letting the error escape only produces an unhandled exception.
+      }
     }
   }
 
