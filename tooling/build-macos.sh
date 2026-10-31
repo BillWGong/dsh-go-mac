@@ -57,7 +57,7 @@ else
 fi
 
 # 3. 运行时（首次）
-if [[ ! -f "$APP/assets/runtime-macos/runtime-arm64.tar.gz" ]]; then
+if [[ ! -f "$APP/assets/runtime-macos/runtime-arm64.tar.gz" || ! -f "$APP/assets/runtime-macos/manifest.json" ]]; then
   echo "== 生成本机引擎运行时（首次约 2–5 分钟）"
   bash "$ROOT/runtime/build-runtime-macos.sh"
 fi
