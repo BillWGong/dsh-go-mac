@@ -127,7 +127,7 @@ class ChatHeader extends ConsumerWidget {
                 ),
         ),
         Padding(
-          padding: EdgeInsets.fromLTRB(mac ? MacWindowChrome.trafficLightsInset : 12, top, 12, 0),
+          padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
           child: BackdropGroup(
             child: GestureDetector(
               behavior: HitTestBehavior.translucent,
