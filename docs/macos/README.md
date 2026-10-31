@@ -44,6 +44,7 @@ tooling/build-macos.sh        一条命令出 .app / .dmg
 | 原版（Android / Kotlin） | macOS 实现 | 状态 |
 | --- | --- | --- |
 | 本机引擎：PRoot + Ubuntu + Node + DSH | 原生 Node 24 + DSH npm 树 + `dsh-go-bridge` | ✅ |
+| （新增）本机官方 DSH | 发现官方 App 的 127.0.0.1 端口，用 `~/.dsh` 的会话密钥签 cookie 直连 | ✅ 实验 |
 | 安装运行环境（进度、校验、解包） | 内置 tar.gz → `tar -xzf`，sha256 校验，进度事件 | ✅ |
 | 启动/停止/日志/失败分类/安全模式/连续失败进安全模式 | `lib/macos/mac_runtime.dart`，语义对齐 Kotlin `SafePolicy` | ✅ |
 | 远程主机（SSH / DSH Remote） | 纯 Dart（dartssh2 / WebRTC），无需改动 | ✅ |
@@ -96,7 +97,24 @@ runtime/
 DSH 打印 `dsh web: http://127.0.0.1:<port>/?token=…` 后，Dart 侧解析出 baseUrl/token，
 做一次 TCP 探活，然后把 `phase=running` 通过和 Android 完全相同的事件推给界面。
 
-### 3.3 数据目录
+### 3.3 使用官方 DSH（实验）
+
+Mac 上已经装了官方 DeepSeek Harness 时，可以让 DSH Go Mac 直接接管它，而不是再启动一套
+内置运行时：
+
+- 发现：`lsof` 找官方 App 监听的 `127.0.0.1:<port>`（当前是 62680 这种随机端口）。
+- 认证：官方 DSH 的浏览器会话 cookie 由 `~/.dsh/.credentials.yaml` 里
+  `client-connection/browser-session` 的长期密钥签名（DSH 的 Dart 客户端本来就有 cookie
+  直连模式）。App 在内存里签一个 30 天有效的 `dsh-auth-*` cookie，只用于本机回环请求，
+  不写盘、不上传。
+- 连接：`DshClient.connect(baseUri, cookie:)`，和浏览器打开官方 DSH 是同一条路。
+- 开关：`设置 › 本机引擎 › 使用官方 DSH`，切换后立即重连。
+- 共享：对话、模型、插件、凭据都是官方 App 那一份；不需要 SSH / DSH Remote。
+
+限制：官方 DSH 必须先运行；官方 App 退出后本机引擎会显示「官方 DSH 没有在运行」。
+这种模式下「网页」按钮和插件岛（依赖启动 token）会隐藏；托管技能由官方 App 管理。
+
+### 3.4 数据目录
 
 ```
 ~/Library/Application Support/io.github.billwgong.dshgomac/

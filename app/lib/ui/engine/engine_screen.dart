@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../l10n/l10n.dart';
+import '../../macos/macos_support.dart';
+import '../../macos/official_dsh_section.dart';
 import '../../runtime/runtime_bridge.dart';
 import '../../runtime/runtime_state.dart';
 import '../../runtime/local_footprint.dart';
@@ -84,7 +86,7 @@ class EngineScreen extends ConsumerWidget {
         GlassIconButton(
           icon: AppIcons.webApp,
           tooltip: l10n.commonWeb,
-          onPressed: status.phase == RuntimePhase.running ? () => _push(context, const LocalWebScreen()) : null,
+          onPressed: status.phase == RuntimePhase.running && status.token != null ? () => _push(context, const LocalWebScreen()) : null,
         ),
       ],
       hero: PageHero(
@@ -112,13 +114,15 @@ class EngineScreen extends ConsumerWidget {
       slivers: [
         SliverList.list(
           children: [
-            if (!failureCard)
+            // 官方 DSH 的启停由它自己的 App 管理。
+            if (!failureCard && !status.official)
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
                 child: EngineActions(phase: status.phase),
               ),
             const EngineFailureCard(padding: EdgeInsets.fromLTRB(16, 0, 16, 16)),
             const SafeModeCard(padding: EdgeInsets.fromLTRB(16, 0, 16, 16)),
+            if (isMacDesktop) const MacOfficialDshSection(),
             SettingsSection(
               title: l10n.hubEngineStartup,
               children: [
@@ -163,7 +167,7 @@ class EngineScreen extends ConsumerWidget {
                 InfoRow(label: l10n.phoneEngineArchitecture, value: status.abi ?? '—', mono: true),
               ],
             ),
-            if (!missing)
+            if (!missing && !status.official)
               SettingsSection(
                 children: [
                   _ResetRow(enabled: !status.phase.isBusy),

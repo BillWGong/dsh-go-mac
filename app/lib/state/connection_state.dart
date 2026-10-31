@@ -73,13 +73,21 @@ class LocalConnectionController extends AsyncNotifier<HostConnection?> {
     final endpoint = r.watch(
       localRuntimeProvider.select((s) {
         final st = s.status;
-        return st.phase == RuntimePhase.running ? (st.baseUrl, st.token) : (null, null);
+        final ready = st.phase == RuntimePhase.running && (st.token != null || st.cookie != null);
+        return ready ? (st.baseUrl, st.token, st.cookie) : (null, null, null);
       }),
     );
-    final (baseUrl, token) = endpoint;
-    if (baseUrl == null || token == null) return null;
+    final (baseUrl, token, cookie) = endpoint;
+    if (baseUrl == null || (token == null && cookie == null)) return null;
 
-    final client = await r.read(localClientConnectorProvider)(baseUri: Uri.parse(baseUrl), token: token);
+    // 官方 DSH 用会话 cookie 连；内置运行时用启动 token。
+    final client = cookie != null
+        ? await DshClient.connect(
+            baseUri: Uri.parse(baseUrl),
+            cookie: cookie,
+            backgroundLists: true,
+          )
+        : await r.read(localClientConnectorProvider)(baseUri: Uri.parse(baseUrl), token: token!);
     if (!r.mounted) {
       await client.close();
       return null;

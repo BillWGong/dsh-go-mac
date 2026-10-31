@@ -218,8 +218,10 @@ class _UiSkillDrain {
 
   void update(RuntimeStatus status) {
     if (_disposed) return;
-    final ready = status.isRunning && status.token!.isNotEmpty
-        ? (status.token!, status.baseUrl!, status.managedSkillGeneration)
+    final token = status.token;
+    // 官方 DSH 用 cookie 连接，没有启动 token：技能由官方 App 自己管理。
+    final ready = status.isRunning && token != null && token.isNotEmpty
+        ? (token, status.baseUrl!, status.managedSkillGeneration)
         : null;
     if (ready == _ready) return;
     _ready = ready;
