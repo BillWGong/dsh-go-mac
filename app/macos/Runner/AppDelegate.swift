@@ -4,21 +4,26 @@ import FlutterMacOS
 @main
 class AppDelegate: FlutterAppDelegate {
   override func applicationDidFinishLaunching(_ notification: Notification) {
-    // 菜单栏按 Mac 习惯重排（原版 Android 没有菜单）。
-    dshProbe("applicationDidFinishLaunching")
+    dshProbe("step A: didFinishLaunching")
     MacHost.shared.installMenu()
+    dshProbe("step B: menu installed")
     super.applicationDidFinishLaunching(notification)
-    DispatchQueue.main.async {
-      if let window = NSApp.windows.first(where: { $0 is MainFlutterWindow }),
-         let controller = window.contentViewController as? FlutterViewController {
-        MacMenuBar.shared.attach(messenger: controller.engine.binaryMessenger)
-      } else {
-        dshProbe("menubar: no FlutterViewController at launch")
-      }
-      // 主窗口被关掉时（桌宠窗口让 App 继续活着）把文档窗口拉回来。
-      if let window = NSApp.windows.first(where: { $0 is MainFlutterWindow }) {
-        dshProbe("main window visible=\(window.isVisible)")
-        if !window.isVisible { window.makeKeyAndOrderFront(nil) }
+    dshProbe("step C: super returned")
+    if let window = NSApp.windows.first(where: { $0 is MainFlutterWindow }),
+       let controller = window.contentViewController as? FlutterViewController {
+      dshProbe("step D: window found, visible=\(window.isVisible)")
+      MacMenuBar.shared.attach(messenger: controller.engine.binaryMessenger)
+      if !window.isVisible { window.makeKeyAndOrderFront(nil) }
+    } else {
+      dshProbe("step D: no MainFlutterWindow")
+      DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+        if let window = NSApp.windows.first(where: { $0 is MainFlutterWindow }),
+           let controller = window.contentViewController as? FlutterViewController {
+          dshProbe("step D2: window found late")
+          MacMenuBar.shared.attach(messenger: controller.engine.binaryMessenger)
+        } else {
+          dshProbe("step D2: still no window")
+        }
       }
     }
   }
