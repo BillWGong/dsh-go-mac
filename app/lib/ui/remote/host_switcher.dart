@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../l10n/l10n.dart';
 import '../../macos/macos_support.dart';
 import '../../macos/official_dsh.dart';
+import '../../macos/phone_link_page.dart';
 import '../../runtime/local_footprint.dart';
 import '../../runtime/runtime_bridge.dart';
 import '../../runtime/runtime_state.dart';
@@ -228,6 +229,20 @@ class HostSheet extends ConsumerWidget {
                       onManage();
                     },
                   ),
+                  if (isMacDesktop)
+                    SettingsTile(
+                      icon: AppIcons.phoneStorage,
+                      tinted: false,
+                      title: en ? 'Phone link' : '手机连接',
+                      subtitle: en
+                          ? 'Let DSH Go on your phone use this Mac over SSH'
+                          : '用手机 SSH 连这台 Mac 的内置 DSH',
+                      onTap: () {
+                        final navigator = Navigator.of(context);
+                        navigator.pop();
+                        navigator.push(MaterialPageRoute<void>(builder: (_) => const PhoneLinkPage()));
+                      },
+                    ),
                 ],
               ),
               const SizedBox(height: 4),
