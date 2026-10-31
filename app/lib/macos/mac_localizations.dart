@@ -24,6 +24,12 @@ class MacL10nZh extends L10nZh {
   MacL10nZh([super.locale = 'zh']);
 
   @override
+  String get hubAbout => '关于 DSH Go Mac';
+
+  @override
+  String get starSettingsTitle => '给 DSH Go Mac 点个 star';
+
+  @override
   String get localEnvInstallMessage => '在这台 Mac 上运行 DSH';
 
   @override
@@ -132,6 +138,12 @@ class MacL10nZh extends L10nZh {
 /// English macOS wording.
 class MacL10nEn extends L10nEn {
   MacL10nEn([super.locale = 'en']);
+
+  @override
+  String get hubAbout => 'About DSH Go Mac';
+
+  @override
+  String get starSettingsTitle => 'Star DSH Go Mac';
 
   @override
   String get localEnvInstallMessage => 'Run DSH right on this Mac';

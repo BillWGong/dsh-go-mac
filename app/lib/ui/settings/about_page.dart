@@ -5,6 +5,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../l10n/l10n.dart';
 import '../../state/app_info.dart';
@@ -12,6 +13,7 @@ import '../../state/update_state.dart';
 import '../shell/brand_mark.dart';
 import '../shell/page_frame.dart';
 import '../star/star_prompt_dialog.dart' show openStarProject;
+import '../theme/app_icons.dart';
 import '../theme/theme.dart';
 import '../update/update_tiles.dart';
 import 'settings_widgets.dart';
@@ -50,6 +52,18 @@ class AboutPage extends ConsumerWidget {
               ),
             ),
             SettingsTile(
+              icon: AppIcons.starProject,
+              title: AppLocale.isEnglish ? 'Support the original author' : '支持项目原作者',
+              subtitle: AppLocale.isEnglish
+                  ? 'DSH Go (Android) by ${AppInfo.upstreamAuthor}'
+                  : 'DSH Go（Android）· 作者 ${AppInfo.upstreamAuthor}',
+              onTap: () async {
+                try {
+                  await launchUrl(Uri.parse(AppInfo.upstreamUrl), mode: LaunchMode.externalApplication);
+                } catch (_) {}
+              },
+            ),
+            SettingsTile(
               spot: Spots.licenses,
               onTap: () => showLicensePage(
                 context: context,
@@ -69,6 +83,14 @@ class AboutPage extends ConsumerWidget {
               const SizedBox(height: 10),
               Text(
                 AppInfo.slogan,
+                textAlign: TextAlign.center,
+                style: theme.textTheme.labelSmall?.copyWith(color: colors.textTertiary),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                AppLocale.isEnglish
+                    ? 'DSH Go Mac by ${AppInfo.author} · based on DSH Go by ${AppInfo.upstreamAuthor}'
+                    : 'DSH Go Mac · 作者 ${AppInfo.author} · 基于 DSH Go（${AppInfo.upstreamAuthor}）',
                 textAlign: TextAlign.center,
                 style: theme.textTheme.labelSmall?.copyWith(color: colors.textTertiary),
               ),
