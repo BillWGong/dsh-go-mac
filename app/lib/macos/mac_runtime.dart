@@ -510,11 +510,10 @@ class MacRuntimeBridge implements RuntimeBridge {
     bool visualReplies = true,
   }) async {
     if (_official) {
+      // 官方模式下 start() 只刷新连接：官方 App 没开时发出 error 状态即可。
+      // 这里抛异常会让 EngineControl.ensureStarted 变成未捕获异常——它从
+      // RootGate 的自动启动调用，返回值没人等，UI 就会卡在 error 上。
       final found = await _probeOfficial(force: true);
-      if (found == null) {
-        _emitMap(_officialStatusMap(null));
-        throw PlatformException(code: 'official_not_running', message: _officialNotRunning);
-      }
       _emitMap(_officialStatusMap(found));
       return;
     }
