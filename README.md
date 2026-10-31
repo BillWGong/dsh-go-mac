@@ -58,7 +58,7 @@ DSH Go Mac 让你在 Mac 上使用 [DeepSeek Harness](https://github.com/deepsee
 
 ## 安装
 
-从 [Releases](../../releases) 下载 DMG，打开后把 **DSH Go Mac** 拖进 `Applications`。
+从 [Releases](https://github.com/BillWGong/dsh-go-mac/releases) 下载 DMG，打开后把 **DSH Go Mac** 拖进 `Applications`。
 
 首次打开会被 Gatekeeper 拦（本地构建未签名）：右键 →「打开」，或
 
@@ -81,6 +81,9 @@ xattr -dr com.apple.quarantine "/Applications/DSH Go Mac.app"
 3. Apple Silicon Mac，约 8 GB 空闲磁盘。
 
 ```bash
+git clone https://github.com/BillWGong/dsh-go-mac.git
+cd dsh-go-mac
+
 # 1. 生成内置运行时（Node + DSH + pnpm + bridge，约 2–5 分钟，输出 193 MB）
 bash runtime/build-runtime-macos.sh
 
