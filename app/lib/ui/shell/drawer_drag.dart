@@ -80,6 +80,8 @@ class DrawerDragRecognizer extends OneSequenceGestureRecognizer {
 
   @override
   void addAllowedPointer(PointerDownEvent event) {
+    // 鼠标拖拽是在选文字，不是翻抽屉；触摸/触控板才走抽屉手势。
+    if (event.kind == PointerDeviceKind.mouse) return;
     _accum = Offset.zero;
     _accepted = false;
     _velocity = VelocityTracker.withKind(event.kind);
