@@ -2,9 +2,13 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../l10n/l10n.dart';
+import '../../macos/macos_support.dart';
+import '../../macos/official_dsh.dart';
 import '../../runtime/local_footprint.dart';
+import '../../runtime/runtime_bridge.dart';
 import '../../runtime/runtime_state.dart';
 import '../../state/connection_state.dart';
 import '../../state/hosts_state.dart';
@@ -31,7 +35,9 @@ class HostChip extends ConsumerWidget {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final host = ref.watch(activeHostProvider);
-    final name = ref.watch(hostNameProvider(host)) ?? (host.isLocal ? l10n.commonThisPhone : l10n.commonRemoteHost);
+    final official = isMacDesktop && ref.watch(localRuntimeProvider.select((s) => s.status.official));
+    final base = ref.watch(hostNameProvider(host)) ?? (host.isLocal ? l10n.commonThisPhone : l10n.commonRemoteHost);
+    final name = official && host.isLocal ? '$base · ${AppLocale.isEnglish ? 'official' : '官方'}' : base;
     final view = watchHostStatus(ref, host);
     return Semantics(
       button: true,
@@ -99,6 +105,34 @@ class HostSheet extends ConsumerWidget {
     // 本机 without its runtime: the row installs it, and switches to it once
     // installed (leaving the install page keeps the current host).
     final localMissing = ref.watch(localRuntimeProvider.select((s) => s.status.runtimeMissing));
+    final officialMode = isMacDesktop && ref.watch(localRuntimeProvider.select((s) => s.status.official));
+    final officialRunning = officialMode && ref.watch(localRuntimeProvider.select((s) => s.status.isRunning));
+    final en = AppLocale.isEnglish;
+
+    // 切换「本机」用哪套引擎：DSH Go 自带的运行时，或正在运行的官方 DSH。
+    Future<void> pickLocal({required bool official}) async {
+      final bridge = ref.read(macRuntimeBridgeProvider);
+      if (bridge.official != official) {
+        try {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setBool(macOfficialDshPref, official);
+        } catch (_) {}
+        await bridge.setOfficial(official);
+      }
+      // 切回自带运行时：装好但没在跑时顺手启动它。
+      if (!official) {
+        final state = ref.read(localRuntimeProvider);
+        if (state.status.phase == RuntimePhase.installed) {
+          unawaited(ref.read(localRuntimeProvider.notifier).start());
+        }
+      }
+      if (!context.mounted) return;
+      if (active != HostRef.local) {
+        final ok = await activateHost(context, ref, HostRef.local);
+        if (!ok) return;
+      }
+      if (context.mounted) Navigator.of(context).pop();
+    }
     void installLocal() {
       final navigator = Navigator.of(context);
       navigator.pop();
@@ -117,35 +151,62 @@ class HostSheet extends ConsumerWidget {
               SheetTitleBar(l10n.remoteSwitchHost),
               SheetGroup(
                 margin: const EdgeInsets.fromLTRB(SheetTitleBar.inset, 0, SheetTitleBar.inset, 12),
+                title: en ? 'Local' : '本地',
                 children: [
-                  _HostRow(
-                    host: HostRef.local,
-                    title: l10n.commonThisPhone,
-                    subtitle: l10n.remoteThisPhoneDsh,
-                    active: active.isLocal,
-                    onTap: localMissing ? installLocal : () => pick(HostRef.local),
-                  ),
-                  for (final h in ssh)
+                  if (!isMacDesktop)
                     _HostRow(
-                      host: HostRef.ssh(h.id),
-                      title: h.name,
-                      subtitle: 'SSH · ${h.address}',
-                      active: active == HostRef.ssh(h.id),
-                      onTap: () => pick(HostRef.ssh(h.id)),
+                      host: HostRef.local,
+                      title: l10n.commonThisPhone,
+                      subtitle: l10n.remoteThisPhoneDsh,
+                      active: active.isLocal,
+                      onTap: localMissing ? installLocal : () => pick(HostRef.local),
                     ),
-                  for (final h in relayHosts)
+                  if (isMacDesktop) ...[
                     _HostRow(
-                      host: HostRef.relay(h.id, name: h.name),
-                      title: h.name,
-                      subtitle: h.platform == null
-                          ? l10n.remoteRemoteLabel
-                          : l10n.remoteRemotePlatform(RelayHost.platformLabel(h.platform!)),
-                      active: active == HostRef.relay(h.id),
-                      relay: h,
-                      onTap: () => pick(HostRef.relay(h.id, name: h.name)),
+                      host: HostRef.local,
+                      title: en ? 'Local DSH · bundled' : '本地 DSH · 自带',
+                      subtitle: en ? 'The runtime shipped with DSH Go' : 'DSH Go 自带的运行环境',
+                      active: active.isLocal && !officialMode,
+                      onTap: localMissing && !officialMode ? installLocal : () => pickLocal(official: false),
                     ),
+                    _HostRow(
+                      host: HostRef.local,
+                      title: en ? 'Local DSH · official' : '本地官方 DSH',
+                      subtitle: officialRunning
+                          ? (en ? 'Connected to DeepSeek Harness on this Mac' : '你电脑里正在运行的 DeepSeek Harness')
+                          : (en ? 'DeepSeek Harness on this Mac (open it first)' : '你电脑里的 DeepSeek Harness（需先打开）'),
+                      active: active.isLocal && officialMode,
+                      onTap: () => pickLocal(official: true),
+                    ),
+                  ],
                 ],
               ),
+              if (ssh.isNotEmpty || relayHosts.isNotEmpty)
+                SheetGroup(
+                  margin: const EdgeInsets.fromLTRB(SheetTitleBar.inset, 0, SheetTitleBar.inset, 12),
+                  title: en ? 'Remote' : '远程',
+                  children: [
+                    for (final h in ssh)
+                      _HostRow(
+                        host: HostRef.ssh(h.id),
+                        title: h.name,
+                        subtitle: 'SSH · ${h.address}',
+                        active: active == HostRef.ssh(h.id),
+                        onTap: () => pick(HostRef.ssh(h.id)),
+                      ),
+                    for (final h in relayHosts)
+                      _HostRow(
+                        host: HostRef.relay(h.id, name: h.name),
+                        title: h.name,
+                        subtitle: h.platform == null
+                            ? l10n.remoteRemoteLabel
+                            : l10n.remoteRemotePlatform(RelayHost.platformLabel(h.platform!)),
+                        active: active == HostRef.relay(h.id),
+                        relay: h,
+                        onTap: () => pick(HostRef.relay(h.id, name: h.name)),
+                      ),
+                  ],
+                ),
               if (relayHosts.length > 1)
                 Padding(
                   padding: const EdgeInsets.fromLTRB(SheetTitleBar.inset + 8, 0, SheetTitleBar.inset + 8, 12),
