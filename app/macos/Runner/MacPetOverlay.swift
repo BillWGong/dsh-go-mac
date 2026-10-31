@@ -6,8 +6,9 @@ import FlutterMacOS
 /// Android 版是 SYSTEM_ALERT_WINDOW 悬浮窗；macOS 用无边框、置顶、不抢焦点的 NSPanel。
 /// 状态和气泡完全由 Dart 推过来（`push`），这里只负责画、拖动、右键菜单和「今天不再显示」。
 ///
-/// 与原版的差异（记在 docs/macos/README.md）：气泡上的「允许一次 / 拒绝」不在浮窗里回答，
-/// 点气泡会把 App 带到前台；动画按状态每 1.2–2.5 秒换一帧，不做逐像素的桌宠物理。
+/// 素材是序列帧图集（`assets/pets/<pack>/<anim>.png` + `pack.json` 的 frames/cols），
+/// 不是单张图：按 pack 的 frameW/H、cols 和每帧 ms 裁切播放；窗口按动画 contentBox
+/// 缩放到约 72pt 高的可见内容。
 final class MacPetOverlay: NSObject {
   static let shared = MacPetOverlay()
 
@@ -32,7 +33,6 @@ final class MacPetOverlay: NSObject {
     channel?.setMethodCallHandler { [weak self] call, result in
       self?.handle(call, result: result)
     }
-    // 1 秒一次：到点结束「今天不再显示」，并跟随 App 前后台。
     timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
       self?.refresh()
     }
@@ -77,7 +77,6 @@ final class MacPetOverlay: NSObject {
       notifyStatus()
       result(statusMap())
     case "requestPermission":
-      // 桌面浮窗不需要系统授权。
       result(true)
     case "openAppDetails":
       result(false)
@@ -112,27 +111,15 @@ final class MacPetOverlay: NSObject {
     return until > Date()
   }
 
-  private var packId: String {
-    let raw = state["packId"] as? String ?? ""
-    return raw.isEmpty || raw == "none" ? "deepy-whale" : raw
-  }
-
-  private var active: Bool { state["active"] as? Bool ?? false }
-
-  /// 原版规则：一直显示 → 总在；否则只在该露脸的时候（有任务/气泡）且 App 不在前台。
-  private func shouldShow() -> Bool {
-    guard enabled, !isSnoozed else { return false }
-    if alwaysShow { return true }
-    return active && !NSApp.isActive
-  }
+  /// 打开开关就显示；「今天不再显示」或关掉才隐藏。桌面上一直有宠物才符合直觉。
+  private func shouldShow() -> Bool { enabled && !isSnoozed }
 
   private func refresh() {
     if isSnoozed, let until = snoozedUntil, until <= Date() {
       snoozedUntil = nil
       UserDefaults.standard.removeObject(forKey: Self.snoozeKey)
     }
-    let show = shouldShow()
-    if show {
+    if shouldShow() {
       showPanel()
     } else {
       panel?.orderOut(nil)
@@ -143,14 +130,13 @@ final class MacPetOverlay: NSObject {
   private func showPanel() {
     let panel = panel ?? makePanel()
     self.panel = panel
-    // 不要在这里 apply(state)：refresh 每秒跑一次，会不停重置动画计时器。
     if !panel.isVisible {
       panel.orderFrontRegardless()
     }
   }
 
   private func makePanel() -> PetPanel {
-    let frame = savedFrame() ?? defaultFrame()
+    let frame = Self.clamped(savedFrame() ?? defaultFrame())
     let panel = PetPanel(
       contentRect: frame,
       styleMask: [.borderless, .nonactivatingPanel],
@@ -177,7 +163,12 @@ final class MacPetOverlay: NSObject {
   private func defaultFrame() -> NSRect {
     let screen = NSScreen.main?.visibleFrame ?? NSRect(x: 0, y: 0, width: 1440, height: 900)
     let size = view?.desiredSize ?? NSSize(width: 180, height: 170)
-    return NSRect(x: screen.maxX - size.width - 40, y: screen.minY + 40, width: size.width, height: size.height)
+    return NSRect(
+      x: screen.maxX - size.width - 40,
+      y: screen.minY + 40,
+      width: size.width,
+      height: size.height
+    )
   }
 
   private func savedFrame() -> NSRect? {
@@ -186,18 +177,32 @@ final class MacPetOverlay: NSObject {
     return frame.width > 40 && frame.height > 40 ? frame : nil
   }
 
+  /// 不让宠物跑到屏幕外（之前保存的坐标可能来自更大/不同的屏幕）。
+  static func clamped(_ frame: NSRect) -> NSRect {
+    let screen = NSScreen.main?.visibleFrame ?? NSScreen.screens.first?.visibleFrame
+    guard let screen else { return frame }
+    var f = frame
+    f.size.width = min(f.width, screen.width - 16)
+    f.size.height = min(f.height, screen.height - 16)
+    f.origin.x = min(max(f.minX, screen.minX + 8), screen.maxX - f.width - 8)
+    f.origin.y = min(max(f.minY, screen.minY + 8), screen.maxY - f.height - 8)
+    return f
+  }
+
   fileprivate func saveFrame() {
     guard let panel else { return }
+    let clamped = Self.clamped(panel.frame)
+    if clamped != panel.frame { panel.setFrame(clamped, display: true) }
     UserDefaults.standard.set(NSStringFromRect(panel.frame), forKey: Self.frameKey)
   }
 
-  /// 气泡让窗口变宽/变高时，保持左下角不动（宠物脚底不跳）。
+  /// 气泡让窗口变宽/变高时，保持左下角不动（宠物脚底不跳），并夹在屏幕内。
   fileprivate func resize(to size: NSSize) {
     guard let panel, size != panel.frame.size else { return }
     var frame = panel.frame
     frame.origin.y += frame.height - size.height
     frame.size = size
-    panel.setFrame(frame, display: true)
+    panel.setFrame(Self.clamped(frame), display: true)
   }
 
   // MARK: - 菜单
@@ -249,15 +254,113 @@ final class PetPanel: NSPanel {
   override var canBecomeMain: Bool { false }
 }
 
+// MARK: - 图集
+
+/// 一个动画：图集里 frameW×frameH 的格子，按 frames 的下标和时长播放。
+struct PetAnimation {
+  let sheet: String
+  let frameW: CGFloat
+  let frameH: CGFloat
+  let cols: Int
+  let box: CGRect
+  let loop: Bool
+  let frames: [(index: Int, ms: Int)]
+}
+
+/// `assets/pets/<id>/pack.json` 里画宠物需要的部分。
+struct PetPack {
+  let id: String
+  /// pack 的画布高度（canvas.h）：图集帧高 / 画布高 = 每个画布单位占多少像素。
+  let canvasH: CGFloat
+  let animations: [String: PetAnimation]
+  let states: [String: String]
+  let tiers: [String: [(min: Int, anim: String)]]
+
+  static func load(id: String) -> PetPack? {
+    let path = "\(assetRoot)/assets/pets/\(id)/pack.json"
+    guard let data = FileManager.default.contents(atPath: path),
+          let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else { return nil }
+    var animations: [String: PetAnimation] = [:]
+    if let raw = json["animations"] as? [String: Any] {
+      for (name, value) in raw {
+        guard let anim = value as? [String: Any],
+              let sheet = anim["sheet"] as? String,
+              let frameW = (anim["frameW"] as? NSNumber)?.doubleValue,
+              let frameH = (anim["frameH"] as? NSNumber)?.doubleValue,
+              let cols = (anim["cols"] as? NSNumber)?.intValue else { continue }
+        let box = anim["box"] as? [String: Any] ?? [:]
+        let rect = CGRect(
+          x: (box["x"] as? NSNumber)?.doubleValue ?? 0,
+          y: (box["y"] as? NSNumber)?.doubleValue ?? 0,
+          width: (box["w"] as? NSNumber)?.doubleValue ?? frameW,
+          height: (box["h"] as? NSNumber)?.doubleValue ?? frameH
+        )
+        let frames: [(Int, Int)] = (anim["frames"] as? [[String: Any]] ?? []).compactMap { frame in
+          guard let index = (frame["i"] as? NSNumber)?.intValue else { return nil }
+          return (index, (frame["ms"] as? NSNumber)?.intValue ?? 50)
+        }
+        animations[name] = PetAnimation(
+          sheet: sheet,
+          frameW: frameW,
+          frameH: frameH,
+          cols: cols,
+          box: rect,
+          loop: anim["loop"] as? Bool ?? true,
+          frames: frames.isEmpty ? [(0, 100)] : frames
+        )
+      }
+    }
+    let states = json["states"] as? [String: String] ?? [:]
+    var tiers: [String: [(Int, String)]] = [:]
+    if let raw = json["tiers"] as? [String: Any] {
+      for (state, value) in raw {
+        let list = (value as? [[String: Any]] ?? []).compactMap { entry -> (Int, String)? in
+          guard let min = (entry["min"] as? NSNumber)?.intValue,
+                let anim = entry["anim"] as? String else { return nil }
+          return (min, anim)
+        }
+        tiers[state] = list
+      }
+    }
+    let canvas = json["canvas"] as? [String: Any] ?? [:]
+    let canvasH = (canvas["h"] as? NSNumber)?.doubleValue ?? 52
+    return PetPack(id: id, canvasH: canvasH, animations: animations, states: states, tiers: tiers)
+  }
+
+  /// pack.json 所在的 flutter_assets 根目录。
+  static var assetRoot: String {
+    let executable = Bundle.main.executablePath ?? ""
+    let contents = (executable as NSString).deletingLastPathComponent as NSString
+    let root = contents.deletingLastPathComponent
+    return root + "/Frameworks/App.framework/Resources/flutter_assets"
+  }
+
+  /// 当前状态该播哪个动画（含 working / juggling 的档位）。
+  func animationName(state name: String, tier: Int) -> String {
+    if let options = tiers[name] {
+      for option in options where tier >= option.min { return option.anim }
+    }
+    return states[name] ?? states["idle"] ?? "idle"
+  }
+}
+
+// MARK: - 视图
+
 /// 宠物本体 + 气泡。
 final class PetView: NSView {
   private weak var host: MacPetOverlay?
-  private var sprite = NSImage()
-  private var spriteName = "idle"
-  private var bubbleText: String?
-  private var bubbleIsAsk = false
-  private var frameTimer: Timer?
+
+  private var pack: PetPack?
+  private var packId = ""
+  private var canvasH: CGFloat = 52
+  private var animation: PetAnimation?
+  private var animationName = ""
+  private var frames: [NSImage] = []
   private var frameIndex = 0
+  private var frameTimer: Timer?
+  private var bubbleText: String?
+
+  private var stateSize = "medium"
   private var dragOrigin: NSPoint = .zero
   private var dragged = false
   private var lastClick: Date = .distantPast
@@ -271,43 +374,53 @@ final class PetView: NSView {
 
   required init?(coder: NSCoder) { fatalError() }
 
-  /// 图片目标高度（和原版 small / medium / large 的观感对齐）。
-  private var bodyHeight: CGFloat {
-    switch spriteName {
-    case _ where spriteName.isEmpty: return 120
-    default: return CGFloat(bodyHeights[stateSize] ?? 120)
+  /// 可见内容的目标高度：桌面上比手机大一点，但仍然是小宠物。
+  private var contentHeight: CGFloat {
+    switch stateSize {
+    case "small": return 32
+    case "large": return 58
+    default: return 44
     }
   }
 
-  private var stateSize = "medium"
-  private var packId = "deepy-whale"
-  private let bodyHeights: [String: Double] = ["small": 92, "medium": 120, "large": 152]
+  private var frameScale: CGFloat {
+    guard let animation, animation.box.height > 0 else { return 1 }
+    // box 是画布单位；换成图集里的像素高度，再缩放到想要的可见高度。
+    let pxPerUnit = animation.frameH / max(1, canvasH)
+    let contentPx = animation.box.height * pxPerUnit
+    return contentPx > 0 ? contentHeight / contentPx : 1
+  }
+
+  private var bodySize: NSSize {
+    guard let animation else { return NSSize(width: 120, height: 120) }
+    return NSSize(width: animation.frameW * frameScale, height: animation.frameH * frameScale)
+  }
 
   var desiredSize: NSSize {
-    let body = desiredBodySize()
-    let bubble = bubbleLayout(maxWidth: 300).size
-    let width = max(body.width, bubble.width) + 24
-    let height = body.height + (bubble.height > 0 ? bubble.height + 10 : 0) + 12
-    return NSSize(width: max(96, width), height: max(96, height))
+    let body = bodySize
+    let bubble = bubbleLayout(maxWidth: 280).size
+    let width = max(body.width, bubble.width) + 20
+    let height = body.height + (bubble.height > 0 ? bubble.height + 8 : 0) + 10
+    return NSSize(width: max(80, width), height: max(80, height))
   }
 
-  private func desiredBodySize() -> NSSize {
-    guard sprite.size.width > 0, sprite.size.height > 0 else { return NSSize(width: 120, height: 120) }
-    let scale = bodyHeight / sprite.size.height
-    return NSSize(width: max(40, sprite.size.width * scale), height: bodyHeight)
-  }
-
-  // MARK: - 状态
+  // MARK: 状态
 
   func apply(_ state: [String: Any]) {
     stateSize = state["size"] as? String ?? "medium"
-    let next = Self.spriteName(for: state)
-    packId = state["packId"] as? String ?? "deepy-whale"
-    let pack = packId
-    let showed = next != spriteName
-    spriteName = next
-    if showed || sprite.size.width == 0 {
-      loadSprite(pack: pack, name: next)
+    let nextPack = state["packId"] as? String ?? "deepy-whale"
+    if pack == nil || nextPack != packId {
+      packId = nextPack
+      pack = PetPack.load(id: nextPack) ?? PetPack.load(id: "deepy-whale")
+      canvasH = pack?.canvasH ?? 52
+      frames = []
+      animationName = ""
+    }
+    if let pack {
+      let name = pack.animationName(state: state["state"] as? String ?? "idle", tier: state["tier"] as? Int ?? 0)
+      if name != animationName || frames.isEmpty {
+        play(name)
+      }
     }
     if let bubble = state["bubble"] as? [String: Any], state["quiet"] as? Bool != true {
       let text = bubble["text"] as? String
@@ -321,111 +434,101 @@ final class PetView: NSView {
       } else {
         line = text ?? ""
       }
-      if let detail = bubble["detail"] as? String, !detail.isEmpty {
-        line += "\n\(detail)"
-      }
+      if let detail = bubble["detail"] as? String, !detail.isEmpty { line += "\n\(detail)" }
       bubbleText = line.isEmpty ? nil : line
-      bubbleIsAsk = bubble["ask"] != nil
     } else {
       bubbleText = nil
-      bubbleIsAsk = false
     }
-    scheduleFrames(reduceMotion: state["reduceMotion"] as? Bool ?? false)
     let size = desiredSize
     host?.resize(to: size)
     frame = NSRect(origin: frame.origin, size: size)
     needsDisplay = true
   }
 
-  private static func spriteName(for state: [String: Any]) -> String {
-    switch state["state"] as? String {
-    case "thinking": return "thinking"
-    case "working":
-      let tier = state["tier"] as? Int ?? 0
-      return tier >= 3 ? "conducting" : "typing"
-    case "juggling": return "react-double"
-    case "sweeping": return "building"
-    case "notification", "attention": return "notification"
-    case "error": return "error"
-    case "carrying": return "carrying"
-    case "sleeping": return "sleeping"
-    case "waking": return "waking"
-    default: return "idle"
-    }
-  }
-
-  private func loadSprite(pack: String, name: String) {
-    let candidates = [name, "idle"]
-    for file in candidates {
-      if let image = Self.loadImage(pack: pack, name: file) {
-        sprite = image
-        return
-      }
-    }
-    sprite = NSImage()
-    if let image = NSImage(contentsOfFile: Self.assetRoot + "/assets/pets/deepy-whale/idle.png") {
-      sprite = image
-    }
-  }
-
-  private static var assetRoot: String {
-    let executable = Bundle.main.executablePath ?? ""
-    let contents = (executable as NSString).deletingLastPathComponent as NSString
-    let root = contents.deletingLastPathComponent
-    return root + "/Frameworks/App.framework/Resources/flutter_assets"
-  }
-
-  private static func loadImage(pack: String, name: String) -> NSImage? {
-    let path = "\(assetRoot)/assets/pets/\(pack)/\(name).png"
-    return NSImage(contentsOfFile: path)
-  }
-
-  /// 状态内的轻微动画：idle 三帧轮换，working 在打字/搭建/指挥之间轮换。
-  private func scheduleFrames(reduceMotion: Bool) {
+  private func play(_ name: String) {
     frameTimer?.invalidate()
     frameTimer = nil
-    guard !reduceMotion else { return }
-    let sequence: [String]
-    switch spriteName {
-    case "idle": sequence = ["idle", "idle-look", "idle-spout"]
-    case "typing": sequence = ["typing", "building", "conducting"]
-    default: return
+    guard let pack, let animation = pack.animations[name] else {
+      frames = []
+      self.animation = nil
+      needsDisplay = true
+      return
     }
+    self.animation = animation
+    animationName = name
+    frames = Self.extractFrames(animation: animation, packId: pack.id)
     frameIndex = 0
-    frameTimer = Timer.scheduledTimer(withTimeInterval: sequence == ["idle", "idle-look", "idle-spout"] ? 2.6 : 1.4,
-                                      repeats: true) { [weak self] _ in
-      guard let self, sequence.count > 1 else { return }
-      self.frameIndex = (self.frameIndex + 1) % sequence.count
-      if let image = Self.loadImage(pack: self.packId, name: sequence[self.frameIndex]) {
-        self.sprite = image
-        self.needsDisplay = true
+    guard !frames.isEmpty else {
+      needsDisplay = true
+      return
+    }
+    scheduleNext(after: animation.frames[0].ms)
+    needsDisplay = true
+  }
+
+  private func scheduleNext(after ms: Int) {
+    frameTimer?.invalidate()
+    frameTimer = Timer.scheduledTimer(withTimeInterval: max(0.02, Double(ms) / 1000), repeats: false) { [weak self] _ in
+      guard let self, let animation = self.animation, !self.frames.isEmpty else { return }
+      if self.frameIndex + 1 < self.frames.count {
+        self.frameIndex += 1
+      } else if animation.loop {
+        self.frameIndex = 0
+      } else {
+        return
       }
+      self.needsDisplay = true
+      self.scheduleNext(after: animation.frames[self.frameIndex].ms)
     }
   }
 
-  // MARK: - 画
+  /// 按 cols 把图集裁成一帧一张（CGImage 的原点在左上角）。
+  private static func extractFrames(animation: PetAnimation, packId: String) -> [NSImage] {
+    let path = "\(PetPack.assetRoot)/assets/pets/\(packId)/\(animation.sheet)"
+    guard let sheet = NSImage(contentsOfFile: path),
+          let cg = sheet.cgImage(forProposedRect: nil, context: nil, hints: nil) else { return [] }
+    var result: [NSImage] = []
+    for frame in animation.frames {
+      let col = frame.index % max(1, animation.cols)
+      let row = frame.index / max(1, animation.cols)
+      let rect = CGRect(
+        x: CGFloat(col) * animation.frameW,
+        y: CGFloat(row) * animation.frameH,
+        width: animation.frameW,
+        height: animation.frameH
+      ).integral
+      guard let cropped = cg.cropping(to: rect) else { continue }
+      result.append(NSImage(cgImage: cropped, size: NSSize(width: animation.frameW, height: animation.frameH)))
+    }
+    return result
+  }
+
+  // MARK: 画
 
   override func draw(_ dirtyRect: NSRect) {
-    let body = desiredBodySize()
-    let bubble = bubbleLayout(maxWidth: max(120, bounds.width - 24))
-    var y = bounds.height - 6
+    let body = bodySize
+    let bubble = bubbleLayout(maxWidth: max(140, bounds.width - 20))
+    var y = bounds.height - 4
     if bubble.size.height > 0 {
-      let rect = NSRect(x: (bounds.width - bubble.size.width) / 2, y: y - bubble.size.height,
-                        width: bubble.size.width, height: bubble.size.height)
+      let rect = NSRect(
+        x: (bounds.width - bubble.size.width) / 2,
+        y: y - bubble.size.height,
+        width: bubble.size.width,
+        height: bubble.size.height
+      )
       NSColor.windowBackgroundColor.withAlphaComponent(0.96).setFill()
       let path = NSBezierPath(roundedRect: rect, xRadius: 10, yRadius: 10)
       path.fill()
       NSColor.separatorColor.setStroke()
       path.lineWidth = 1
       path.stroke()
-      let inset = rect.insetBy(dx: 9, dy: 7)
-      bubble.draw(inset)
+      bubble.draw(rect.insetBy(dx: 9, dy: 7))
       y = rect.minY - 6
     }
-    let bodyRect = NSRect(x: (bounds.width - body.width) / 2, y: y - body.height,
-                          width: body.width, height: body.height)
-    sprite.draw(in: bodyRect, from: .zero, operation: .sourceOver, fraction: 1)
-    _ = bodyRect
+    if frames.indices.contains(frameIndex) {
+      let bodyRect = NSRect(x: (bounds.width - body.width) / 2, y: y - body.height, width: body.width, height: body.height)
+      frames[frameIndex].draw(in: bodyRect, from: .zero, operation: .sourceOver, fraction: 1)
+    }
   }
 
   private func bubbleLayout(maxWidth: CGFloat) -> (size: NSSize, draw: (NSRect) -> Void) {
@@ -449,21 +552,19 @@ final class PetView: NSView {
     return (size, draw)
   }
 
-  // MARK: - 鼠标
+  // MARK: 鼠标
 
   override func mouseDown(with event: NSEvent) {
     dragged = false
     dragOrigin = event.locationInWindow
     let now = Date()
-    if now.timeIntervalSince(lastClick) < 0.4 {
-      host?.openApp()
-    }
+    if now.timeIntervalSince(lastClick) < 0.4 { host?.openApp() }
     lastClick = now
   }
 
   override func mouseDragged(with event: NSEvent) {
     dragged = true
-    guard let window = window else { return }
+    guard let window else { return }
     var origin = window.frame.origin
     origin.x += event.deltaX
     origin.y -= event.deltaY
