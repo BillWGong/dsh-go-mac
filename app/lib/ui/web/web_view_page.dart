@@ -772,7 +772,13 @@ class _WebViewPageState extends State<WebViewPage> {
     if (_bgFor != brightness) {
       _bgFor = brightness;
       if (!_gone) {
-        unawaited(_controller.setBackgroundColor(_background(brightness)).catchError((_) {}));
+        // macOS throws UnimplementedError from setBackgroundColor synchronously,
+        // so catchError() below never runs — the throw escapes the build.
+        try {
+          unawaited(_controller.setBackgroundColor(_background(brightness)).catchError((_) {}));
+        } catch (_) {
+          // Keep the WebView's own background.
+        }
       }
     }
     if (dark != _dark) {
