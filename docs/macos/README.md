@@ -263,12 +263,15 @@ DSH_TEST_FONT_DIR=/path/to/noto-cjk flutter test
 
 ---
 
-## 9. 上游 1.0.5 / 1.0.6 跟进
+## 9. 上游 1.0.5 / 1.0.6 / 1.0.7 跟进
 
 上游的 `v1.0.5`、`v1.0.6` tag 都指向 1.0.4 的提交（`bf01594`），源码没有随版本发布，
 只能按 release notes 跟进。已经落地的：
 
-- 版本号跟进到 `1.0.6`（pubspec / AppInfo）
+- 版本号跟进到 `1.0.7`（pubspec / AppInfo）
+- 1.0.7：引擎起来后写脱敏诊断 `$DSH_HOME/dsh-app/diagnostics.md`（版本、机型、运行时、启动方式、
+  连接、安全模式、最近失败、日志尾部），并写入内置技能 `dsh-go-support`，模型被问「看下诊断」时
+  会先读它；日志里的 token 已脱敏
 - 对话：手动展开的思考在该轮结束后自动收回（1.0.5）
 - 新增设置「Return 发送」：Return 直接发、Shift+Return 换行、⌘/Ctrl+Return 始终发送
 - 1.0.5/1.0.6 的刷新率设置、手机操控报文压缩属于 Android 专属，Mac 不适用
