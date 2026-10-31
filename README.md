@@ -58,10 +58,10 @@ DSH Go Mac 让你在 Mac 上使用 [DeepSeek Harness](https://github.com/deepsee
 
 ## 安装
 
-预编译 DMG 稍后提供。目前请按下面的「从源码构建」生成 `.dmg`，打开后把 **DSH Go Mac**
-拖进 `Applications`（脚本里的 `--dmg` 会一并打好）。
+从 [Releases](https://github.com/BillWGong/dsh-go-mac/releases/latest) 下载
+`dsh-go-mac-1.0.4-macos-arm64.dmg`，打开后把 **DSH Go Mac** 拖进 `Applications`。
 
-首次打开会被 Gatekeeper 拦（本地构建未签名）：右键 →「打开」，或
+首次打开会被 Gatekeeper 拦（未签名构建）：右键 →「打开」，或
 
 ```bash
 xattr -dr com.apple.quarantine "/Applications/DSH Go Mac.app"
