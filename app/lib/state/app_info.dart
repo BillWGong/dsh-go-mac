@@ -22,6 +22,14 @@ abstract final class AppInfo {
   /// spoken label.
   static const wordmark = 'DSH';
 
+  /// DSH Go Mac 的作者与仓库。
+  static const author = 'BillWGong';
+  static const repoUrl = 'https://github.com/BillWGong/dsh-go-mac';
+
+  /// 上游 DSH Go（Android）的作者与仓库：支持原作者用。
+  static const upstreamAuthor = 'ccch1mneyyy';
+  static const upstreamUrl = 'https://github.com/ccch1mneyyy/dsh-go';
+
   /// Required wording: the app is built on DSH but is not an official DeepSeek product.
   /// Shown where legal text lives (the licence page).
   static String get disclaimer => appL10n.stateAppDisclaimer;
