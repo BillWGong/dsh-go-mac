@@ -330,7 +330,7 @@ class _PageLayout extends StatelessWidget {
             // With no code, the brand block alone sits as far below the rule as
             // above the card's edge.
             SizedBox(height: ShareCard.qrFor(card.content.link) == null ? ShareCard.inset : 20),
-            _Footer(link: card.content.link, template: card.template, qrBackground: paper ? _PaperLook.bottom : null),
+            _Footer(template: card.template, qrBackground: paper ? _PaperLook.bottom : null),
           ],
         ),
       ),
@@ -394,7 +394,7 @@ class _FieldLayout extends StatelessWidget {
           children: [
             KeyedSubtree(key: const ValueKey('share-panel'), child: panel),
             const SizedBox(height: ShareCard.fieldInset),
-            _Footer(link: card.content.link, template: card.template),
+            _Footer(template: card.template),
           ],
         ),
       ),
@@ -968,9 +968,8 @@ class _Plugin extends StatelessWidget {
 /// the QR code at the right edge, the two centred on each other. A link too
 /// long to scan at the card's size ([ShareCard.qrFor]) leaves the lockup alone.
 class _Footer extends StatelessWidget {
-  const _Footer({required this.link, required this.template, this.qrBackground});
+  const _Footer({required this.template, this.qrBackground});
 
-  final String link;
   final ShareTemplate template;
 
   /// Paper prints the code straight on the page: its ground is the paper.
@@ -992,7 +991,7 @@ class _Footer extends StatelessWidget {
     final paper = template == ShareTemplate.paper;
     final ink = onField ? Colors.white : scheme.onSurface;
     final muted = onField ? Colors.white.withValues(alpha: 0.80) : colors.textTertiary;
-    final code = ShareCard.qrFor(link);
+    final zh = Localizations.localeOf(context).languageCode.startsWith('zh');
     final brand = Column(
       key: const ValueKey('share-brand'),
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1004,7 +1003,7 @@ class _Footer extends StatelessWidget {
           // Under the word, not the glyph.
           padding: EdgeInsets.only(left: BrandLockup.wordInset(word)),
           child: Text(
-            code == null ? l10n.viewShareBrandLineNoQr : l10n.viewShareBrandLine,
+            l10n.viewShareBrandLine,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: theme.textTheme.bodySmall?.copyWith(color: muted, height: 1.35, letterSpacing: 0.2),
@@ -1012,49 +1011,71 @@ class _Footer extends StatelessWidget {
         ),
       ],
     );
-    // A link too long to scan at this size: the brand block alone, where the
-    // body's text starts.
-    if (code == null) {
-      return Row(
-        key: const ValueKey('share-footer'),
-        children: [Expanded(child: brand)],
+    final repos = <(String, String)>[
+      (AppInfo.upstreamUrl, zh ? '原作 · ccch1mneyyy' : 'Original · ccch1mneyyy'),
+      (AppInfo.repoUrl, zh ? 'Mac 版 · BillWGong' : 'Mac port · BillWGong'),
+    ];
+    Widget tile(String url) {
+      final qr = QrCodeView(
+        data: url,
+        size: 64,
+        color: paper ? _PaperLook.ink : const Color(0xFF111318),
+        background:
+            qrBackground ??
+            (template == ShareTemplate.dark
+                ? NeutralTones.forAccent(DshSurfaces.of(context).accent).mistLow
+                : Colors.white),
+        quietZone: 2,
+        semanticLabel: l10n.viewShareProjectQr,
       );
+      return paper
+          ? qr
+          : DecoratedBox(
+              position: DecorationPosition.foreground,
+              decoration: ShapeDecoration(
+                shape: Squircle.border(
+                  qrRadius,
+                  side: template == ShareTemplate.light
+                      ? BorderSide(color: scheme.outlineVariant, width: 0.5)
+                      : BorderSide.none,
+                ),
+              ),
+              child: Squircle.clip(radius: qrRadius, child: qr),
+            );
     }
-    final qr = QrCodeView(
-      data: link,
-      size: ShareCard.qrSize,
-      color: paper ? _PaperLook.ink : const Color(0xFF111318),
-      background:
-          qrBackground ??
-          (template == ShareTemplate.dark
-              ? NeutralTones.forAccent(DshSurfaces.of(context).accent).mistLow
-              : Colors.white),
-      quietZone: ShareCard.qrQuietZone,
-      // The app's tile in the centre when the link is short enough.
-      logo: code.$2 != null,
-      semanticLabel: l10n.viewShareProjectQr,
-    );
     return Row(
       key: const ValueKey('share-footer'),
+      crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         Expanded(child: brand),
-        const SizedBox(width: 16),
+        const SizedBox(width: 10),
         KeyedSubtree(
           key: const ValueKey('share-qr'),
-          child: paper
-              ? qr
-              : DecoratedBox(
-                  position: DecorationPosition.foreground,
-                  decoration: ShapeDecoration(
-                    shape: Squircle.border(
-                      qrRadius,
-                      side: template == ShareTemplate.light
-                          ? BorderSide(color: scheme.outlineVariant, width: 0.5)
-                          : BorderSide.none,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (var i = 0; i < repos.length; i++) ...[
+                if (i > 0) const SizedBox(width: 8),
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    tile(repos[i].$1),
+                    const SizedBox(height: 4),
+                    SizedBox(
+                      width: 64,
+                      child: Text(
+                        repos[i].$2,
+                        textAlign: TextAlign.center,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.labelSmall?.copyWith(fontSize: 8.5, color: muted, height: 1.2),
+                      ),
                     ),
-                  ),
-                  child: Squircle.clip(radius: qrRadius, child: qr),
+                  ],
                 ),
+              ],
+            ],
+          ),
         ),
       ],
     );

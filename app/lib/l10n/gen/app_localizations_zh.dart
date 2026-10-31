@@ -15446,7 +15446,7 @@ class L10nZh extends L10n {
   String get stateProviderTokenCountInvalid => '填写数字，如 128K';
 
   @override
-  String get appSlogan => '随时随刻，想go就Go！';
+  String get appSlogan => '把 DSH 装进你的 Mac';
 
   @override
   String get updateCheck => '检查更新';
@@ -16678,10 +16678,10 @@ class L10nZh extends L10n {
   String get viewShareProjectQr => '项目主页二维码';
 
   @override
-  String get viewShareBrandLine => '手机上的 DSH · 扫码获取';
+  String get viewShareBrandLine => 'Mac 上的 DSH · 扫码看项目';
 
   @override
-  String get viewShareBrandLineNoQr => '手机上的 DSH';
+  String get viewShareBrandLineNoQr => 'Mac 上的 DSH';
 
   @override
   String viewShareSteps(int count) {
