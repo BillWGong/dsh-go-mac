@@ -10,6 +10,8 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../l10n/l10n.dart';
+import '../../macos/macos_support.dart';
+import '../../macos/window_chrome.dart';
 import '../../state/header_schedule_state.dart';
 import '../agents/header_agents.dart';
 import '../common/smooth_size.dart';
@@ -93,8 +95,9 @@ class ChatHeader extends ConsumerWidget {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final dsh = DshColors.of(context);
-    final top = MediaQuery.paddingOf(context).top;
-    final barHeight = barHeightOf(context);
+    final mac = isMacDesktop;
+    final top = mac ? 0.0 : MediaQuery.paddingOf(context).top;
+    final barHeight = mac ? 44.0 : barHeightOf(context);
     final pillHeight = pillHeightOf(context);
     final titleStyle = theme.textTheme.titleSmall?.copyWith(fontSize: 15, height: 1.3);
     final statusStyle = theme.textTheme.labelSmall?.copyWith(fontSize: 11, height: 1.25);
@@ -124,9 +127,12 @@ class ChatHeader extends ConsumerWidget {
                 ),
         ),
         Padding(
-          padding: EdgeInsets.fromLTRB(12, top, 12, 0),
+          padding: EdgeInsets.fromLTRB(mac ? MacWindowChrome.trafficLightsInset : 12, top, 12, 0),
           child: BackdropGroup(
-            child: SizedBox(
+            child: GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onPanStart: mac ? (_) => MacWindowChrome.drag() : null,
+              child: SizedBox(
               key: const ValueKey('chat-header-bar'),
               height: barHeight,
               child: _HeaderRow(
@@ -248,6 +254,7 @@ class ChatHeader extends ConsumerWidget {
                   ),
                 ],
               ),
+            ),
             ),
           ),
         ),

@@ -42,6 +42,11 @@ final class MacHost: NSObject {
       self?.handleApp(call, result: result)
     }
 
+    // 顶栏与原生标题栏合并：内容铺满，标题文字隐藏，交通灯浮在上面。
+    window.titleVisibility = .hidden
+    window.titlebarAppearsTransparent = true
+    window.styleMask.insert(.fullSizeContentView)
+    window.isMovableByWindowBackground = false
     windowChannel = FlutterMethodChannel(name: "dsh/window", binaryMessenger: messenger)
     windowChannel?.setMethodCallHandler { [weak self] call, result in
       self?.handleWindow(call, result: result)
@@ -110,6 +115,11 @@ final class MacHost: NSObject {
       result(nil)
     case "toggleFullScreen":
       window?.toggleFullScreen(nil)
+      result(nil)
+    case "drag":
+      if let event = NSApp.currentEvent {
+        window?.performDrag(with: event)
+      }
       result(nil)
     default:
       result(FlutterMethodNotImplemented)
