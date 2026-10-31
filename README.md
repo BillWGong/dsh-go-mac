@@ -63,7 +63,7 @@ DSH Go Mac 让你在 Mac 上更好的使用 [DeepSeek Harness](https://github.co
 ## 安装
 
 从 [Releases](https://github.com/BillWGong/dsh-go-mac/releases/latest) 下载
-`dsh-go-mac-1.0.7-macos-arm64.dmg`，打开后把 **DSH Go Mac** 拖进 `Applications`。
+`dsh-go-mac-1.0.8-macos-arm64.dmg`，打开后把 **DSH Go Mac** 拖进 `Applications`。
 
 首次打开会被 Gatekeeper 拦（未签名构建）：右键 →「打开」，或
 
@@ -100,7 +100,7 @@ bash tooling/build-macos.sh --dmg
 
 ```
 app/build/macos/Build/Products/Release/dsh_go.app
-app/build/macos/dsh-go-mac-1.0.7-macos-arm64.dmg
+app/build/macos/dsh-go-mac-1.0.8-macos-arm64.dmg
 ```
 
 环境检查：`bash tooling/check-macos-env.sh`。
