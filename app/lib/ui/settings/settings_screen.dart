@@ -221,6 +221,16 @@ class SettingsScreen extends ConsumerWidget {
               value: settings.foldCompletedTurns,
               onChanged: (v) => unawaited(notifier.setFoldCompletedTurns(v)),
             ),
+            SettingsSwitchTile(
+              icon: AppIcons.send,
+              tint: SettingsHues.appearance,
+              title: AppLocale.isEnglish ? 'Return to send' : 'Return 发送',
+              subtitle: AppLocale.isEnglish
+                  ? 'Return sends, Shift+Return adds a line; ⌘Return always sends.'
+                  : '按 Return 直接发送，Shift+Return 换行；⌘Return 始终发送。',
+              value: settings.sendOnEnter,
+              onChanged: (v) => unawaited(notifier.setSendOnEnter(v)),
+            ),
             const PetEntryTile(tint: SettingsHues.appearance),
           ],
         ),

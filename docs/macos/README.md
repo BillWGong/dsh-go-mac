@@ -243,3 +243,17 @@ flutter build macos --release -t lib/dev/macos_runtime_probe.dart
 ```bash
 DSH_TEST_FONT_DIR=/path/to/noto-cjk flutter test
 ```
+
+---
+
+## 9. 上游 1.0.5 / 1.0.6 跟进
+
+上游的 `v1.0.5`、`v1.0.6` tag 都指向 1.0.4 的提交（`bf01594`），源码没有随版本发布，
+只能按 release notes 跟进。已经落地的：
+
+- 版本号跟进到 `1.0.6`（pubspec / AppInfo）
+- 对话：手动展开的思考在该轮结束后自动收回（1.0.5）
+- 新增设置「Return 发送」：Return 直接发、Shift+Return 换行、⌘/Ctrl+Return 始终发送
+- 1.0.5/1.0.6 的刷新率设置、手机操控报文压缩属于 Android 专属，Mac 不适用
+- 思考预览三行窗口、侧栏逐帧模糊等性能改动缺少源码，等上游公开后再对齐
+

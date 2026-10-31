@@ -89,6 +89,13 @@ class _ThinkingPillState extends State<ThinkingPill> {
   final _translation = _TranslationHolder();
 
   @override
+  void didUpdateWidget(ThinkingPill old) {
+    super.didUpdateWidget(old);
+    // 1.0.5：手动展开的思考在轮次结束后收回。
+    if (old.active && !widget.active && _expanded) setState(() => _expanded = false);
+  }
+
+  @override
   void dispose() {
     _translation.dispose();
     super.dispose();
