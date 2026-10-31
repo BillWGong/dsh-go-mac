@@ -32,6 +32,16 @@ jobs:
           channel: stable
           cache: true
 
+      # macos-15 defaults to an older Xcode whose SDK predates APIs that
+      # current plugins use (connectivity_plus needs NWPath.isUltraConstrained).
+      - name: select the newest Xcode
+        run: |
+          ls -d /Applications/Xcode*.app
+          newest="$(ls -d /Applications/Xcode*.app | sort -V | tail -1)"
+          echo "using $newest"
+          sudo xcode-select -s "$newest"
+          xcodebuild -version
+
       - name: version must match tag
         run: |
           tag="${{ inputs.tag || github.ref_name }}"
