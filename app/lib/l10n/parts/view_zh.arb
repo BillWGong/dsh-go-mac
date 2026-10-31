@@ -926,8 +926,8 @@
   "viewTemplateGlass": "玻璃",
   "viewTemplateCard": "卡片",
   "viewShareProjectQr": "项目主页二维码",
-  "viewShareBrandLine": "手机上的 DSH · 扫码获取",
-  "viewShareBrandLineNoQr": "手机上的 DSH",
+  "viewShareBrandLine": "Mac 上的 DSH · 扫码看项目",
+  "viewShareBrandLineNoQr": "Mac 上的 DSH",
   "viewShareSteps": "{count} 步",
   "@viewShareSteps": {
     "placeholders": {

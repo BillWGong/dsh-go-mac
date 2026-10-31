@@ -16263,7 +16263,7 @@ class L10nEn extends L10n {
   String get stateProviderTokenCountInvalid => 'Enter a number, like 128K';
 
   @override
-  String get appSlogan => 'Anytime, anywhere. Just Go!';
+  String get appSlogan => 'DSH, right on your Mac.';
 
   @override
   String get updateCheck => 'Check for updates';
@@ -17585,10 +17585,10 @@ class L10nEn extends L10n {
   String get viewShareProjectQr => 'Project QR code';
 
   @override
-  String get viewShareBrandLine => 'DSH on your phone · Scan to get it';
+  String get viewShareBrandLine => 'DSH on your Mac · scan for the project';
 
   @override
-  String get viewShareBrandLineNoQr => 'DSH on your phone';
+  String get viewShareBrandLineNoQr => 'DSH on your Mac';
 
   @override
   String viewShareSteps(int count) {

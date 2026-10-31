@@ -28217,7 +28217,7 @@ abstract class L10n {
   /// No description provided for @appSlogan.
   ///
   /// In zh, this message translates to:
-  /// **'随时随刻，想go就Go！'**
+  /// **'把 DSH 装进你的 Mac'**
   String get appSlogan;
 
   /// No description provided for @updateCheck.
@@ -30281,13 +30281,13 @@ abstract class L10n {
   /// No description provided for @viewShareBrandLine.
   ///
   /// In zh, this message translates to:
-  /// **'手机上的 DSH · 扫码获取'**
+  /// **'Mac 上的 DSH · 扫码看项目'**
   String get viewShareBrandLine;
 
   /// No description provided for @viewShareBrandLineNoQr.
   ///
   /// In zh, this message translates to:
-  /// **'手机上的 DSH'**
+  /// **'Mac 上的 DSH'**
   String get viewShareBrandLineNoQr;
 
   /// No description provided for @viewShareSteps.

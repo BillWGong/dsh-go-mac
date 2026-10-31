@@ -416,19 +416,6 @@ enum MacStubs {
 
 // MARK: - 菜单栏 Live Activity
 
-/// 诊断探针：写到 /tmp，避免统一日志过滤掉。
-func dshProbe(_ message: String) {
-  let line = "\(Date()) \(message)\n"
-  let url = URL(fileURLWithPath: "/tmp/dsh-menubar.log")
-  if let handle = try? FileHandle(forWritingTo: url) {
-    handle.seekToEndOfFile()
-    handle.write(line.data(using: .utf8) ?? Data())
-    try? handle.close()
-  } else {
-    try? line.write(to: url, atomically: true, encoding: .utf8)
-  }
-  NSLog("[dsh] %@", message)
-}
 
 /// 状态栏胶囊：引擎/回合/待批准的直接映射，点开是 popover。
 /// Dart 通过 `dsh/menubar` 推 `state`，这里通过 `action` 回动作。
@@ -442,8 +429,7 @@ final class MacMenuBar: NSObject {
   private var state: [String: Any] = [:]
 
   func attach(messenger: FlutterBinaryMessenger) {
-    guard statusItem == nil else { dshProbe("menubar: attach skipped (already)"); return }
-    dshProbe("menubar: attach start")
+    guard statusItem == nil else { return }
     let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
     if let button = item.button {
       button.image = NSImage(systemSymbolName: "water.waves", accessibilityDescription: "DSH Go")
@@ -453,8 +439,6 @@ final class MacMenuBar: NSObject {
       button.sendAction(on: [.leftMouseUp])
     }
     statusItem = item
-    item.isVisible = true
-    dshProbe("menubar: item created button=\(item.button != nil) image=\(item.button?.image != nil) window=\(item.button?.window != nil) length=\(item.length)")
 
     let panel = MacMenuBarPanel()
     panel.onAction = { [weak self] name in self?.perform(name) }
@@ -470,7 +454,6 @@ final class MacMenuBar: NSObject {
         result(FlutterMethodNotImplemented)
         return
       }
-      NSLog("[dsh] menubar: state running=%@ pending=%@", String(describing: args["running"]), String(describing: args["pending"]))
       self?.apply(args)
       result(nil)
     }
