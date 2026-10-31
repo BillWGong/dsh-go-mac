@@ -13,11 +13,11 @@ Apple Silicon · Flutter + Swift · AGPL-3.0
 
 ## 这是什么
 
-DSH Go Mac 让你在 Mac 上使用 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)：
+DSH Go Mac 让你在 Mac 上更好的使用 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)：
 
-- **本机引擎**：不用装 Docker、不用 Linux 虚拟机。App 内置 Node 24 + DSH，点一下就在你的
+- **本机引擎**：不用重新下载 dsh 官方版。App 内置 Node 24 + DSH，点一下就在你的
   Mac 上跑起来，对话、工作区、插件都在本机。
-- **远程主机**：也可以连接电脑或服务器上的 DSH（SSH / DSH Remote），手机上那套体验原样搬过来。
+- **远程主机**：也可以连接电脑或服务器上的 DSH（SSH / DSH Remote），手机上那套体验原样搬过来，也可以让手机版 DSH Go链接电脑上的DSH Go Mac。
 - **原生界面**：不是套壳网页。聊天、工具审批、提问、插件面板、分享卡、桌宠、语音输入都是
   上游那套 Flutter 界面，Mac 上重新接了系统能力。
 
