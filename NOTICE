@@ -1,0 +1,24 @@
+DSH Go Mac
+Copyright (C) 2026 BillWGong and contributors
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU Affero General Public License as published by the Free
+Software Foundation, either version 3 of the License, or (at your option) any
+later version. See LICENSE.
+
+It is a port of DSH Go:
+    https://github.com/ccch1mneyyy/dsh-go
+    Copyright (C) ccch1mneyyy and contributors
+    Licensed AGPL-3.0
+    Ported from commit bf01594 ("DSH Go 1.0.4")
+
+The Flutter UI (app/lib, packages/) comes from DSH Go; the macOS platform layer
+(app/macos, app/lib/macos) and the macOS runtime packaging
+(runtime/build-runtime-macos.sh, tooling/*-macos.sh) are new work for this port.
+
+Bundled runtime: DeepSeek Harness (@deepseek-ai/dsh 0.2.1-rc.4) and its
+dependencies are downloaded at build time and remain under their own licenses.
+See THIRD_PARTY_NOTICES.md and the runtime's licenses directory.
+
+Brand assets: the DSH Go name, logo, Deepy and 鲸娘 mascots are not covered by
+the AGPL. See ASSETS.md.
