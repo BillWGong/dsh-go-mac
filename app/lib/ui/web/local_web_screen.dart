@@ -9,6 +9,7 @@ import '../../runtime/runtime_state.dart';
 import '../../runtime/local_footprint.dart';
 import '../../state/engine_control.dart';
 import '../../state/settings_state.dart';
+import '../../state/ui_mode_state.dart';
 import '../common/empty_view.dart';
 import '../common/progress_halo.dart';
 import '../engine/engine_screen.dart';
@@ -44,12 +45,16 @@ class LocalWebScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final status = ref.watch(localRuntimeProvider.select((s) => s.status));
     final phoneLayout = ref.watch(settingsProvider.select((s) => s.webPhoneLayout));
-    if (status.isRunning) {
+    // The official DSH is reached with a cookie, not a launch token, and its
+    // web UI is the app the user already has open — there is no token to put
+    // in the URL, so this screen cannot show it (docs/macos/README.md §3.3).
+    final token = status.token;
+    if (status.isRunning && token != null) {
       return WebViewPage(
         // A restart issues a new token, and the layout switch applies on
         // load: rebuild the WebView for either.
-        key: ValueKey((status.token, phoneLayout)),
-        url: localWebUri(status.baseUrl!, status.token!),
+        key: ValueKey((token, phoneLayout)),
+        url: localWebUri(status.baseUrl!, token),
         title: context.l10n.webTitle,
         subtitle: context.l10n.commonThisPhone,
         externalDisabledReason: context.l10n.webLocalAppOnly,
@@ -80,6 +85,17 @@ class _NotRunning extends ConsumerWidget {
     final failed = phase == RuntimePhase.error;
     // Nothing on this phone: the one way forward is installing it.
     final missing = state.status.runtimeMissing;
+    // The official DSH is reached with a cookie, so it has no launch token and
+    // this screen cannot show it — the way out is the native interface.
+    final official = state.status.official;
+    final uiMode = ref.read(uiModeProvider.notifier);
+    final toNative = official
+        ? FilledButton(
+            style: FilledButton.styleFrom(minimumSize: const Size(160, 44)),
+            onPressed: () => unawaited(uiMode.set(UiMode.native)),
+            child: Text(context.l10n.webNativeFeatures),
+          )
+        : null;
     return AppPage(
       title: context.l10n.commonWeb,
       showLargeTitle: false,
@@ -107,14 +123,16 @@ class _NotRunning extends ConsumerWidget {
                 switchInCurve: AppMotion.std,
                 switchOutCurve: AppMotion.std,
                 child: EmptyView(
-                  key: ValueKey(phase),
+                  key: ValueKey((phase, official)),
                   art: busy ? const ProgressHalo(size: 96, strokeWidth: 3) : null,
                   icon: failed
                       ? AppIcons.error
                       : missing
                       ? AppIcons.thisPhone
                       : AppIcons.webApp,
-                  title: phase == RuntimePhase.installing
+                  title: official
+                      ? context.l10n.webNativeFeatures
+                      : phase == RuntimePhase.installing
                       ? context.l10n.shellRuntimePreparing
                       : busy
                       ? context.l10n.webEngineStarting
@@ -123,26 +141,29 @@ class _NotRunning extends ConsumerWidget {
                       : missing
                       ? context.l10n.localEnvNotInstalled
                       : context.l10n.webEngineNotRunning,
-                  message: failed
+                  message: official
+                      ? context.l10n.webLocalAppOnly
+                      : failed
                       ? (humanizeRuntimeError(state.status.error) ?? context.l10n.webEngineProblem)
                       : busy
                       ? context.l10n.webStartingSoon
                       : missing
                       ? null
                       : context.l10n.webStartToOpen,
-                  action: missing
-                      ? FilledButton(
-                          style: FilledButton.styleFrom(minimumSize: const Size(160, 44)),
-                          onPressed: () => unawaited(openLocalInstall(context)),
-                          child: Text(context.l10n.phoneEngineInstallRuntime),
-                        )
-                      : canStart
-                      ? FilledButton(
-                          style: FilledButton.styleFrom(minimumSize: const Size(160, 44)),
-                          onPressed: () => unawaited(EngineControl.ensureStarted(ProviderScope.containerOf(context))),
-                          child: Text(failed ? context.l10n.webRestart : context.l10n.webStartEngine),
-                        )
-                      : null,
+                  action: toNative ??
+                      (missing
+                          ? FilledButton(
+                              style: FilledButton.styleFrom(minimumSize: const Size(160, 44)),
+                              onPressed: () => unawaited(openLocalInstall(context)),
+                              child: Text(context.l10n.phoneEngineInstallRuntime),
+                            )
+                          : canStart
+                          ? FilledButton(
+                              style: FilledButton.styleFrom(minimumSize: const Size(160, 44)),
+                              onPressed: () => unawaited(EngineControl.ensureStarted(ProviderScope.containerOf(context))),
+                              child: Text(failed ? context.l10n.webRestart : context.l10n.webStartEngine),
+                            )
+                          : null),
                 ),
               ),
             ),
