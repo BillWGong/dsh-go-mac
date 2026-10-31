@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../l10n/l10n.dart';
+import '../../macos/macos_support.dart';
+import '../../macos/phone_link_page.dart';
 import '../../runtime/runtime_bridge.dart';
 import '../../runtime/runtime_state.dart';
 import '../../runtime/local_footprint.dart';
@@ -153,6 +155,19 @@ class EngineScreen extends ConsumerWidget {
                 ),
               ],
             ),
+            if (isMacDesktop && !status.official)
+              SettingsSection(
+                children: [
+                  SettingsTile(
+                    icon: AppIcons.phoneStorage,
+                    title: AppLocale.isEnglish ? 'Phone link' : '手机连接',
+                    subtitle: AppLocale.isEnglish
+                        ? 'Use this Mac’s built-in DSH from your phone over SSH'
+                        : '用手机 SSH 连这台 Mac 的内置 DSH',
+                    onTap: () => _push(context, const PhoneLinkPage()),
+                  ),
+                ],
+              ),
             SettingsSection(
               title: l10n.phoneEngineRuntime,
               children: [
