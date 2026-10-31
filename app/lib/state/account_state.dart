@@ -14,6 +14,8 @@ import 'dart:async';
 import 'dart:ui' show Brightness;
 
 import 'package:dsh_client/dsh_client.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -286,6 +288,10 @@ class AccountController extends Notifier<AccountState> {
   Timer? _retry;
   int _retryDelay = 2;
   bool _built = false;
+
+  /// A state update deferred out of a build (see [_set]).
+  AccountState? _deferredState;
+
   _Run? _run;
   Completer<AccountApi>? _apiWaiter;
   Brightness? _theme;
@@ -864,10 +870,34 @@ class AccountController extends Notifier<AccountState> {
   };
 
   void _set(AccountState next) {
-    if (ref.mounted) state = next;
+    if (!ref.mounted) return;
+    // Riverpod forbids modifying a provider while the widget tree builds, and
+    // _attach()/_observeMux() are reached from a build (fireImmediately / a
+    // mux state that arrived during one). Apply it once the frame is done —
+    // dropping it would leave `connected` stale for good.
+    if (SchedulerBinding.instance.schedulerPhase == SchedulerPhase.persistentCallbacks) {
+      _deferredState = next;
+      SchedulerBinding.instance.addPostFrameCallback((_) => _flushDeferred());
+      return;
+    }
+    state = next;
+  }
+
+  void _flushDeferred() {
+    final next = _deferredState;
+    _deferredState = null;
+    if (next == null || !ref.mounted) return;
+    // Still building (a nested LayoutBuilder): wait for the next frame.
+    if (SchedulerBinding.instance.schedulerPhase == SchedulerPhase.persistentCallbacks) {
+      _deferredState = next;
+      SchedulerBinding.instance.addPostFrameCallback((_) => _flushDeferred());
+      return;
+    }
+    state = next;
   }
 
   void _dispose() {
+    _deferredState = null;
     _api = null;
     _apiGeneration++;
     _profileGeneration++;
