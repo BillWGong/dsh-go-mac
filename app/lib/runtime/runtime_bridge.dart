@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:dsh_client/dsh_client.dart';
 import 'package:flutter/services.dart';
 
 /// Lifecycle of the on-device Linux runtime and the local DSH server.
@@ -150,6 +151,8 @@ class RuntimeStatus {
     this.nodeVersion,
     this.baseUrl,
     this.token,
+    this.cookie,
+    this.official = false,
     this.managedSkillGeneration,
     this.error,
     this.mode = EngineMode.normal,
@@ -183,6 +186,12 @@ class RuntimeStatus {
   final String? nodeVersion;
   final String? baseUrl;
   final String? token;
+
+  /// 连到「正在运行的官方 DSH」时用它代替 [token]（macOS）。
+  final DshCookie? cookie;
+
+  /// 这个状态来自官方 DSH（而不是内置运行时）。
+  final bool official;
 
   /// Native grant generation for bundled-skill writes only (runtime ready and
   /// Flutter attachment). Unknown means the
@@ -247,7 +256,8 @@ class RuntimeStatus {
     'launchFailureReason': launchFailureReason,
   };
 
-  bool get isRunning => phase == RuntimePhase.running && baseUrl != null && token != null;
+  bool get isRunning =>
+      phase == RuntimePhase.running && baseUrl != null && (token != null || cookie != null);
 
   /// The install stopped because what a reset kept could not go back (Kotlin
   /// `KeepFailed`); `install(dropKept: true)` gives it up and carries on.
@@ -268,6 +278,11 @@ class RuntimeStatus {
     nodeVersion: map['nodeVersion'] as String?,
     baseUrl: map['baseUrl'] as String?,
     token: map['token'] as String?,
+    cookie: switch (map['cookie']) {
+      final Map cookie => DshCookie.fromJson(cookie.cast<String, Object?>()),
+      _ => null,
+    },
+    official: map['official'] == true,
     managedSkillGeneration: switch (map['managedSkillGeneration']) {
       final int value when value > 0 => value,
       _ => null,

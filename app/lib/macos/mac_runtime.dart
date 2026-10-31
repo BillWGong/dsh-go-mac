@@ -23,12 +23,23 @@ import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../runtime/runtime_bridge.dart';
+import 'official_dsh.dart';
 
 /// macOS 上的一条本机引擎。
 class MacRuntimeBridge implements RuntimeBridge {
-  MacRuntimeBridge({String? appSupportPath}) : _appSupportOverride = appSupportPath;
+  MacRuntimeBridge({String? appSupportPath, bool official = false})
+    : _appSupportOverride = appSupportPath,
+      _official = official; // ignore: prefer_initializing_formals
 
   final String? _appSupportOverride;
+
+  /// 用「正在运行的官方 DSH」而不是内置运行时。
+  bool _official;
+  bool get official => _official;
+  OfficialDsh? _officialNow;
+  DateTime? _officialAt;
+
+  static const String _officialNotRunning = '官方 DSH 没有在运行：先打开 DeepSeek Harness，再回到这里。';
 
   static const String _assetDir = 'assets/runtime-macos';
   static const String _manifestAsset = '$_assetDir/manifest.json';
@@ -96,8 +107,86 @@ class MacRuntimeBridge implements RuntimeBridge {
 
   @override
   Future<RuntimeStatus> status() async {
+    if (_official) {
+      final found = await _probeOfficial();
+      return RuntimeStatus.fromMap(_officialStatusMap(found));
+    }
     await _loadInstalledState();
     return RuntimeStatus.fromMap(_statusMap());
+  }
+
+  /// 切换「内置运行时 / 官方 DSH」。
+  Future<void> setOfficial(bool value) async {
+    if (_official == value) return;
+    _official = value;
+    _officialAt = null;
+    _officialNow = null;
+    if (value) {
+      final found = await _probeOfficial(force: true);
+      _emitMap(_officialStatusMap(found));
+    } else {
+      await _loadInstalledState();
+      _emitMap(_statusMap());
+    }
+  }
+
+  /// 官方 DSH 的本地端口 / 密钥可能每次启动都变，缓存几秒即可。
+  Future<OfficialDsh?> _probeOfficial({bool force = false}) async {
+    final at = _officialAt;
+    if (!force && at != null && DateTime.now().difference(at) < const Duration(seconds: 3)) {
+      return _officialNow;
+    }
+    final found = await findOfficialDsh();
+    _officialAt = DateTime.now();
+    _officialNow = found;
+    if (found != null) {
+      _log('[dsh-go] official DSH at ${found.authority}${found.version == null ? '' : ' (v${found.version})'}');
+    }
+    return found;
+  }
+
+  Map<String, Object?> _officialStatusMap(OfficialDsh? found) => <String, Object?>{
+    'phase': found == null ? RuntimePhase.error.name : RuntimePhase.running.name,
+    'abi': 'arm64',
+    'bundledVersion': found?.version,
+    'installedVersion': found?.version,
+    'dshVersion': found?.version,
+    'nodeVersion': null,
+    'baseUrl': found?.baseUri.toString(),
+    'token': null,
+    'cookie': found == null
+        ? null
+        : <String, Object?>{
+            'name': found.cookie.name,
+            'value': found.cookie.value,
+            'authority': found.cookie.authority,
+            'expiresAt': found.cookie.expiresAt?.millisecondsSinceEpoch,
+          },
+    'official': true,
+    'error': found == null ? _officialNotRunning : null,
+    'mode': 'normal',
+    'safeState': 'off',
+    'safeReason': null,
+    'strikes': 0,
+    'autoSafe': true,
+    'failure': null,
+    'mainFailure': null,
+    'healthyAt': null,
+    'networkBlocked': false,
+    'networkBlockedAt': null,
+    'directEngineEnabled': false,
+    'directEngineAvailable': false,
+    'directEngineActive': false,
+    'directEngineFallbackReason': null,
+    'currentExecutionMode': 'official',
+    'launchSelectedMode': 'official',
+    'launchSpawned': found != null,
+    'launchFailureReason': found == null ? _officialNotRunning : null,
+    'tidyingFiles': false,
+  };
+
+  void _emitMap(Map<String, Object?> map) {
+    if (!_events.isClosed) _events.add(RuntimeStatusEvent(RuntimeStatus.fromMap(map)));
   }
 
   Map<String, Object?> _statusMap() => <String, Object?>{
@@ -246,6 +335,9 @@ class MacRuntimeBridge implements RuntimeBridge {
 
   @override
   Future<void> install({bool dropKept = false}) async {
+    if (_official) {
+      throw PlatformException(code: 'official', message: '官方 DSH 由它自己管理，不需要安装运行环境。');
+    }
     if (_phase == RuntimePhase.installing) {
       throw PlatformException(code: 'install_busy');
     }
@@ -411,6 +503,15 @@ class MacRuntimeBridge implements RuntimeBridge {
     EngineMode? mode,
     bool visualReplies = true,
   }) async {
+    if (_official) {
+      final found = await _probeOfficial(force: true);
+      if (found == null) {
+        _emitMap(_officialStatusMap(null));
+        throw PlatformException(code: 'official_not_running', message: _officialNotRunning);
+      }
+      _emitMap(_officialStatusMap(found));
+      return;
+    }
     if (_starting || _process != null) return;
     await _loadInstalledState();
     if (_installedVersion == null) {
@@ -596,6 +697,11 @@ class MacRuntimeBridge implements RuntimeBridge {
 
   @override
   Future<void> stop() async {
+    if (_official) {
+      // 官方 DSH 由它自己的 App 管理，这里只是断开连接。
+      _log('[dsh-go] official DSH keeps running; quit DeepSeek Harness to stop it');
+      return;
+    }
     final process = _process;
     if (process == null) {
       if (_phase != RuntimePhase.notInstalled) _phase = RuntimePhase.installed;

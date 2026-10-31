@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app.dart';
 import 'dev/frame_probe.dart';
@@ -10,6 +11,7 @@ import 'diagnostics/app_error_log.dart';
 import 'launch/launch_state.dart';
 import 'macos/mac_runtime.dart';
 import 'macos/macos_support.dart';
+import 'macos/official_dsh.dart';
 import 'runtime/runtime_state.dart';
 import 'state/locale_state.dart';
 import 'ui/common/third_party_licenses.dart';
@@ -34,7 +36,14 @@ Future<void> _startApp() async {
   // macOS: 窗口版式。原生缺席时立刻返回。
   await startMacSupport();
   // macOS 的本机引擎换成原生 Node 实现；其他平台保持 Kotlin/Android 原样。
-  final macRuntime = isMacDesktop ? MacRuntimeBridge() : null;
+  // 「使用官方 DSH」的开关在启动时读一次（切换时由设置页调用 setOfficial）。
+  var officialDsh = false;
+  if (isMacDesktop) {
+    try {
+      officialDsh = (await SharedPreferences.getInstance()).getBool(macOfficialDshPref) ?? false;
+    } catch (_) {}
+  }
+  final macRuntime = isMacDesktop ? MacRuntimeBridge(official: officialDsh) : null;
   if (macRuntime != null) {
     // 关窗/退出时先停引擎，别留下孤儿 Node 进程占着端口。
     // 监听器由 WidgetsBinding 持有，不需要另外保存。
@@ -49,6 +58,7 @@ Future<void> _startApp() async {
     ProviderScope(
       overrides: [
         if (macRuntime != null) runtimeBridgeProvider.overrideWithValue(macRuntime),
+        if (macRuntime != null) macRuntimeBridgeProvider.overrideWithValue(macRuntime),
       ],
       child: const DshApp(),
     ),

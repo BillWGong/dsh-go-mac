@@ -9,8 +9,15 @@
 import 'dart:io' show Platform;
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'mac_runtime.dart';
 import 'window_mode.dart';
+
+/// 本机引擎的实例：main.dart 创建并通过 ProviderScope 覆盖，界面用它切换模式。
+final macRuntimeBridgeProvider = Provider<MacRuntimeBridge>(
+  (ref) => throw UnimplementedError('macRuntimeBridgeProvider 只在 macOS 上覆盖'),
+);
 
 /// 这个进程是不是 macOS 桌面版。
 bool get isMacDesktop => !kIsWeb && Platform.isMacOS;

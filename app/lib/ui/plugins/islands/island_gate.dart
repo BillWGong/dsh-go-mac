@@ -134,7 +134,9 @@ final islandHostUrlProvider = Provider.autoDispose.family<Uri?, HostRef>((ref, h
     case HostKind.local:
       final status = ref.watch(localRuntimeProvider.select((s) => s.status));
       if (!status.isRunning || status.baseUrl == null || status.token == null) return null;
-      return islandLaunchUri(status.baseUrl!, status.token!);
+      final token = status.token;
+      if (token == null || token.isEmpty) return null;
+      return islandLaunchUri(status.baseUrl!, token);
     case HostKind.ssh:
       ref.watch(hostLinkStatusProvider(host));
       final link = ref.watch(hostLinkProvider(host));
