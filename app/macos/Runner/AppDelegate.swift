@@ -5,6 +5,7 @@ import FlutterMacOS
 class AppDelegate: FlutterAppDelegate {
   override func applicationDidFinishLaunching(_ notification: Notification) {
     // 菜单栏按 Mac 习惯重排（原版 Android 没有菜单）。
+    dshProbe("applicationDidFinishLaunching")
     MacHost.shared.installMenu()
     super.applicationDidFinishLaunching(notification)
     DispatchQueue.main.async {
@@ -12,7 +13,12 @@ class AppDelegate: FlutterAppDelegate {
          let controller = window.contentViewController as? FlutterViewController {
         MacMenuBar.shared.attach(messenger: controller.engine.binaryMessenger)
       } else {
-        NSLog("[dsh] menubar: no FlutterViewController at launch")
+        dshProbe("menubar: no FlutterViewController at launch")
+      }
+      // 主窗口被关掉时（桌宠窗口让 App 继续活着）把文档窗口拉回来。
+      if let window = NSApp.windows.first(where: { $0 is MainFlutterWindow }) {
+        dshProbe("main window visible=\(window.isVisible)")
+        if !window.isVisible { window.makeKeyAndOrderFront(nil) }
       }
     }
   }
