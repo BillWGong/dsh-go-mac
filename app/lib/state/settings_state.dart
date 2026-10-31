@@ -22,6 +22,7 @@ class AppSettings {
     this.webPhoneLayout = true,
     this.chatTextScale = 1.0,
     this.foldCompletedTurns = true,
+    this.sendOnEnter = false,
     this.visualReplies = true,
     this.customProviderIds = const {},
     this.loaded = false,
@@ -55,6 +56,10 @@ class AppSettings {
   /// messages into one summary line above the answer (DSH Web's default).
   final bool foldCompletedTurns;
 
+  /// 硬件键盘上按 Return 直接发送（Shift+Return 换行）。关着时 Return 换行，
+  /// ⌘/Ctrl+Return 发送——上游的默认。
+  final bool sendOnEnter;
+
   /// Tell the local DSH it may answer with ```dsh-ui views (charts, cards,
   /// options): a section of the managed AGENTS.md, written at engine start.
   /// Off only drops the instructions; views that arrive are still drawn.
@@ -81,6 +86,7 @@ class AppSettings {
     bool? webPhoneLayout,
     double? chatTextScale,
     bool? foldCompletedTurns,
+    bool? sendOnEnter,
     bool? visualReplies,
     Set<String>? customProviderIds,
     bool? loaded,
@@ -117,6 +123,7 @@ class SettingsController extends Notifier<AppSettings> {
   static const _webPhoneLayoutKey = 'web_phone_layout';
   static const _chatTextScaleKey = 'chat_text_scale';
   static const _foldTurnsKey = 'fold_completed_turns';
+  static const _sendOnEnterKey = 'send_on_enter';
   static const _visualRepliesKey = 'visual_replies';
   static const _secure = FlutterSecureStorage();
   late Future<void> _loaded;
@@ -162,6 +169,7 @@ class SettingsController extends Notifier<AppSettings> {
       webPhoneLayout: prefs.getBool(_webPhoneLayoutKey) ?? true,
       chatTextScale: _knownScale(prefs.getDouble(_chatTextScaleKey)),
       foldCompletedTurns: prefs.getBool(_foldTurnsKey) ?? true,
+      sendOnEnter: prefs.getBool(_sendOnEnterKey) ?? false,
       visualReplies: prefs.getBool(_visualRepliesKey) ?? true,
       customProviderIds: providerIds,
       loaded: true,
@@ -223,6 +231,12 @@ class SettingsController extends Notifier<AppSettings> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_foldTurnsKey, value);
     state = state.copyWith(foldCompletedTurns: value);
+  }
+
+  Future<void> setSendOnEnter(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_sendOnEnterKey, value);
+    state = state.copyWith(sendOnEnter: value);
   }
 
   /// Takes effect at the next engine start (the instructions live in the

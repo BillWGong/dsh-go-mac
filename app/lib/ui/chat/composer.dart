@@ -7,8 +7,10 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../l10n/l10n.dart';
+import '../../state/settings_state.dart';
 import '../common/expand_reveal.dart';
 import '../pets/pet_perch.dart';
 import '../settings/voice_settings_page.dart';
@@ -155,6 +157,15 @@ class _ComposerState extends State<Composer> {
     widget.onStop();
   }
 
+  /// 读一次设置（没有 ProviderScope 的测试里退回上游行为）。
+  bool _sendOnEnterEnabled() {
+    try {
+      return ProviderScope.containerOf(context, listen: false).read(settingsProvider).sendOnEnter;
+    } catch (_) {
+      return false;
+    }
+  }
+
   /// Hardware keyboards: Ctrl/⌘+Enter sends (plain Enter is a new line);
   /// Two consecutive Esc presses within 500 ms stop the turn. The pair is
   /// local to the focused, eligible editor; a single Esc never leaves it.
@@ -168,8 +179,11 @@ class _ComposerState extends State<Composer> {
     final keys = HardwareKeyboard.instance;
     final key = event.logicalKey;
     if (key != LogicalKeyboardKey.escape) _lastEscape = null;
-    if ((keys.isControlPressed || keys.isMetaPressed) &&
-        (key == LogicalKeyboardKey.enter || key == LogicalKeyboardKey.numpadEnter)) {
+    final enter = key == LogicalKeyboardKey.enter || key == LogicalKeyboardKey.numpadEnter;
+    final accelerator = keys.isControlPressed || keys.isMetaPressed;
+    // 设置 › Return 发送：Return 直接发，Shift+Return 换行；⌘/Ctrl+Return 始终发送。
+    final plainEnterSends = enter && !accelerator && !keys.isShiftPressed && _sendOnEnterEnabled();
+    if (enter && (accelerator || plainEnterSends)) {
       final draft = widget.controller.text.trim().isNotEmpty || widget.hasAttachments;
       final dictating = widget.voice?.active ?? false;
       if (draft && widget.connected && !widget.busy && !dictating) _send();
