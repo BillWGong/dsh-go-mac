@@ -34,13 +34,17 @@ jobs:
 
       # macos-15 defaults to an older Xcode whose SDK predates APIs that
       # current plugins use (connectivity_plus needs NWPath.isUltraConstrained).
+      # DEVELOPER_DIR is what build-macos.sh and flutter honour; switching
+      # xcode-select alone still resolved MacOSX15.5.sdk in the compile step.
       - name: select the newest Xcode
         run: |
           ls -d /Applications/Xcode*.app
           newest="$(ls -d /Applications/Xcode*.app | sort -V | tail -1)"
           echo "using $newest"
           sudo xcode-select -s "$newest"
-          xcodebuild -version
+          echo "DEVELOPER_DIR=$newest/Contents/Developer" >> "$GITHUB_ENV"
+          DEVELOPER_DIR="$newest/Contents/Developer" xcodebuild -version
+          DEVELOPER_DIR="$newest/Contents/Developer" xcrun --sdk macosx --show-sdk-version
 
       - name: version must match tag
         run: |
@@ -71,7 +75,12 @@ jobs:
             runtime-
 
       - name: build dmg
-        run: bash tooling/build-macos.sh --dmg
+        run: |
+          echo "DEVELOPER_DIR=$DEVELOPER_DIR"
+          xcrun --sdk macosx --show-sdk-path
+          bash tooling/build-macos.sh --dmg
+        env:
+          DEVELOPER_DIR: ${{ env.DEVELOPER_DIR }}
 
       - name: checksums
         working-directory: app/build/macos
