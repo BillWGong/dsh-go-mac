@@ -117,7 +117,9 @@ class MacRuntimeBridge implements RuntimeBridge {
 
   /// 切换「内置运行时 / 官方 DSH」。
   Future<void> setOfficial(bool value) async {
-    if (_official == value) return;
+    // 切回官方时即使已经是 official 也重新探测：官方 App 的端口和会话密钥
+    // 每次启动都变，用户点了「官方」就是在请求刷新。
+    if (_official == value && !value) return;
     _official = value;
     _officialAt = null;
     _officialNow = null;
@@ -135,7 +137,9 @@ class MacRuntimeBridge implements RuntimeBridge {
   /// 官方 DSH 的本地端口 / 密钥可能每次启动都变，缓存几秒即可。
   Future<OfficialDsh?> _probeOfficial({bool force = false}) async {
     final at = _officialAt;
-    if (!force && at != null && DateTime.now().difference(at) < const Duration(seconds: 3)) {
+    // 只缓存探测成功的结果：没找到通常只是官方 App 还没开始监听端口，
+    // 把它缓存 3 秒会让用户刚启动官方 App 后的切换像是没反应。
+    if (!force && _officialNow != null && at != null && DateTime.now().difference(at) < const Duration(seconds: 3)) {
       return _officialNow;
     }
     final found = await findOfficialDsh();
