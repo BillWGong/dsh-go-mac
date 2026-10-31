@@ -100,6 +100,7 @@ class AppSettings {
     webPhoneLayout: webPhoneLayout ?? this.webPhoneLayout,
     chatTextScale: chatTextScale ?? this.chatTextScale,
     foldCompletedTurns: foldCompletedTurns ?? this.foldCompletedTurns,
+    sendOnEnter: sendOnEnter ?? this.sendOnEnter,
     visualReplies: visualReplies ?? this.visualReplies,
     customProviderIds: customProviderIds ?? this.customProviderIds,
     loaded: loaded ?? this.loaded,
