@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'overlay_channel.dart';
 import 'pet_overlay_actions.dart';
+import 'pet_prefs.dart';
 import 'pet_signals.dart';
 import 'pet_state.dart';
 import 'pet_voice_dialog.dart';
@@ -21,6 +22,16 @@ final petOverlayPushProvider = Provider<Future<void> Function(PetState state)>(
 /// native side in tests, or the overlay is off.
 final petOverlayBridgeProvider = Provider<void>((ref) {
   ref.watch(petOverlayActionBridgeProvider);
+  // 大小 / 主题这类偏好不一定会改变 mood state，单独补一次推送。
+  ref.listen<PetSize>(petPrefsProvider.select((p) => p.size), (previous, next) {
+    if (previous == next) return;
+    final push = ref.read(petOverlayPushProvider);
+    unawaited(() async {
+      try {
+        await push(ref.read(petStateProvider));
+      } catch (_) {}
+    }());
+  });
   ref.listen<PetState>(petStateProvider, (previous, next) {
     if (previous == next) return;
     final push = ref.read(petOverlayPushProvider);
