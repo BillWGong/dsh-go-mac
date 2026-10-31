@@ -18,7 +18,6 @@ class MainFlutterWindow: NSWindow {
 
     RegisterGeneratedPlugins(registry: flutterViewController)
     MacHost.shared.attach(window: self, controller: flutterViewController)
-    MacMenuBar.shared.attach(messenger: flutterViewController.engine.binaryMessenger)
 
     super.awakeFromNib()
   }

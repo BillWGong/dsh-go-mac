@@ -7,6 +7,14 @@ class AppDelegate: FlutterAppDelegate {
     // 菜单栏按 Mac 习惯重排（原版 Android 没有菜单）。
     MacHost.shared.installMenu()
     super.applicationDidFinishLaunching(notification)
+    DispatchQueue.main.async {
+      if let window = NSApp.windows.first(where: { $0 is MainFlutterWindow }),
+         let controller = window.contentViewController as? FlutterViewController {
+        MacMenuBar.shared.attach(messenger: controller.engine.binaryMessenger)
+      } else {
+        NSLog("[dsh] menubar: no FlutterViewController at launch")
+      }
+    }
   }
 
   override func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
