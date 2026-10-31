@@ -1,0 +1,94 @@
+name: release-macos
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: '要发布到的 tag（例如 v1.0.7）'
+        required: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 60
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.47.7
+          channel: stable
+          cache: true
+
+      - name: version must match tag
+        run: |
+          tag="${{ inputs.tag || github.ref_name }}"
+          version="$(grep -m1 '^version:' app/pubspec.yaml | awk '{print $2}' | cut -d+ -f1)"
+          echo "tag=$tag version=$version"
+          if [[ "${tag#v}" != "$version" ]]; then
+            echo "::error::tag ${tag} 与 app/pubspec.yaml 的版本 ${version} 不一致"
+            exit 1
+          fi
+
+      - name: Cache SwiftPM
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/Library/Caches/org.swift.swiftpm
+            app/build/macos/SourcePackages
+          key: spm-${{ runner.os }}-${{ hashFiles('app/pubspec.lock') }}
+          restore-keys: spm-${{ runner.os }}-
+
+      - name: Cache runtime archive
+        uses: actions/cache@v4
+        with:
+          path: app/assets/runtime-macos/runtime-arm64.tar.gz
+          key: runtime-${{ hashFiles('runtime/build-runtime-macos.sh', 'runtime/locks/**', 'runtime/bridge/**') }}
+          restore-keys: runtime-
+
+      - name: build dmg
+        run: bash tooling/build-macos.sh --dmg
+
+      - name: checksums
+        working-directory: app/build/macos
+        run: |
+          shasum -a 256 *.dmg | tee SHA256SUMS
+          ls -lh *.dmg
+
+      - name: publish draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="${{ inputs.tag || github.ref_name }}"
+          dmg="$(ls app/build/macos/*.dmg)"
+
+          if gh release view "$tag" >/dev/null 2>&1; then
+            echo "release $tag 已存在，更新资产"
+            gh release upload "$tag" "$dmg" app/build/macos/SHA256SUMS --clobber
+          else
+            echo "创建 draft release $tag"
+            gh release create "$tag" \
+              "$dmg" \
+              app/build/macos/SHA256SUMS \
+              --title "DSH Go Mac ${tag#v}" \
+              --draft \
+              --notes "未签名构建。首次打开会被 Gatekeeper 拦：右键 →「打开」，或
+
+          \`\`\`bash
+          xattr -dr com.apple.quarantine \"/Applications/DSH Go Mac.app\"
+          \`\`\`
+
+          需要 Apple Silicon / macOS 12+。"
+          fi
