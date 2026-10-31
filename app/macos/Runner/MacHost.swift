@@ -419,7 +419,8 @@ final class MacMenuBar: NSObject {
 
   func attach(messenger: FlutterBinaryMessenger) {
     guard statusItem == nil else { return }
-    let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+    NSLog("[dsh] menubar: attach")
+    let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
     if let button = item.button {
       button.image = NSImage(systemSymbolName: "water.waves", accessibilityDescription: "DSH Go")
       button.imagePosition = .imageLeading
@@ -443,6 +444,7 @@ final class MacMenuBar: NSObject {
         result(FlutterMethodNotImplemented)
         return
       }
+      NSLog("[dsh] menubar: state running=%@ pending=%@", String(describing: args["running"]), String(describing: args["pending"]))
       self?.apply(args)
       result(nil)
     }
@@ -475,6 +477,7 @@ final class MacMenuBar: NSObject {
     button.image = NSImage(systemSymbolName: symbol, accessibilityDescription: "DSH Go")
     button.contentTintColor = tint
     button.title = running ? " \(elapsed)s" : (pending > 0 ? " \(pending)" : "")
+    statusItem?.length = button.title.isEmpty ? NSStatusItem.squareLength : NSStatusItem.variableLength
     button.toolTip = running ? "\(host) · 回合进行中 \(elapsed)s" : (pending > 0 ? "\(host) · \(pending) 个待批准" : host)
 
     updatePulse(pending > 0)
