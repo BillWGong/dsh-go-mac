@@ -10,6 +10,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 import '../../l10n/l10n.dart';
+import '../../macos/macos_support.dart';
 import '../common/empty_view.dart';
 import '../common/expand_reveal.dart';
 import '../shell/page_frame.dart';
@@ -187,10 +188,14 @@ class WebPageInsets {
     required double keyboard,
     required bool dshWeb,
     required bool adapt,
+    bool mac = false,
   }) {
     final typing = keyboard > 0;
-    final gesture = math.max(padding.bottom, WebChromeMetrics.gestureFloor);
-    final topChrome = padding.top + WebChromeMetrics.barHeight;
+    // A Mac window has no status bar, no gesture bar and no notch: reserving
+    // room for them pushes DSH Web's own header down and leaves a band above
+    // and below the page.
+    final gesture = mac ? 0.0 : math.max(padding.bottom, WebChromeMetrics.gestureFloor);
+    final topChrome = mac ? 0.0 : padding.top + WebChromeMetrics.barHeight;
     if (!dshWeb) {
       // The page's content starts where the feather runs out, fully clear at
       // rest. Its sides are the WebView's own bounds (see [WebViewPage]).
@@ -553,6 +558,9 @@ class _WebViewPageState extends State<WebViewPage> {
   bool _dark = false;
   int _textZoom = 100;
 
+  /// The page has painted at least once, so the boot cover is gone.
+  bool _revealed = false;
+
   @override
   void initState() {
     super.initState();
@@ -566,6 +574,7 @@ class _WebViewPageState extends State<WebViewPage> {
   void _open() {
     final controller = _controller = WebViewController();
     _loading = true;
+    _revealed = false;
     _progress = 0;
     _error = null;
     _appliedInsets = null;
@@ -580,10 +589,24 @@ class _WebViewPageState extends State<WebViewPage> {
           NavigationDelegate(
             // DSH Web keeps to its own origin; other pages open in the browser.
             onNavigationRequest: widget.dshWeb ? _onDshWebNavigation : null,
-            onPageStarted: (_) => _set(() {
-              _loading = true;
-              _error = null;
-            }),
+            onPageStarted: (_) {
+              // The document exists now: give it the app's colours before it
+              // paints, since macOS refuses setBackgroundColor (see _syncLook).
+              unawaited(
+                controller
+                    .runJavaScript(
+                      'try {'
+                      'document.documentElement.style.background = "${_cssColor(_background(Theme.of(context).brightness))}";'
+                      'document.documentElement.style.colorScheme = "${_dark ? 'dark' : 'light'}";'
+                      '} catch (_) {}',
+                    )
+                    .catchError((_) {}),
+              );
+              _set(() {
+                _loading = true;
+                _error = null;
+              });
+            },
             onProgress: (p) => _set(() => _progress = p),
             onPageFinished: (_) {
               _set(() => _loading = false);
@@ -627,6 +650,16 @@ class _WebViewPageState extends State<WebViewPage> {
     await _guard.attach(controller, dark: _dark, textZoom: _textZoom);
     if (!mounted || controller != _controller) return;
     await controller.loadRequest(widget.url).catchError((_) {});
+  }
+
+  static String _cssColor(Color c) {
+    final v = c.toARGB32();
+    final r = (v >> 16) & 0xFF;
+    final g = (v >> 8) & 0xFF;
+    final b = v & 0xFF;
+    return '#${r.toRadixString(16).padLeft(2, '0')}'
+        '${g.toRadixString(16).padLeft(2, '0')}'
+        '${b.toRadixString(16).padLeft(2, '0')}';
   }
 
   void _onRendererGone(bool crashed) {
@@ -912,6 +945,7 @@ class _WebViewPageState extends State<WebViewPage> {
       keyboard: keyboard,
       dshWeb: widget.dshWeb,
       adapt: widget._adapt,
+      mac: isMacDesktop,
     );
     // DSH Web lifts its root above the keyboard; other pages shrink above it.
     final shrink = widget.dshWeb ? 0.0 : keyboard;
@@ -947,6 +981,22 @@ class _WebViewPageState extends State<WebViewPage> {
                     ? const SizedBox.expand()
                     : WebViewWidget(key: ValueKey(_generation), controller: _controller),
               ),
+              // macOS cannot paint a WKWebView's background before its content
+              // arrives, so cover it with the page colour until the first
+              // frame and fade out — otherwise every open flashes white.
+              if (!_gone && !_revealed)
+                Positioned.fill(
+                  child: IgnorePointer(
+                    child: AnimatedOpacity(
+                      opacity: _loading ? 1 : 0,
+                      duration: AppMotion.of(context, AppMotion.quick),
+                      onEnd: () {
+                        if (mounted && !_loading) setState(() => _revealed = true);
+                      },
+                      child: ColoredBox(color: bg),
+                    ),
+                  ),
+                ),
               // No divider: the page colour fades in behind the controls.
               if (!widget.dshWeb)
                 Positioned(
