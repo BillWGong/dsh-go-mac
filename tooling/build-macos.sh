@@ -69,6 +69,12 @@ cd "$APP"
 
 out="$APP/build/macos/Build/Products/$(tr '[:lower:]' '[:upper:]' <<<"${mode:0:1}")${mode:1}/dsh_go.app"
 [[ -d "$out" ]] || die "构建完成但没找到 $out"
+
+# 运行时要完整：tar 和 manifest 必须都在 App 里，否则装上后「安装运行环境」会失败。
+runtime_assets="$out/Contents/Frameworks/App.framework/Resources/flutter_assets/assets/runtime-macos"
+for f in runtime-arm64.tar.gz manifest.json; do
+  [[ -f "$runtime_assets/$f" ]] || die "运行时不完整：App 里缺少 $f（先跑 runtime/build-runtime-macos.sh）"
+done
 echo
 echo "App: $out"
 echo "运行：open \"$out\""
