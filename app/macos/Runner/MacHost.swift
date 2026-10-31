@@ -229,21 +229,6 @@ final class MacHost: NSObject {
     appMenu.addItem(.separator())
     appMenu.addItem(withTitle: "退出 \(appName)", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
 
-    // 编辑：Flutter 的文本框走标准 selector
-    let editItem = NSMenuItem()
-    main.addItem(editItem)
-    let edit = NSMenu(title: "编辑")
-    editItem.submenu = edit
-    edit.addItem(withTitle: "撤销", action: Selector(("undo:")), keyEquivalent: "z")
-    let redo = NSMenuItem(title: "重做", action: Selector(("redo:")), keyEquivalent: "z")
-    redo.keyEquivalentModifierMask = [.command, .shift]
-    edit.addItem(redo)
-    edit.addItem(.separator())
-    edit.addItem(withTitle: "剪切", action: #selector(NSText.cut(_:)), keyEquivalent: "x")
-    edit.addItem(withTitle: "拷贝", action: #selector(NSText.copy(_:)), keyEquivalent: "c")
-    edit.addItem(withTitle: "粘贴", action: #selector(NSText.paste(_:)), keyEquivalent: "v")
-    edit.addItem(withTitle: "全选", action: #selector(NSText.selectAll(_:)), keyEquivalent: "a")
-
     // 显示
     let viewItem = NSMenuItem()
     main.addItem(viewItem)
