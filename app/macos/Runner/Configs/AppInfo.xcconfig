@@ -1,0 +1,10 @@
+// Runner 目标的应用级设置。
+
+// 可执行文件名（.app 里的 MacOS/dsh_go）；界面显示名在 Info.plist 的 CFBundleDisplayName。
+PRODUCT_NAME = dsh_go
+
+// Bundle identifier
+PRODUCT_BUNDLE_IDENTIFIER = io.github.billwgong.dshgomac
+
+// 关于窗口里的版权
+PRODUCT_COPYRIGHT = © 2026 DSH Go contributors · AGPL-3.0
