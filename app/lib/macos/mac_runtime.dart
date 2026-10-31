@@ -515,12 +515,14 @@ class MacRuntimeBridge implements RuntimeBridge {
       return;
     }
     if (_starting || _process != null) return;
+    // 占位必须在第一个 await 之前：自动启动可能从 build 和 listener 各来一次。
+    _starting = true;
     await _loadInstalledState();
     if (_installedVersion == null) {
+      _starting = false;
       throw PlatformException(code: 'not_installed', message: 'runtime is not installed');
     }
     if (mode != null) _mode = mode;
-    _starting = true;
     _phase = RuntimePhase.starting;
     _error = null;
     _failure = null;
@@ -535,6 +537,7 @@ class MacRuntimeBridge implements RuntimeBridge {
       await home.create(recursive: true);
       // 上次退出没能收掉的引擎（崩溃、强制退出）不能占着端口。
       await _reapStale(runtimeDir);
+      await _ensureSupportSkill(await _dshHome());
       final port = await _pickPort();
       _port = port;
 
@@ -573,14 +576,20 @@ class MacRuntimeBridge implements RuntimeBridge {
       _stopping = false;
 
       process.stdout.transform(utf8.decoder).transform(const LineSplitter()).listen(
-        (line) => _onLine(line, 'stdout'),
+        (line) {
+          if (identical(_process, process)) _onLine(line, 'stdout');
+        },
         onError: (Object e) => _log('[dsh-go] stdout: $e', 'stderr'),
       );
       process.stderr.transform(utf8.decoder).transform(const LineSplitter()).listen(
-        (line) => _onLine(line, 'stderr'),
+        (line) {
+          if (identical(_process, process)) _onLine(line, 'stderr');
+        },
         onError: (Object e) => _log('[dsh-go] stderr: $e', 'stderr'),
       );
-      unawaited(process.exitCode.then((code) => _onExit(code)));
+      unawaited(process.exitCode.then((code) {
+        if (identical(_process, process)) _onExit(code);
+      }));
     } catch (error) {
       _starting = false;
       _process = null;
@@ -618,7 +627,10 @@ class MacRuntimeBridge implements RuntimeBridge {
   Future<void> _becameReady() async {
     final port = _port;
     if (port == null) return;
-    for (var i = 0; i < 60; i++) {
+    // token 行意味着服务已经在监听；先把手机握手写好，别被后面的探活超时拖累。
+    if (!_official) await _publishPhoneAttach();
+    await _writeDiagnostics();
+    for (var i = 0; i < 120; i++) {
       try {
         final socket = await Socket.connect('127.0.0.1', port, timeout: const Duration(milliseconds: 500));
         socket.destroy();
@@ -628,8 +640,6 @@ class MacRuntimeBridge implements RuntimeBridge {
         if (_safeState == SafeModeState.probation) _safeState = SafeModeState.off;
         _emit();
         await _saveState();
-        // 让手机端的 SSH 连接复用这个引擎：写 ~/.dsh-app-remote 握手文件。
-        if (!_official) await _publishPhoneAttach();
         _healthTimer?.cancel();
         _healthTimer = Timer(const Duration(milliseconds: _healthyMs), () {
           _log('[dsh-go] engine stayed healthy for ${_healthyMs ~/ 1000}s');
@@ -784,6 +794,76 @@ class MacRuntimeBridge implements RuntimeBridge {
     } catch (error) {
       _log('[dsh-go] phone attach failed: $error', 'stderr');
     }
+  }
+
+  /// 1.0.7：引擎起来后写一份脱敏诊断，供 AI（dsh-go-support 技能）排查。
+  Future<void> _writeDiagnostics() async {
+    try {
+      final dshHome = await _dshHome();
+      final dir = Directory('${dshHome.path}/dsh-app');
+      await dir.create(recursive: true);
+      final model = await Process.run('/usr/sbin/sysctl', <String>['-n', 'hw.model']);
+      final arch = await Process.run('/usr/bin/uname', <String>['-m']);
+      final tail = _logs.length > 60 ? _logs.sublist(_logs.length - 60) : List<String>.of(_logs);
+      final archText = '${arch.stdout}'.trim();
+      final modelText = '${model.stdout}'.trim();
+      String clean(String line) => line
+          .replaceAll(RegExp(r'token=[A-Za-z0-9._~-]+'), 'token=<redacted>')
+          .replaceAllMapped(
+            RegExp(r'(key|secret|password)=\S+', caseSensitive: false),
+            (match) => '${match[1]}=<redacted>',
+          );
+      final buffer = StringBuffer()
+        ..writeln('# DSH Go Mac diagnostics')
+        ..writeln()
+        ..writeln('- app: DSH Go Mac 1.0.7')
+        ..writeln('- platform: macOS ${Platform.operatingSystemVersion}')
+        ..writeln('- arch: $archText')
+        ..writeln('- model: $modelText')
+        ..writeln('- engine: bundled (DSH ${_dshVersion ?? '?'}, Node ${_nodeVersion ?? '?'})')
+        ..writeln('- runtime: ${_installedVersion ?? 'not installed'}')
+        ..writeln('- phase: ${_phase.name}')
+        ..writeln('- baseUrl: ${_baseUrl ?? '-'}')
+        ..writeln('- safe mode: ${_safeState.name}${_safeReason == null ? '' : ' ($_safeReason)'}')
+        ..writeln('- strikes: $_strikes')
+        ..writeln('- recent failure: ${_failure?.summary ?? '-'}')
+        ..writeln()
+        ..writeln('## Log tail')
+        ..writeln('```')
+        ..writeAll(tail.map(clean), '\n')
+        ..writeln()
+        ..writeln('```');
+      final file = File('${dir.path}/diagnostics.md');
+      await file.writeAsString(buffer.toString());
+      await Process.run('/bin/chmod', <String>['600', file.path]);
+      await _ensureSupportSkill(dshHome);
+    } catch (_) {
+      // 诊断写不出来不影响引擎。
+    }
+  }
+
+  /// 内置技能：告诉模型先读诊断，再按症状回答。
+  Future<void> _ensureSupportSkill(Directory dshHome) async {
+    final dir = Directory('${dshHome.path}/skills/dsh-go-support');
+    final file = File('${dir.path}/SKILL.md');
+    if (await file.exists()) return;
+    await dir.create(recursive: true);
+    await file.writeAsString('''---
+name: dsh-go-support
+description: DSH Go Mac 的排障。用户说 App 连不上、引擎起不来、手机连不上、更新异常，或要你「看下诊断」时，先读 \$DSH_HOME/dsh-app/diagnostics.md（脱敏的版本、设备、运行时、启动方式、最近错误和日志尾部），再按症状给出结论和可直接粘贴的 issue 草稿。
+whenToUse: 用户在 DSH Go Mac 上遇到连接、引擎、手机连接或更新问题，或直接要求排查这个 App。
+---
+
+# DSH Go Mac 排障
+
+1. 先读 `\$DSH_HOME/dsh-app/diagnostics.md`。里面已有版本、macOS 版本与机型、引擎类型、启动方式、
+   连接地址、安全模式、最近失败和日志尾部；不要重复问用户这些。
+2. 日志里的 token 已被替换为 `<redacted>`，不要尝试恢复。
+3. 手机连接问题：确认 App 在「本地 DSH · 自带」模式、内置引擎运行中，且 `~/.dsh-app-remote/`
+   里有 `web.pid`、`web.st`、`web.cmd`、`web.log`；再检查 Mac 的「远程登录」是否开启。
+4. 官方 DSH 与内置引擎是两套数据：官方用 `~/.dsh`，内置引擎用 App 自己的数据目录；不要把两者混在一起排查。
+5. 结论要短：现象 → 原因 → 下一步。需要报 issue 时给一段可以直接粘贴的中文草稿，附上诊断里的版本与错误行。
+''');
   }
 
   Future<void> _clearPhoneAttach() async {
