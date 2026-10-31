@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../l10n/l10n.dart';
+import '../../macos/macos_support.dart';
 import '../../runtime/runtime_state.dart';
 import '../../state/connection_state.dart';
 import '../../state/hosts_state.dart';
@@ -43,7 +44,7 @@ HostStatusView watchHostStatus(WidgetRef ref, HostRef host) {
 }
 
 IconData hostKindIcon(HostKind kind) => switch (kind) {
-  HostKind.local => AppIcons.thisPhone,
+  HostKind.local => isMacDesktop ? AppIcons.computer : AppIcons.thisPhone,
   HostKind.ssh => AppIcons.sshHost,
   HostKind.relay => AppIcons.computer,
 };
