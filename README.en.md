@@ -1,9 +1,9 @@
 <div align="center">
 
-<picture>
+<a href="https://billwgong.github.io/dsh-go-mac/"><picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/images/hero-dark.svg">
   <img src="docs/images/hero-light.svg" alt="DSH Go Mac — treat the run as the interface" width="100%">
-</picture>
+</picture></a>
 
 <p><a href="https://github.com/BillWGong/dsh-go-mac/releases/latest"><b>Download</b></a> · <a href="https://github.com/BillWGong/homebrew-tap">Homebrew</a> · <a href="https://www.bilibili.com/video/BV1njxJ6WE59/">Demo</a> · <a href="https://billwgong.github.io/dsh-go-mac/">Site</a> · <a href="README.md">简体中文</a></p>
 
