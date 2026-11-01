@@ -70,7 +70,13 @@ DSH Go Mac 让你在 Mac 上更好的使用 [DeepSeek Harness](https://github.co
 
 ## 更新
 
-**1.0.14**（当前）
+**1.0.15**（当前）
+
+- 同步上游 main 的 25 个提交：对话永久删除（长按/多选）、归档恢复、新对话选文件夹、表格底色三档、插件入口/隐藏胶囊、slash 补全、模型卡长名与 token K/M、主题修复与多项性能改动
+- 保留我们的实现：Return 发送、Mac 顶栏/交通灯、手机连接与官方代理、官方优先引导、分享双二维码
+- 内置运行时升级 `macos-r2`（删除能力）；已装过运行时的用户需在 本机引擎 重新安装一次运行时
+
+**1.0.14**
 
 - 官方模式的手机连接：手机 SSH 连上后直接操作同一个官方 DSH（HTTP + WebSocket 代理注入 cookie）
 - 修复代理转发 gzip 时 `content-encoding` 不匹配的问题
@@ -93,7 +99,7 @@ DSH Go Mac 让你在 Mac 上更好的使用 [DeepSeek Harness](https://github.co
 ## 安装
 
 从 [Releases](https://github.com/BillWGong/dsh-go-mac/releases/latest) 下载
-`dsh-go-mac-1.0.14-macos-arm64.dmg`，打开后把 **DSH Go Mac** 拖进 `Applications`。
+`dsh-go-mac-1.0.15-macos-arm64.dmg`，打开后把 **DSH Go Mac** 拖进 `Applications`。
 
 首次打开会被 Gatekeeper 拦（未签名构建）：右键 →「打开」，或
 
@@ -130,7 +136,7 @@ bash tooling/build-macos.sh --dmg
 
 ```
 app/build/macos/Build/Products/Release/dsh_go.app
-app/build/macos/dsh-go-mac-1.0.14-macos-arm64.dmg
+app/build/macos/dsh-go-mac-1.0.15-macos-arm64.dmg
 ```
 
 环境检查：`bash tooling/check-macos-env.sh`。
