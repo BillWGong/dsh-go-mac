@@ -89,6 +89,19 @@ void main() {
       });
     }
 
+    test('Return-to-send preference defaults off, persists, and reloads', () async {
+      start();
+      await loaded(container);
+      expect(container.read(settingsProvider).sendOnEnter, isFalse);
+      await container.read(settingsProvider.notifier).setSendOnEnter(true);
+      expect(container.read(settingsProvider).sendOnEnter, isTrue);
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getBool('send_on_enter'), isTrue);
+      container.invalidate(settingsProvider);
+      await loaded(container);
+      expect(container.read(settingsProvider).sendOnEnter, isTrue);
+    });
+
     test('low device defaults do not create user preference keys', () async {
       start();
       await loaded(container);
