@@ -1,6 +1,6 @@
 <div align="center">
 
-[![DSH Go Mac — 把「运行」当成界面](docs/images/hero-dark.svg#gh-dark-mode-only)](https://billwgong.github.io/dsh-go-mac/)
+[![DSH Go Mac — 把「运行」当成界面](docs/images/hero-dark.svg)](https://billwgong.github.io/dsh-go-mac/)
 
 <p><a href="https://github.com/BillWGong/dsh-go-mac/releases/latest"><b>下载</b></a> · <a href="https://github.com/BillWGong/homebrew-tap">Homebrew</a> · <a href="https://www.bilibili.com/video/BV1njxJ6WE59/">演示视频</a> · <a href="https://billwgong.github.io/dsh-go-mac/">主页</a> · <a href="README.en.md">English</a></p>
 
