@@ -58,7 +58,11 @@ class OfficialProxy {
       await response.close();
       return;
     }
-    final client = HttpClient()..connectionTimeout = const Duration(seconds: 12);
+    // 不解压：上游返回的 content-encoding / content-length 必须和 body 原样对上，
+      // 否则手机端会拿「已解压的 body + gzip 头」再解一次，直接 Filter error。
+      final client = HttpClient()
+        ..connectionTimeout = const Duration(seconds: 12)
+        ..autoUncompress = false;
     try {
       final target = Uri(
         scheme: 'http',
