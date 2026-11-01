@@ -6,7 +6,7 @@ import 'dart:io';
 import 'package:dsh_client/dsh_client.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../../lib/macos/official_proxy.dart';
+import 'package:dsh_app/macos/official_proxy.dart';
 
 void main() {
   test('official proxy: login, cookie injection and websocket', () async {
