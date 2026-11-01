@@ -70,7 +70,17 @@ DSH Go Mac 让你在 Mac 上更好的使用 [DeepSeek Harness](https://github.co
 
 ## 更新
 
-**1.0.15**（当前）
+**1.0.17**（当前）
+
+- 跟进上游 1.0.8 的共享 UI：思考预览固定高度/点正文收起、完成回合折叠、dsh-ui 自由回答、输入框上方少行、图像与视频设置页、插件设置字段/中文名/单行重绘、凭据归属、时区排序、更新源不回退、抽屉 paint-only
+- 保留 Mac 顶栏、手机代理、官方优先引导、分享双二维码、Return 发送；修复返回键绕过「放弃修改？」
+
+**1.0.16**
+
+- 修复 #5 远程 SSH 保存（Keychain -34018，改 0600 文件存储）
+- 修复 #6 文件权限页永远未开启
+
+**1.0.15**
 
 - 同步上游 main 的 25 个提交：对话永久删除（长按/多选）、归档恢复、新对话选文件夹、表格底色三档、插件入口/隐藏胶囊、slash 补全、模型卡长名与 token K/M、主题修复与多项性能改动
 - 保留我们的实现：Return 发送、Mac 顶栏/交通灯、手机连接与官方代理、官方优先引导、分享双二维码
@@ -99,7 +109,7 @@ DSH Go Mac 让你在 Mac 上更好的使用 [DeepSeek Harness](https://github.co
 ## 安装
 
 从 [Releases](https://github.com/BillWGong/dsh-go-mac/releases/latest) 下载
-`dsh-go-mac-1.0.15-macos-arm64.dmg`，打开后把 **DSH Go Mac** 拖进 `Applications`。
+`dsh-go-mac-1.0.17-macos-arm64.dmg`，打开后把 **DSH Go Mac** 拖进 `Applications`。
 
 首次打开会被 Gatekeeper 拦（未签名构建）：右键 →「打开」，或
 
@@ -136,7 +146,7 @@ bash tooling/build-macos.sh --dmg
 
 ```
 app/build/macos/Build/Products/Release/dsh_go.app
-app/build/macos/dsh-go-mac-1.0.15-macos-arm64.dmg
+app/build/macos/dsh-go-mac-1.0.17-macos-arm64.dmg
 ```
 
 环境检查：`bash tooling/check-macos-env.sh`。
