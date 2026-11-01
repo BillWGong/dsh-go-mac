@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../l10n/l10n.dart';
 import '../../macos/macos_support.dart';
+import '../../macos/window_mode.dart';
 import '../../macos/window_chrome.dart';
 import '../../state/ui_mode_state.dart';
 import '../common/pressable.dart';
@@ -152,7 +153,7 @@ class _AppPageState extends State<AppPage> {
     final theme = Theme.of(context);
     final padding = MediaQuery.paddingOf(context);
     const barHeight = 56.0;
-    const macInset = 0.0;
+    final macInset = isMacDesktop && MacWindow.mode.value != MacWindowMode.phone ? MacWindowChrome.titleBarHeight : 0.0;
     final top = padding.top + macInset + barHeight;
     // Wide windows: one centred column (zero on phones). A phone on its side
     // keeps the column and the bar's keys clear of the cutout or navigation
