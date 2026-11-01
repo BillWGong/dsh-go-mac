@@ -9,6 +9,8 @@
 
 <p><sub>macOS 12+ · Apple Silicon · AGPL-3.0</sub></p>
 
+<p><sub>首屏的版本与 star 数由 CI 每日刷新。</sub></p>
+
 </div>
 
 > [!NOTE]

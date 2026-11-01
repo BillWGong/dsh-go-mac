@@ -9,6 +9,8 @@
 
 <p><sub>macOS 12+ · Apple Silicon · AGPL-3.0</sub></p>
 
+<p><sub>The hero version and star count refresh daily via CI.</sub></p>
+
 </div>
 
 > [!NOTE]
