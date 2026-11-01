@@ -18,7 +18,13 @@
 
 ---
 
-## 01 · 你从哪里来？
+## 01 · 十秒，没有加速
+
+<p align="center"><img src="docs/images/demo.gif" alt="DSH Go Mac 真实录屏：思考、工具调用、运行详情" width="100%"></p>
+
+<p align="center"><sub>真实录屏。一个需要工具调用的任务，从思考到运行详情。</sub></p>
+
+## 02 · 你从哪里来？
 
 <details open>
 <summary><b>已经在用官方 DSH</b> — 我只想换个界面</summary>
@@ -53,12 +59,6 @@ brew install --cask BillWGong/tap/dsh-go-mac
 ```
 
 </details>
-
-## 02 · 十秒，没有加速
-
-<p align="center"><img src="docs/images/demo.gif" alt="DSH Go Mac 真实录屏：思考、工具调用、运行详情" width="100%"></p>
-
-<p align="center"><sub>真实录屏。一个需要工具调用的任务，从思考到运行详情。</sub></p>
 
 ## 03 · 运行是界面
 

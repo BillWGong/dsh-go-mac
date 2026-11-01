@@ -18,7 +18,13 @@
 
 ---
 
-## 01 · Where are you coming from?
+## 01 · Ten seconds, no speed-up
+
+<p align="center"><img src="docs/images/demo.gif" alt="DSH Go Mac screen recording: thinking, tool calls, run details" width="100%"></p>
+
+<p align="center"><sub>A real recording. One tool-using task, from thinking to run details.</sub></p>
+
+## 02 · Where are you coming from?
 
 <details open>
 <summary><b>I already use the official DSH</b> — I just want a better surface</summary>
@@ -53,12 +59,6 @@ Settings › Switch host › Remote host
 ```
 
 </details>
-
-## 02 · Ten seconds, no speed-up
-
-<p align="center"><img src="docs/images/demo.gif" alt="DSH Go Mac screen recording: thinking, tool calls, run details" width="100%"></p>
-
-<p align="center"><sub>A real recording. One tool-using task, from thinking to run details.</sub></p>
 
 ## 03 · The run is the interface
 
