@@ -44,6 +44,8 @@ OnboardingStep? initialOnboardingStep({
   required OnboardingPrefs prefs,
   bool hasCustomProvider = false,
 }) {
+  // 已经在用「本机官方 DSH」：不需要装内置运行时，也不需要再填 Key。
+  if (status.official) return prefs.welcomeSeen ? null : OnboardingStep.welcome;
   final installedCurrent = status.installedVersion != null && status.installedVersion == status.bundledVersion;
   final needsRuntime = switch (status.phase) {
     RuntimePhase.notInstalled || RuntimePhase.installing => true,
@@ -126,7 +128,8 @@ class _RootGateState extends ConsumerState<RootGate> {
     unawaited(EngineControl.ensureStarted(_container));
     final settings = ref.read(settingsProvider);
     final prefs = ref.read(onboardingPrefsProvider);
-    _goTo(settings.hasModelAccess || prefs.keySkipped ? null : OnboardingStep.apiKey);
+    final official = ref.read(localRuntimeProvider).status.official;
+    _goTo(settings.hasModelAccess || prefs.keySkipped || official ? null : OnboardingStep.apiKey);
   }
 
   void _afterKey() {
@@ -197,7 +200,8 @@ class _RootGateState extends ConsumerState<RootGate> {
     _leaveBeside();
     final settings = ref.read(settingsProvider);
     final prefs = ref.read(onboardingPrefsProvider);
-    _goTo(settings.hasModelAccess || prefs.keySkipped ? null : OnboardingStep.apiKey);
+    final official = ref.read(localRuntimeProvider).status.official;
+    _goTo(settings.hasModelAccess || prefs.keySkipped || official ? null : OnboardingStep.apiKey);
   }
 
   void _leaveBeside() {
