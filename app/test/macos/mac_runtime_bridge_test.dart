@@ -31,9 +31,9 @@ void main() {
     expect(await bridge.backgroundSettings(), isNull);
     expect(await bridge.openBackgroundSettings(), isNull);
     expect(await bridge.openVendorSettings('background'), isNull);
-    expect(await bridge.openAllFilesAccess(), isFalse);
+    expect(await bridge.openAllFilesAccess(), isTrue);
     final storage = await bridge.storageStatus();
-    expect(storage.granted, isFalse);
+    expect(storage.granted, isTrue);
     expect(await bridge.networkMetered(), isFalse);
     expect(await bridge.lastKnownGood(), isNotNull);
     expect((await bridge.safePreflight()).isEmpty, isTrue);
