@@ -16,13 +16,15 @@
 ```text
 run 001 · macOS port
 ────────────────────────────────────────────────────────
-time  2:01:57        steps  122        files  1
+time  0:09          steps  4          files  1
 trace   diff   files   progress   context
 ```
 
-上面这行不是装饰。它来自 App 里一次真实的长任务——用时、步骤、改动文件，以及五个页签。
+上面这行不是装饰。它来自下面这段录屏里那一刻——用时、步骤、改动文件，以及五个页签。长任务会有几百步。
 
-![DSH Go Mac](docs/images/new-chat.jpg)
+<p align="center"><img src="docs/images/demo.gif" alt="DSH Go Mac：思考、工具调用与运行详情" width="100%"></p>
+
+<p align="center"><sub>真实录屏，没有加速。一个需要工具调用的任务，从思考到运行详情。</sub></p>
 
 > [!NOTE]
 > 非官方社区项目，与 DeepSeek 无隶属关系。界面来自 [ccch1mneyyy/dsh-go](https://github.com/ccch1mneyyy/dsh-go)（AGPL-3.0），平台层以 Swift 重写。归属见 [NOTICE](NOTICE)。
@@ -42,6 +44,8 @@ trace   diff   files   progress   context
 <p align="center"><img src="docs/images/run-detail.jpg" alt="运行详情：用时、步骤、改动文件，以及轨迹 / 改动 / 文件 / 进度 / 上下文" width="520" /></p>
 
 **运行是一等公民，聊天只是入口。**
+
+<p><sub>一次长任务的运行详情：用时、步骤、改动文件，以及五个页签。</sub></p>
 
 - 一轮结束，三个数先给你：用时、步骤、改动文件
 - 五个页签：轨迹、改动、文件、进度、上下文

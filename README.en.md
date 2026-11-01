@@ -16,13 +16,15 @@ Same engine. It just lets you see the work.</p>
 ```text
 run 001 · macOS port
 ────────────────────────────────────────────────────────
-time  2:01:57        steps  122        files  1
+time  0:09          steps  4          files  1
 trace   diff   files   progress   context
 ```
 
-That isn't decoration. It's a real long run from the app — time, steps, changed files, and the five tabs.
+That isn't decoration. Those are the numbers from the recording below — time, steps, changed files, and the five tabs. A long task has hundreds of steps.
 
-![DSH Go Mac](docs/images/new-chat.jpg)
+<p align="center"><img src="docs/images/demo.gif" alt="DSH Go Mac：思考、工具调用与运行详情" width="100%"></p>
+
+<p align="center"><sub>真实录屏，没有加速。一个需要工具调用的任务，从思考到运行详情。</sub></p>
 
 > [!NOTE]
 > Unofficial community project, not affiliated with DeepSeek. The UI comes from [ccch1mneyyy/dsh-go](https://github.com/ccch1mneyyy/dsh-go) (AGPL-3.0); the platform layer is written in Swift. See [NOTICE](NOTICE).
