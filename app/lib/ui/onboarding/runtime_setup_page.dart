@@ -2,9 +2,12 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../l10n/l10n.dart';
+import '../../macos/macos_support.dart';
+import '../../macos/official_dsh.dart';
 import '../../runtime/runtime_bridge.dart';
 import '../../runtime/runtime_state.dart';
 import '../../state/notify_state.dart';
@@ -95,6 +98,14 @@ class _RuntimeSetupPageState extends ConsumerState<RuntimeSetupPage> {
     });
   }
 
+  /// 连本机正在运行的官方 DSH：写偏好、切桥、结束引导。
+  Future<void> _useOfficial() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(macOfficialDshPref, true);
+    await ref.read(macRuntimeBridgeProvider).setOfficial(true);
+    if (mounted) widget.onDone();
+  }
+
   /// Through the one entry ([runtimeInstallProvider]): a request while an
   /// unpack is on its way is that same unpack.
   void _install({bool dropKept = false}) {
@@ -163,6 +174,7 @@ class _RuntimeSetupPageState extends ConsumerState<RuntimeSetupPage> {
               leading: widget.leading,
               onLocal: widget.onLocal ?? () => _install(),
               onRemote: widget.onRemote!,
+              onOfficial: () => _useOfficial(),
             )
           : KeyedSubtree(key: const ValueKey('progress'), child: _progress(context, state, view)),
     );

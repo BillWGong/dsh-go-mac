@@ -1,10 +1,14 @@
 // The first-run question 「DSH 在哪里运行？」 — on this phone (install the runtime) or
 // on a remote host — with what each costs.
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../l10n/l10n.dart';
+import '../../macos/macos_support.dart';
+import '../../macos/official_dsh.dart';
 import '../../performance/performance_state.dart';
 import '../../runtime/local_footprint.dart';
 import '../common/pressable.dart';
@@ -37,10 +41,19 @@ enum RuntimeOption { local, remote }
 /// ([localFootprintProvider]). The suggested card starts chosen until the
 /// person picks one.
 class RuntimeChoiceView extends ConsumerStatefulWidget {
-  const RuntimeChoiceView({super.key, required this.onLocal, required this.onRemote, this.leading});
+  const RuntimeChoiceView({
+    super.key,
+    required this.onLocal,
+    required this.onRemote,
+    this.onOfficial,
+    this.leading,
+  });
 
   final VoidCallback onLocal;
   final VoidCallback onRemote;
+
+  /// 已检测到本机官方 DSH 时，直接连它（不迁移、不装运行时）。
+  final VoidCallback? onOfficial;
 
   /// Top-left key, as [OnboardingScaffold.leading].
   final Widget? leading;
@@ -51,6 +64,17 @@ class RuntimeChoiceView extends ConsumerStatefulWidget {
 
 class _RuntimeChoiceViewState extends ConsumerState<RuntimeChoiceView> {
   RuntimeOption? _picked;
+  OfficialDsh? _official;
+
+  @override
+  void initState() {
+    super.initState();
+    if (isMacDesktop) {
+      unawaited(findOfficialDsh().then((found) {
+        if (mounted) setState(() => _official = found);
+      }));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -82,6 +106,34 @@ class _RuntimeChoiceViewState extends ConsumerState<RuntimeChoiceView> {
           message: l10n.localEnvChooseMessage,
         ),
         const SizedBox(height: 28),
+        if (_official case final official?) ...[
+          RuntimeOptionCard(
+            key: const ValueKey('runtime-option-official'),
+            icon: AppIcons.computer,
+            title: AppLocale.isEnglish ? 'Use your official DSH' : '连接官方 DSH',
+            detail: AppLocale.isEnglish
+                ? 'DeepSeek Harness is running on 127.0.0.1:${official.port} · no migration'
+                : '已检测到本机运行的 DeepSeek Harness（127.0.0.1:${official.port}）· 不迁移数据',
+            recommended: true,
+            selected: false,
+            onTap: () => widget.onOfficial?.call(),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              const Expanded(child: Divider()),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: Text(
+                  AppLocale.isEnglish ? 'or install a local engine' : '或安装本机引擎',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: DshColors.of(context).textTertiary),
+                ),
+              ),
+              const Expanded(child: Divider()),
+            ],
+          ),
+          const SizedBox(height: 12),
+        ],
         RuntimeOptionCard(
           key: const ValueKey('runtime-option-local'),
           icon: AppIcons.thisPhone,
