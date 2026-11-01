@@ -7,7 +7,7 @@
 <p>The second macOS client for DeepSeek Harness.<br/>
 Same engine. It just lets you see the work.</p>
 
-<p><a href="https://github.com/BillWGong/dsh-go-mac/releases/latest"><b>Download</b></a> · <a href="https://www.bilibili.com/video/BV1njxJ6WE59/">Demo video</a> · <a href="README.md">简体中文</a></p>
+<p><a href="https://github.com/BillWGong/dsh-go-mac/releases/latest"><b>Download</b></a> · <a href="https://www.bilibili.com/video/BV1njxJ6WE59/">Demo video</a> · <a href="https://billwgong.github.io/dsh-go-mac/">Site</a> · <a href="README.md">简体中文</a></p>
 
 <p><sub>macOS 12+ · Apple Silicon · AGPL-3.0 · v1.0.17</sub></p>
 
