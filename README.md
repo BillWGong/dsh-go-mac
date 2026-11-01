@@ -49,8 +49,12 @@ DSH Go Mac 让你在 Mac 上更好的使用 [DeepSeek Harness](https://github.co
 - ✅ 文件：打开、另存到 `~/Downloads/DSH-Go`、保存图片到 `~/Pictures/DSH Go`、PDF 预览
 - ✅ 语音输入：SFSpeechRecognizer（流式部分结果）+ 16 kHz 录音给引擎识别
 - ✅ 桌宠「App 外显示」：无边框置顶浮窗、状态贴图、气泡、拖动、今天不再显示
-- ✅ 窗口：Mac 自适应布局 ⇄ 手机竖屏（菜单 `⌘⇧M`）
-- ✅ macOS 措辞：「这台手机」→「这台 Mac」、「Android Keystore」→「钥匙串」等 35 处
+- ✅ 窗口：Mac 自适应布局 ⇄ **竖屏版式**（菜单 `⌘⇧M`）；自适应下顶栏与系统标题栏合并，
+  竖屏下系统标题栏占位，交通灯永远不会压到内容
+- ✅ **分享卡**：对话导出成图片，底部带**原作 `ccch1mneyyy/dsh-go`** 和
+  **本移植 `BillWGong/dsh-go-mac`** 两个二维码
+- ✅ **关于页**：版本号、检查更新（指向本项目仓库）、给本项目 Star、支持原作者
+- ✅ macOS 措辞：「这台手机」→「这台 Mac」、「手机存储」→「本机存储」、「Android Keystore」→「钥匙串」等；文件、语音、安装、更新、操控、布局命名都已按 Mac 校正
 - ✅ `dshgo://` 深链、Finder 打开、菜单栏、深色模式、原生 PDF/文件对话框
 
 **尚未移植**
@@ -60,10 +64,21 @@ DSH Go Mac 让你在 Mac 上更好的使用 [DeepSeek Harness](https://github.co
 - 🚧 应用内更新：Mac 走 DMG，目前只报告版本，不自安装。
 - 🚧 Intel Mac：运行时只做 arm64。
 
+## 更新
+
+**1.0.10**（当前）
+
+- 顶栏与系统标题栏合并；竖屏版式改为系统标题栏占位，红绿灯不再与侧栏/顶栏重叠
+- 关于页版本号修正；检查更新指向本项目仓库
+- 新 slogan：**把 DSH 装进你的 Mac**
+- 分享图改为双二维码（原作 + 本移植）
+- 清理残留「手机」措辞；「手机版式」更名「竖屏版式」
+- 修复官方 DSH 未运行时的异常、网页模式在 macOS 上的崩溃
+
 ## 安装
 
 从 [Releases](https://github.com/BillWGong/dsh-go-mac/releases/latest) 下载
-`dsh-go-mac-1.0.9-macos-arm64.dmg`，打开后把 **DSH Go Mac** 拖进 `Applications`。
+`dsh-go-mac-1.0.10-macos-arm64.dmg`，打开后把 **DSH Go Mac** 拖进 `Applications`。
 
 首次打开会被 Gatekeeper 拦（未签名构建）：右键 →「打开」，或
 
@@ -100,7 +115,7 @@ bash tooling/build-macos.sh --dmg
 
 ```
 app/build/macos/Build/Products/Release/dsh_go.app
-app/build/macos/dsh-go-mac-1.0.9-macos-arm64.dmg
+app/build/macos/dsh-go-mac-1.0.10-macos-arm64.dmg
 ```
 
 环境检查：`bash tooling/check-macos-env.sh`。
@@ -112,7 +127,7 @@ DSH Go Mac
 ├─ app/lib/                 Flutter 界面（与上游同一份）
 │  ├─ macos/                 macOS 接入层
 │  │  ├─ mac_runtime.dart    本机引擎（实现 RuntimeBridge 同一套契约）
-│  │  ├─ window_mode.dart    自适应 / 手机版式
+│  │  ├─ window_mode.dart    自适应 / 竖屏版式
 │  │  └─ mac_localizations.dart  macOS 措辞
 ├─ app/macos/               Swift 平台层（Xcode 工程）
 │  ├─ MacHost.swift          窗口、菜单、深链
