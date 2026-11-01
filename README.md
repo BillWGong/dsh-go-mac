@@ -1,141 +1,157 @@
 # DSH Go Mac
 
-**同一个 DSH 引擎，一个更现代、更顺手的 macOS 客户端** —— 界面来自 Android 版 [DSH Go](https://github.com/ccch1mneyyy/dsh-go)。
+**同一个 DSH 引擎，一个更现代、更顺手的 macOS 客户端。**
 
-连你现在的官方 DSH，不迁移、不换引擎；过程信息、通知审批和动效是它的重点。
+界面来自 Android 版 [DSH Go](https://github.com/ccch1mneyyy/dsh-go)，平台层用 Swift 重写；本机引擎不再需要 Linux / Docker。
+连你现在的官方 DeepSeek Harness，不迁移数据；也可以直接用 App 内置的 Node + DSH 引擎。
 
-Apple Silicon · Flutter + Swift · AGPL-3.0
+[![Release](https://img.shields.io/github/v/release/BillWGong/dsh-go-mac?label=release)](https://github.com/BillWGong/dsh-go-mac/releases/latest)
+[![License](https://img.shields.io/badge/license-AGPL--3.0-blue)](LICENSE)
+[![Platform](https://img.shields.io/badge/platform-macOS%2012%2B%20Apple%20Silicon-lightgrey)](#系统要求)
+[![Stars](https://img.shields.io/github/stars/BillWGong/dsh-go-mac?style=social)](https://github.com/BillWGong/dsh-go-mac)
+
+![DSH Go Mac 新对话](docs/images/new-chat.jpg)
 
 > 这是**非官方**社区项目，和 DeepSeek 官方没有关系。
-> 它把 [ccch1mneyyy/dsh-go](https://github.com/ccch1mneyyy/dsh-go)（AGPL-3.0）从 Android 移植到 macOS：
-> 界面代码来自上游，平台层重写为 Swift，本机引擎从 PRoot + Ubuntu 换成 macOS 原生 Node。
-> 移植的技术细节、能力对照和已知差异见 [docs/macos/README.md](docs/macos/README.md)。
+> 基于 [ccch1mneyyy/dsh-go](https://github.com/ccch1mneyyy/dsh-go)（AGPL-3.0）移植，详见 [NOTICE](NOTICE)。
 
 ---
 
-## 这是什么
+## 为什么用它
 
-DSH Go Mac 让你在 Mac 上更好的使用 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)：
+官方 Mac 客户端没问题，引擎、模型、插件都在。DSH Go Mac 换的是**你每天盯着的那一层**：
 
-- **同一个引擎**：直接连这台 Mac 上正在运行的官方 DSH，共享对话、模型和插件——不迁移数据，
-  也不用装第二套运行时。
-- **本机引擎（可选）**：App 内置 Node 24 + DSH，点一下就在你的 Mac 上跑起来。
-- **远程主机**：连接电脑或服务器上的 DSH（SSH / DSH Remote），手机上那套体验原样搬过来；
-  手机版 DSH Go 也可以通过 SSH 连到这台 Mac 的 DSH Go Mac（见下方「手机连接」）。
-- **原生界面**：不是套壳网页。聊天、工具审批、提问、插件面板、分享卡、桌宠、语音输入都是
-  上游那套 Flutter 界面，Mac 上重新接了系统能力。
-
-## 和上游是什么关系
-
-| | 上游 DSH Go | 本项目 |
+| | 官方客户端 | DSH Go Mac |
 | --- | --- | --- |
-| 平台 | Android 8+ | macOS 12+（Apple Silicon） |
-| 界面 | Flutter | 同一套 Flutter 代码（`app/lib`） |
-| 平台层 | Kotlin（`app/android`） | Swift（`app/macos`） |
-| 本机引擎 | PRoot + Ubuntu + Node | 原生 Node 24 + DSH npm 包 |
-| Mac 操控（原手机操控） | Android AccessibilityService | **尚未移植**（见下文） |
-| 应用内更新 | 下载 APK 安装 | 走 DMG（尚未接入） |
+| 引擎 | 官方 DSH | 官方 DSH（直连）或内置引擎 |
+| 数据 | `~/.dsh` | 连官方时就是同一份，不迁移 |
+| 过程信息 | 消息为主 | 用时 / 步骤 / 改动文件；轨迹、改动、文件、进度、上下文 |
+| 审批 | 基础 | 系统通知上直接「允许 / 拒绝」 |
+| 界面 | 官方 Web / Electron 风格 | DSH Go 原生 Flutter，动效完整 |
+| 主机 | 单机 | 自带 / 官方 / 远程 SSH / DSH Remote，一个弹层切换 |
+| 手机 | — | 手机版 DSH Go 可通过 SSH 连回 Mac 的引擎 |
 
-移植基于上游 **v1.0.4（commit `bf01594`）**。上游的 Android 构建仍然留在仓库里，未做改动。
+**核心是三点**：过程信息详细、UI/UX 流畅、动画现代。
 
-## 功能状态
+---
 
-**已实现并实测**
+## 功能
 
-- ✅ 本机引擎：安装（193 MiB 内置包 / 742 MiB 解包）、启动、停止、日志、失败分类、安全模式
-- ✅ **本机官方 DSH（实验）**：直接连这台 Mac 上正在运行的 DeepSeek Harness，共享它的
-  对话、模型和插件——不需要 SSH / DSH Remote，也不用装内置运行时
-- ✅ **切换主机**：本地 DSH（自带）/ 本地官方 DSH / 远程（SSH、DSH Remote），一个弹层切换
-- ✅ **手机连接**：App 内直接列出 Mac 的 IP/用户名/端口与密码说明，手机 SSH 复用内置引擎
-- ✅ 远程主机：SSH、DSH Remote（纯 Dart 实现，未改动）
-- ✅ 聊天、流式回复、工具审批、提问、插件面板、网页模式（WKWebView）
-- ✅ 系统通知：一轮结束 / 等你确认，通知上可直接「允许一次 / 拒绝」，点击回到对话
-- ✅ 文件：打开、另存到 `~/Downloads/DSH-Go`、保存图片到 `~/Pictures/DSH Go`、PDF 预览
-- ✅ 语音输入：SFSpeechRecognizer（流式部分结果）+ 16 kHz 录音给引擎识别
-- ✅ 桌宠「App 外显示」：无边框置顶浮窗、状态贴图、气泡、拖动、今天不再显示
-- ✅ 窗口：Mac 自适应布局 ⇄ **竖屏版式**（菜单 `⌘⇧M`）；自适应下顶栏与系统标题栏合并，
-  竖屏下系统标题栏占位，交通灯永远不会压到内容
-- ✅ **分享卡**：对话导出成图片，底部带**原作 `ccch1mneyyy/dsh-go`** 和
-  **本移植 `BillWGong/dsh-go-mac`** 两个二维码
-- ✅ **关于页**：版本号、检查更新（指向本项目仓库）、给本项目 Star、支持原作者
-- ✅ macOS 措辞：「这台手机」→「这台 Mac」、「手机存储」→「本机存储」、「Android Keystore」→「钥匙串」等；文件、语音、安装、更新、操控、布局命名都已按 Mac 校正
-- ✅ `dshgo://` 深链、Finder 打开、菜单栏、深色模式、原生 PDF/文件对话框
+### 对话
+- 流式回复、思考预览（固定高度，点正文收起）、工具步骤与耗时
+- 运行详情：**轨迹、改动、文件、进度、上下文**；点「改动」直接看 diff
+- 完成回合自动折叠；工具审批、提问、计划确认
+- slash 命令在光标处补全，不丢草稿
+- 表格底色三档（设置里带预览）、代码高亮、Mermaid / 公式
+- 对话永久删除（长按单删 / 多选批量）、归档浏览与恢复、文件夹新建对话
+- 分享卡：导出成图片，底部带原作与本移植两个二维码
 
-**尚未移植**
+### 主机
+- **本地 DSH · 自带**：App 内置 Node 24 + DSH，一键安装运行时
+- **本地官方 DSH**：直接连这台 Mac 上正在运行的 DeepSeek Harness，共享对话、模型、插件
+- **远程**：SSH（密码 / 私钥，主机指纹 TOFU）、DSH Remote
+- 切换主机时明确标出当前实例，数据互不混淆
 
-- 🚧 **Mac 操控**（原「手机操控」）：辅助功能 + ScreenCaptureKit + MCP 工具 + 逐次审批。
-  设计稿：[docs/macos/mac-control.md](docs/macos/mac-control.md)。当前入口保留、显示「未就绪」。
-- 🚧 应用内更新：Mac 走 DMG，目前只报告版本，不自安装。
-- 🚧 Intel Mac：运行时只做 arm64。
+### Mac 原生能力
+- 系统通知：一轮结束 / 等待确认，通知上可直接允许或拒绝
+- 文件：打开、另存、图片保存、PDF（PDFKit）、目录选择
+- 语音输入：SFSpeechRecognizer + 16 kHz 录音
+- 桌宠浮窗：无边框置顶、序列帧动画、拖动、状态气泡
+- 深链 `dshgo://`、Finder 打开、深色模式
+- 窗口：自适应布局 ⇄ 竖屏版式（`⌘⇧M`），顶栏与系统标题栏合并，交通灯不与内容重叠
 
-## 更新
+### 手机连接
+- App 内直接列出 Mac 的 IP、用户名、端口和**密码说明**（就是 Mac 登录密码）
+- 手机 SSH 连上后复用 Mac 上的引擎：官方模式连官方，自带模式连内置
+- 不会另起一个 DSH，也不会碰另一套数据
 
-**1.0.17**（当前）
+---
 
-- 跟进上游 1.0.8 的共享 UI：思考预览固定高度/点正文收起、完成回合折叠、dsh-ui 自由回答、输入框上方少行、图像与视频设置页、插件设置字段/中文名/单行重绘、凭据归属、时区排序、更新源不回退、抽屉 paint-only
-- 保留 Mac 顶栏、手机代理、官方优先引导、分享双二维码、Return 发送；修复返回键绕过「放弃修改？」
+## 截图
 
-**1.0.16**
+| 连接官方 DSH（首次引导） | 新对话 |
+| --- | --- |
+| ![连接官方 DSH](docs/images/official-mode.jpg) | ![新对话](docs/images/new-chat.jpg) |
 
-- 修复 #5 远程 SSH 保存（Keychain -34018，改 0600 文件存储）
-- 修复 #6 文件权限页永远未开启
+演示视频：[dsh go Mac demo](https://www.bilibili.com/video/BV1njxJ6WE59/)
 
-**1.0.15**
-
-- 同步上游 main 的 25 个提交：对话永久删除（长按/多选）、归档恢复、新对话选文件夹、表格底色三档、插件入口/隐藏胶囊、slash 补全、模型卡长名与 token K/M、主题修复与多项性能改动
-- 保留我们的实现：Return 发送、Mac 顶栏/交通灯、手机连接与官方代理、官方优先引导、分享双二维码
-- 内置运行时升级 `macos-r2`（删除能力）；已装过运行时的用户需在 本机引擎 重新安装一次运行时
-
-**1.0.14**
-
-- 官方模式的手机连接：手机 SSH 连上后直接操作同一个官方 DSH（HTTP + WebSocket 代理注入 cookie）
-- 修复代理转发 gzip 时 `content-encoding` 不匹配的问题
-- 首次引导优先「连接官方 DSH」，跳过运行时安装与 Key 步骤
-
-**1.0.11**
-
-- 修复新建对话失败：本地工作目录从 Android 的 `/root/workspace` 改为 Mac 的 `$HOME`
-- 路径显示与目录选择器的 home 同步为 Mac
-
-**1.0.10**
-
-- 顶栏与系统标题栏合并；竖屏版式改为系统标题栏占位，红绿灯不再与侧栏/顶栏重叠
-- 关于页版本号修正；检查更新指向本项目仓库
-- 新 slogan：**把 DSH 装进你的 Mac**
-- 分享图改为双二维码（原作 + 本移植）
-- 清理残留「手机」措辞；「手机版式」更名「竖屏版式」
-- 修复官方 DSH 未运行时的异常、网页模式在 macOS 上的崩溃
+---
 
 ## 安装
 
 从 [Releases](https://github.com/BillWGong/dsh-go-mac/releases/latest) 下载
 `dsh-go-mac-1.0.17-macos-arm64.dmg`，打开后把 **DSH Go Mac** 拖进 `Applications`。
 
-首次打开会被 Gatekeeper 拦（未签名构建）：右键 →「打开」，或
+未签名构建，首次打开会被 Gatekeeper 拦：
 
 ```bash
+# 方式一：右键 App →「打开」
+# 方式二：
 xattr -dr com.apple.quarantine "/Applications/DSH Go Mac.app"
 ```
 
-首次使用选「本机」会安装运行环境（约 750 MB，一两分钟）；也可以直接连远程主机。
+### 第一次打开
+
+1. **已经在用官方 DSH？** 引导里会检测到它，选「连接官方 DSH · 推荐」——不迁移、不装运行时。
+2. 想用内置引擎：选「本机」，安装运行环境（约 750 MB，一两分钟）。
+3. 连远程：选「远程主机」，填 SSH 或登录 DSH Remote。
+
+---
+
+## 手机连接 Mac
+
+1. Mac：`系统设置 › 通用 › 共享 › 远程登录` 打开。
+2. App：`设置 › 本机引擎 › 手机连接`（或切换主机里的「手机连接」）会列出：
+   - 主机：`用户名@局域网 IP`
+   - 端口：`22`
+   - 密码：**这台 Mac 的登录密码**（不是 DeepSeek Key）
+3. 手机版 DSH Go：`切换主机 › 添加 SSH 主机`，填上面的信息，启动命令保持默认 `dsh web`。
+4. 连上后：
+   - 自带模式：手机接管 Mac 的内置引擎
+   - 官方模式：手机接管同一个官方 DSH（本地 cookie 注入代理，HTTP + WebSocket）
+
+> 官方 DSH 与内置引擎是两套数据：官方用 `~/.dsh`，内置引擎用 App 自己的 `Application Support` 目录。
+
+---
+
+## 快捷键
+
+| 按键 | 作用 |
+| --- | --- |
+| `⌘⇧M` | 自适应 / 竖屏版式切换 |
+| `Return` | 按设置决定是否发送（默认关闭） |
+| `Shift + Return` | 换行 |
+| `⌘ / Ctrl + Return` | 始终发送 |
+| `Esc Esc` | 停止当前回合（两次，500 ms 内） |
+| `⌘C / ⌘V / ⌘A` | 复制 / 粘贴 / 全选（Flutter 原生） |
+
+---
+
+## 系统要求
+
+- Apple Silicon（arm64）
+- macOS 12 或更高（在 macOS 26 / 27 上开发验证）
+- 内置引擎约 750 MB 磁盘；只用官方模式则不需要
+
+---
 
 ## 从源码构建
 
 前置：
 
-1. **完整 Xcode**（不是只有 Command Line Tools），首次要同意许可：
+1. **完整 Xcode**，首次同意许可：
    ```bash
    sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
    sudo xcodebuild -license accept
    ```
 2. **Flutter 3.47.x**（Dart 3.13.5），放进 `PATH` 或用 `FLUTTER=` 指定。
-3. Apple Silicon Mac，约 8 GB 空闲磁盘。
+3. 约 8 GB 空闲磁盘。
 
 ```bash
 git clone https://github.com/BillWGong/dsh-go-mac.git
 cd dsh-go-mac
 
-# 1. 生成内置运行时（Node + DSH + pnpm + bridge，约 2–5 分钟，输出 193 MB）
+# 1. 生成内置运行时（Node + DSH + pnpm + bridge，约 2–5 分钟，输出约 193 MB）
 bash runtime/build-runtime-macos.sh
 
 # 2. 构建 .app 和 DMG
@@ -151,60 +167,145 @@ app/build/macos/dsh-go-mac-1.0.17-macos-arm64.dmg
 
 环境检查：`bash tooling/check-macos-env.sh`。
 
+### 测试
+
+```bash
+cd app
+flutter analyze
+flutter test test/macos          # macOS 接入层
+flutter test test/chat test/state # 共享 UI / 状态
+```
+
+---
+
 ## 架构
 
 ```
 DSH Go Mac
-├─ app/lib/                 Flutter 界面（与上游同一份）
-│  ├─ macos/                 macOS 接入层
-│  │  ├─ mac_runtime.dart    本机引擎（实现 RuntimeBridge 同一套契约）
+├─ app/lib/                  Flutter 界面（与上游同一份）
+│  ├─ macos/
+│  │  ├─ mac_runtime.dart    本机引擎（RuntimeBridge 契约）
+│  │  ├─ official_dsh.dart   发现并直连官方 DSH
+│  │  ├─ official_proxy.dart 官方模式的手机连接代理
 │  │  ├─ window_mode.dart    自适应 / 竖屏版式
-│  │  └─ mac_localizations.dart  macOS 措辞
-├─ app/macos/               Swift 平台层（Xcode 工程）
-│  ├─ MacHost.swift          窗口、菜单、深链
+│  │  └─ mac_localizations.dart
+├─ app/macos/                Swift 平台层
+│  ├─ MacHost.swift          窗口、菜单、深链、窗口通道
 │  ├─ MacNotify.swift        系统通知
-│  ├─ MacFiles.swift         文件 / 图片 / PDF
-│  ├─ MacVoice.swift         语音识别与录音
+│  ├─ MacFiles.swift         文件 / PDF / 目录
+│  ├─ MacVoice.swift         SFSpeechRecognizer + AVAudioEngine
 │  └─ MacPetOverlay.swift    桌宠浮窗
-├─ runtime/build-runtime-macos.sh   生成 Node + DSH 运行时
-└─ tooling/build-macos.sh          构建 .app / .dmg
+├─ packages/dsh_client/      DSH 协议客户端（共享）
+├─ packages/dsh_remote/      DSH Remote（共享）
+└─ runtime/                  运行时打包、补丁、bridge
 ```
 
-为什么不用 Electron/Tauri 重写：上游有 740 个 Dart 文件、约 28 万行界面代码。加一个
-Flutter macOS 目标，UI 和交互一行不用重写；只需要把 Kotlin 那层换成 Swift。
+### 本机引擎
 
-## 目录里还有什么
+- 运行时：Node 24 + `@deepseek-ai/dsh` + pnpm + `dsh-go-bridge`
+- 启动：`node bin.js web --patch … --host 127.0.0.1 --port <free> --no-open`
+- 从 stdout 解析 `dsh web: http://…?token=`，用 `DshClient` 登录
+- tar + `manifest.json`（sha256、版本、启动 argv）；解包到 `Application Support`
+- 进程监督、健康检查、孤儿进程回收、安全模式
 
-`docs/` 是上游的中文指南；`runtime/` 是运行时打包脚本；`packages/` 是 DSH 的 Dart 客户端；
-`services/`、`site/` 是配套的分享服务与网站。Mac 相关的改动集中在
-`app/macos/`、`app/lib/macos/`、`runtime/build-runtime-macos.sh`、`tooling/*-macos.sh`。
+### 官方 DSH 直连
 
-## 已知限制
+- `lsof` 找到官方进程监听的 `127.0.0.1:<port>`
+- 读 `~/.dsh/.credentials.yaml` 的 `client-connection/browser-session` 密钥
+- 本地签 `DshCookie`（HMAC-SHA256，authority 绑定），`DshClient.connect(cookie:)`
+- 不改官方数据；官方模式与内置引擎可随时切换
 
-- **未签名**：直接分发需要 Developer ID 签名 + 公证，否则别人打开会被 Gatekeeper 拦。
-- **未沙盒化**：本机引擎要启动自带 Node、读写工作区，所以关掉了 App Sandbox。上架 App Store
-  需要改成 XPC 服务 + 沙盒。
-- **Mac 操控未实现**：入口在、页面显示「未就绪」。
-- **Intel Mac 不在支持范围**：运行时只做 arm64。
+### 手机代理（官方模式）
 
-## 许可与致谢
+官方服务只认 cookie，手机只认 `dsh web` 的 token。App 起一个 `127.0.0.1` 反向代理：
 
-- 本项目以 **AGPL-3.0** 发布，见 [LICENSE](LICENSE)。它包含并修改自
-  [ccch1mneyyy/dsh-go](https://github.com/ccch1mneyyy/dsh-go)（AGPL-3.0，v1.0.4）。
-  完整归属说明见 [NOTICE](NOTICE)。
-- 名称、标识、Deepy / 鲸娘吉祥物等品牌素材不在开源授权范围内，见 [ASSETS.md](ASSETS.md)。
-- 本机引擎里运行的 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) 按其
-  自身许可证分发；运行时打包的是 `@deepseek-ai/dsh@0.2.1-rc.4`。
-- 感谢上游作者 **ccch1mneyyy** 和 DeepSeek Harness 的开发者。没有他们的工作就没有这个移植。
+- 手机登录时返回本地 303 + cookie
+- 转发 HTTP / WebSocket 到官方端口，注入官方 cookie、重写 Host
+- 握手文件写入 `~/.dsh-app-remote`，手机按原协议复用
+
+---
+
+## 常见问题
+
+**Q：和官方客户端是什么关系？**
+同一个引擎的另一个客户端。连官方时共用对话和模型，不迁移数据。
+
+**Q：为什么 App 有 255 MB，还要装 750 MB？**
+App 自带 Node + DSH 运行时（193 MB 压缩）；首次使用本机引擎才解包（约 750 MB）。只用官方模式可以不装。
+
+**Q：未签名 / 打不开？**
+右键 →「打开」，或执行上面的 `xattr` 命令。没有 Apple 开发者签名，暂无公证。
+
+**Q：保存 SSH 主机报错？**
+1.0.16 起 macOS 上远程密钥改用 0600 文件存储（`~/Library/Application Support/io.github.billwgong.dshgomac/remote-secrets.json`），不再依赖 Keychain。ad-hoc 签名没有 Keychain entitlement，这是有意为之。
+
+**Q：删除对话的入口不见了？**
+永久删除需要内置运行时 `macos-r2`。老用户请在 `设置 › 本机引擎` 重新安装一次运行时（按提示保留对话）；官方模式不支持删除。
+
+**Q：手机连不上？**
+确认远程登录已开、App 正在运行、手机填的是 Mac 的局域网 IP + 登录密码。官方模式还需要 App 已连上官方 DSH。
+
+**Q：Intel Mac / Windows？**
+只支持 Apple Silicon；Windows 没有计划。
+
+---
+
+## 路线图
+
+- [x] 本机引擎、官方 DSH 直连、远程 SSH / DSH Remote
+- [x] 系统通知审批、文件 / PDF / 语音、桌宠
+- [x] 手机连接（自带 + 官方）
+- [x] 永久删除、归档恢复、分享卡双二维码
+- [ ] Mac 操控（AX + ScreenCaptureKit + MCP 工具 + 逐次审批）——设计稿见 [docs/macos/mac-control.md](docs/macos/mac-control.md)
+- [ ] 应用内更新（DMG 下载与替换）
+- [ ] 签名 / 公证
+
+---
+
+## 更新记录
+
+**1.0.17**：跟进上游 1.0.8 共享 UI（思考预览、回合折叠、dsh-ui 自由回答、媒体设置页、插件设置、凭据归属、更新源修复、抽屉性能）
+
+**1.0.16**：修复 #5 远程 SSH 保存（Keychain -34018）、#6 文件权限页
+
+**1.0.15**：同步上游 25 个提交（永久删除、归档恢复、文件夹新建、表格底色、插件入口、slash 补全、模型卡/token）
+
+**1.0.14**：官方模式手机连接（本地 cookie 注入代理）
+
+**1.0.11**：修复新建对话失败（`/root/workspace` → `$HOME`）
+
+**1.0.10**：顶栏与标题栏合并、竖屏版式、分享卡双二维码、Mac 措辞
+
+完整记录见 [Releases](https://github.com/BillWGong/dsh-go-mac/releases)。
+
+---
+
+## 参与
+
+- 有 bug / 想加功能：[Issues](https://github.com/BillWGong/dsh-go-mac/issues)
+- 想改代码：Fork → 分支 → PR；提交前跑 `flutter analyze` 和相关测试
+- 上游 DSH Go 的问题请提到 [ccch1mneyyy/dsh-go](https://github.com/ccch1mneyyy/dsh-go)
+
+如果它帮你省掉了装 Linux 的麻烦，点个 star 就是最大的支持 ⭐
+
+---
+
+## 许可
+
+- 本项目：[AGPL-3.0](LICENSE)
+- 上游 DSH Go：AGPL-3.0，[ccch1mneyyy/dsh-go](https://github.com/ccch1mneyyy/dsh-go)
+- DeepSeek Harness：[deepseek-ai/deepseek-harness](https://github.com/deepseek-ai/deepseek-harness)
+- 品牌与素材归属见 [NOTICE](NOTICE) 与 [ASSETS.md](ASSETS.md)
+
+---
 
 ## English
 
-DSH Go Mac is an unofficial macOS port of [DSH Go](https://github.com/ccch1mneyyy/dsh-go),
-the Android client for [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness).
+DSH Go Mac is an unofficial macOS client for [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness),
+built on the Flutter UI of [DSH Go](https://github.com/ccch1mneyyy/dsh-go) with a Swift platform layer.
 
-The Flutter UI is shared with upstream; the Kotlin platform layer is rewritten in Swift, and the
-on-device engine runs native Node 24 + DSH instead of PRoot/Ubuntu. Built and tested on Apple
-Silicon (macOS 26/27, Xcode 27, Flutter 3.47.7). Phone control is not ported yet.
+It can attach to your existing official DSH (same conversations, no migration) or run a bundled
+Node 24 + DSH engine. Sessions show run details, notifications allow/deny approvals, and the phone
+app can SSH back into the Mac's engine.
 
-Licensed AGPL-3.0. Not affiliated with DeepSeek. See [docs/macos/README.md](docs/macos/README.md)
-for the architecture and parity matrix.
+Apple Silicon, macOS 12+, AGPL-3.0. Not affiliated with DeepSeek.
