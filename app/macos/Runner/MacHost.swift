@@ -130,11 +130,14 @@ final class MacHost: NSObject {
   private func applyChrome(for mode: MacWindowMode) {
     guard let window else { return }
     window.titleVisibility = .hidden
-    window.titlebarAppearsTransparent = true
+    window.backgroundColor = .windowBackgroundColor
     if mode == .phone {
+      // 系统标题栏占位且不透明：交通灯不会压到内容，也不会透出桌面。
       window.styleMask.remove(.fullSizeContentView)
+      window.titlebarAppearsTransparent = false
     } else {
       window.styleMask.insert(.fullSizeContentView)
+      window.titlebarAppearsTransparent = true
     }
   }
 
