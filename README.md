@@ -1,127 +1,112 @@
 <div align="center">
 
-<p><sub>DSH GO MAC · macOS</sub></p>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/hero-dark.svg">
+  <img src="docs/images/hero-light.svg" alt="DSH Go Mac — 把「运行」当成界面" width="100%">
+</picture>
 
-<h3>把「运行」当成界面。</h3>
+<p><a href="https://github.com/BillWGong/dsh-go-mac/releases/latest"><b>下载</b></a> · <a href="https://github.com/BillWGong/homebrew-tap">Homebrew</a> · <a href="https://www.bilibili.com/video/BV1njxJ6WE59/">演示视频</a> · <a href="https://billwgong.github.io/dsh-go-mac/">主页</a> · <a href="README.en.md">English</a></p>
 
-<p>DeepSeek Harness 的第二个 macOS 客户端。<br/>
-不换引擎，只让你看清代理正在做什么。</p>
-
-<p><a href="https://github.com/BillWGong/dsh-go-mac/releases/latest"><b>下载</b></a> · <a href="https://www.bilibili.com/video/BV1njxJ6WE59/">演示视频</a> · <a href="https://billwgong.github.io/dsh-go-mac/">主页</a> · <a href="README.en.md">English</a></p>
-
-<p><sub>macOS 12+ · Apple Silicon · AGPL-3.0 · v1.0.17</sub></p>
+<p><sub>macOS 12+ · Apple Silicon · AGPL-3.0</sub></p>
 
 </div>
-
-```text
-run 001 · macOS port
-────────────────────────────────────────────────────────
-time  0:09          steps  4          files  1
-trace   diff   files   progress   context
-```
-
-上面这行不是装饰。它来自下面这段录屏里那一刻——用时、步骤、改动文件，以及五个页签。长任务会有几百步。
-
-<p align="center"><img src="docs/images/demo.gif" alt="DSH Go Mac：思考、工具调用与运行详情" width="100%"></p>
-
-<p align="center"><sub>真实录屏，没有加速。一个需要工具调用的任务，从思考到运行详情。</sub></p>
 
 > [!NOTE]
 > 非官方社区项目，与 DeepSeek 无隶属关系。界面来自 [ccch1mneyyy/dsh-go](https://github.com/ccch1mneyyy/dsh-go)（AGPL-3.0），平台层以 Swift 重写。归属见 [NOTICE](NOTICE)。
 
 ---
 
-## 00 · 问题
+## 01 · 你从哪里来？
 
-聊天流擅长「读」，不擅长「看」。
+<details open>
+<summary><b>已经在用官方 DSH</b> — 我只想换个界面</summary>
 
-一轮任务跑四十分钟，你想知道的不是最后那段话，而是：它现在在干嘛、刚才那步为什么慢、改了哪些文件、卡在哪个审批。这些信息散在消息里，得往上翻、点开、再拼起来。
+不用装运行时，也不用迁移。启动后选「连接官方 DSH」，读的是同一个 `~/.dsh`。
 
-大多数客户端把运行过程折进聊天记录。我们把它拿出来，放在你一眼能看到的地方。
+```bash
+brew install --cask BillWGong/tap/dsh-go-mac
+```
 
-## 01 · 想法
+</details>
+
+<details>
+<summary><b>想让 Mac 自己跑</b> — 不依赖官方客户端</summary>
+
+装内置运行时（约 750 MB），DSH 就跑在这台 Mac 上；也可以随时切回官方。
+
+```bash
+brew install --cask BillWGong/tap/dsh-go-mac
+# 首次启动选「本机」，点安装运行时
+```
+
+</details>
+
+<details>
+<summary><b>想连远程</b> — SSH / DSH Remote</summary>
+
+同一套 UI 连电脑或服务器上的 DSH。手机版 DSH Go 也可以反过来说接管这台 Mac。
+
+```text
+设置 › 切换主机 › 远程主机
+```
+
+</details>
+
+## 02 · 十秒，没有加速
+
+<p align="center"><img src="docs/images/demo.gif" alt="DSH Go Mac 真实录屏：思考、工具调用、运行详情" width="100%"></p>
+
+<p align="center"><sub>真实录屏。一个需要工具调用的任务，从思考到运行详情。</sub></p>
+
+## 03 · 运行是界面
 
 <p align="center"><img src="docs/images/run-detail.jpg" alt="运行详情：用时、步骤、改动文件，以及轨迹 / 改动 / 文件 / 进度 / 上下文" width="520" /></p>
 
-**运行是一等公民，聊天只是入口。**
+一轮任务结束，三个数先给你：**用时、步骤、改动文件**。下面五个页签：**轨迹 / 改动 / 文件 / 进度 / 上下文**。
 
-<p><sub>一次长任务的运行详情：用时、步骤、改动文件，以及五个页签。</sub></p>
+点「改动」就是 diff；点「轨迹」回看每一步；每条思考、工具调用、耗时独立成行。需要你决策的审批和提问从消息流里浮出来，不藏在第 40 条消息后面。
 
-- 一轮结束，三个数先给你：用时、步骤、改动文件
-- 五个页签：轨迹、改动、文件、进度、上下文
-- 点「改动」就是 diff；点「轨迹」回看每一步
-- 每条思考、工具调用、耗时独立成行
-- 审批和提问从消息流里浮出来，不藏在第 40 条后面
-
-动效也是为这件事服务的：思考胶囊呼吸、工具行滑入、折叠连续展开——不是好看，是让你在长任务里扫一眼就知道状态。
-
-## 02 · 引擎
+## 04 · 同一个引擎，零迁移
 
 ![连接官方 DSH](docs/images/official-mode.jpg)
 
-**同一个引擎，零迁移。**
+首次启动检测本机正在运行的 DeepSeek Harness。点「连接官方 DSH」：
 
-首次启动会检测本机正在运行的 DeepSeek Harness。点「连接官方 DSH」：
-
-- 对话、模型、插件原样都在，不迁移、不复制
+- 对话、模型、插件原样都在，**不迁移、不复制**
 - 读的还是 `~/.dsh`，官方客户端随时可以继续用
-- 也可以切到 App 内置引擎，或远程 SSH / DSH Remote
+- 也可以切到内置引擎，或远程 SSH / DSH Remote
 
 两个引擎是两套数据。切换主机不会混，也不会改对方。
 
-## 03 · 原生
+## 05 · 原生
 
 界面是 Flutter，平台层是 Swift，本机引擎是原生 Node。
 
-没有 Electron，没有内嵌浏览器。通知、文件、PDF、语音、桌宠、窗口、深链全部走 macOS API。
+没有 Electron，没有内嵌浏览器。通知、文件、PDF、语音、桌宠、窗口、深链全部走 macOS API。通知上的「允许 / 拒绝」是真的系统通知，不是网页里的按钮。
 
-这也是为什么它敢叫「客户端」而不是「套壳」：窗口、通知上的允许/拒绝、桌宠浮窗，都是系统里的真实对象。
-
-## 04 · 它不是什么
+## 06 · 它不是什么
 
 - **不是新引擎。** 引擎还是 DSH；它只是另一个客户端。
 - **不是官方客户端的替代。** 连官方时，两边可以同时用。
 - **不是网页壳。** 没有内嵌浏览器。
 - **不是给 Intel 的。** 运行时只做 arm64。
-- **不是完成品。** Mac 操控、应用内更新、签名都还没做，见下面的状态。
+- **不是完成品。** Mac 操控、应用内更新、签名都还没做。
 
-## 05 · 装上
+## 07 · 装上
 
 ```bash
-# 1. 下载（Apple Silicon / macOS 12+）
-open https://github.com/BillWGong/dsh-go-mac/releases/latest
+# 一条命令
+brew install --cask BillWGong/tap/dsh-go-mac
 
-# 2. 拖进 Applications，首次打开
+# 或者下载 DMG（Apple Silicon / macOS 12+）
+open https://github.com/BillWGong/dsh-go-mac/releases/latest
 open "/Applications/DSH Go Mac.app"
 
-# 3. 未签名构建被 Gatekeeper 拦住时
+# 未签名构建被 Gatekeeper 拦住时
 xattr -dr com.apple.quarantine "/Applications/DSH Go Mac.app"
-
-或者用 Homebrew：
-
-```bash
-brew install --cask BillWGong/tap/dsh-go-mac
-```
 ```
 
-首次启动：
-
-- **已在用官方 DSH** → 选「连接官方 DSH · 推荐」，不装运行时
-- **想用内置引擎** → 选「本机」，安装约 750 MB 运行时
-- **连远程** → 选「远程主机」
-
-## 06 · 手机
-
-手机版 DSH Go 可以反过来接管 Mac：
-
-1. Mac 打开 `系统设置 › 通用 › 共享 › 远程登录`
-2. App 打开 `设置 › 本机引擎 › 手机连接`，主机、端口、密码说明都在页面上
-3. 手机 `切换主机 › 添加 SSH 主机`，启动命令保持 `dsh web`
-4. 密码是**这台 Mac 的登录密码**，不是 DeepSeek Key
-
-官方模式下，手机连的是同一个官方 DSH（本地 cookie 注入代理，HTTP + WebSocket）。
-
-## 07 · 现在到哪了
+## 08 · 现在到哪了
 
 | | |
 | :--- | :--- |
@@ -192,7 +177,5 @@ AGPL-3.0。基于 [ccch1mneyyy/dsh-go](https://github.com/ccch1mneyyy/dsh-go)，
 **如果它让你少翻几次聊天记录，点个 star 就够了 ⭐**
 
 [![Star](https://img.shields.io/github/stars/BillWGong/dsh-go-mac?style=for-the-badge&logo=github&label=Star%20this%20repo)](https://github.com/BillWGong/dsh-go-mac)
-
-<sub>Built with Flutter + Swift · Not affiliated with DeepSeek</sub>
 
 </div>
