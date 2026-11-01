@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Generate the animated README hero (light/dark) as self-contained SVG."""
+import os
 from pathlib import Path
 
 DARK = dict(
@@ -17,8 +18,12 @@ LIGHT = dict(
     bubble="#EAF1FF", bubble_line="#C9D9F8", toast="#FFFFFF",
 )
 
+VERSION = os.environ.get("HERO_VERSION") or "1.0.17"
+STARS = os.environ.get("HERO_STARS") or ""
+
 def svg(p):
-    return f'''<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="600" viewBox="0 0 1200 600" role="img" aria-label="DSH Go Mac — 把运行当成界面">
+    stars_svg = (f'<text x="536" y="76" fill="{p["dim"]}" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="11">★ {STARS}</text>' if STARS else "")
+    return f'''<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="540" viewBox="0 0 1200 540" role="img" aria-label="DSH Go Mac — 把运行当成界面">
 <defs>
   <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
     <stop offset="0" stop-color="{p['bg0']}"/><stop offset="1" stop-color="{p['bg1']}"/>
@@ -37,13 +42,14 @@ def svg(p):
   </filter>
 </defs>
 
-<rect width="1200" height="600" fill="url(#bg)"/>
-<rect width="1200" height="600" fill="url(#grid)"/>
+<rect width="1200" height="540" fill="url(#bg)"/>
+<rect width="1200" height="540" fill="url(#grid)"/>
 <ellipse cx="930" cy="120" rx="360" ry="240" fill="{p['accent']}" opacity=".10"/>
-<ellipse cx="520" cy="560" rx="320" ry="200" fill="{p['accent2']}" opacity=".08"/>
+<ellipse cx="520" cy="520" rx="320" ry="180" fill="{p['accent2']}" opacity=".08"/>
 
 <!-- left: wordmark -->
 <text x="64" y="76" fill="{p['muted']}" font-family="-apple-system, 'SF Pro Text', 'PingFang SC', Arial, sans-serif" font-size="11" letter-spacing="3.2">DSH GO MAC · MACOS</text>
+{stars_svg}
 <text x="61" y="164" fill="{p['ink']}" font-family="-apple-system, 'SF Pro Display', 'PingFang SC', Arial, sans-serif" font-size="62" font-weight="700" letter-spacing="-1.6">把「运行」</text>
 <text x="61" y="234" fill="{p['ink']}" font-family="-apple-system, 'SF Pro Display', 'PingFang SC', Arial, sans-serif" font-size="62" font-weight="700" letter-spacing="-1.6">当成<tspan fill="url(#accent)">界面</tspan>。</text>
 <text x="64" y="280" fill="{p['muted']}" font-family="-apple-system, 'PingFang SC', 'Helvetica Neue', Arial, sans-serif" font-size="17">DeepSeek Harness 的第二个 macOS 客户端。</text>
@@ -58,7 +64,7 @@ def svg(p):
   <text x="226" y="408" fill="{p['ink']}">4</text>
   <text x="264" y="408" fill="{p['dim']}">files</text>
   <text x="308" y="408" fill="{p['ink']}">1</text>
-  <text x="352" y="408" fill="{p['green']}">●</text>
+  <text x="352" y="408" fill="{p['green']}">●<animate attributeName="opacity" values="1;.3;1" dur="2.2s" repeatCount="indefinite"/></text>
 </g>
 <g font-family="-apple-system, 'PingFang SC', Arial, sans-serif" font-size="10" fill="{p['muted']}">
   <rect x="64" y="448" width="96" height="26" rx="13" fill="{p['panel2']}" stroke="{p['line']}"/>
@@ -80,7 +86,7 @@ def svg(p):
 <rect x="600" y="104" width="540" height="18" fill="{p['panel2']}"/>
 <circle cx="620" cy="103" r="5.5" fill="#FF5F57"/><circle cx="638" cy="103" r="5.5" fill="#FEBC2E"/><circle cx="656" cy="103" r="5.5" fill="#28C840"/>
 <text x="676" y="107" fill="{p['muted']}" font-family="-apple-system, 'PingFang SC', Arial, sans-serif" font-size="10.5">做个下载进度条</text>
-<text x="1104" y="107" fill="{p['dim']}" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10">v1.0.17</text>
+<text x="1104" y="107" fill="{p['dim']}" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10">v{VERSION}</text>
 
 <!-- chat column -->
 <g id="scene">
