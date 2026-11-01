@@ -1,6 +1,8 @@
 // Text for the workspace pages: folder paths as people read them on a phone,
 // and short errors for the workspace and directory-picker codes.
 
+import 'dart:io';
+
 import 'package:dsh_client/dsh_client.dart';
 
 import '../../l10n/l10n.dart';
@@ -10,7 +12,7 @@ import '../../l10n/l10n.dart';
 const phoneStorageRoot = '/sdcard';
 
 /// Home of the engine's Linux user on the phone.
-const localHome = '/root';
+final localHome = Platform.isMacOS ? (Platform.environment['HOME'] ?? '/Users') : '/root';
 
 /// [path] for display: the phone's storage as 「手机存储」, the home folder as
 /// `~` (the engine's `/root` on the phone, [home] elsewhere when known).

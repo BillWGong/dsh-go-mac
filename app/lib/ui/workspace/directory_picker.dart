@@ -9,6 +9,8 @@
 import 'dart:async';
 
 import 'package:dsh_client/dsh_client.dart';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -201,7 +203,7 @@ Future<String?> askFolderPath(BuildContext context) async {
   final path = await showTextPrompt(
     context,
     title: l10n.remoteDirectoryEnterPath,
-    hint: '/root/workspace',
+    hint: Platform.isMacOS ? (Platform.environment['HOME'] ?? '/Users') : '/root/workspace',
     confirm: l10n.remoteDirectoryGo,
     mono: true,
     keyboardType: TextInputType.url,

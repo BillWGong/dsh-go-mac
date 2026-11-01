@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:collection';
 
 import 'package:dsh_client/dsh_client.dart';
@@ -15,7 +16,9 @@ import 'settings_state.dart';
 import 'workspaces_state.dart';
 
 /// Default working directory for sessions created on the phone (inside the rootfs).
-const localWorkspaceDir = '/root/workspace';
+final localWorkspaceDir = Platform.isMacOS
+    ? (Platform.environment['HOME'] ?? '/Users')
+    : '/root/workspace';
 
 class ArchiveCommitResult {
   const ArchiveCommitResult(this.archived, this.failed);
