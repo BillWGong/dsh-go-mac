@@ -10,8 +10,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../l10n/l10n.dart';
-import '../../macos/macos_support.dart';
-import '../../macos/window_chrome.dart';
 import '../../runtime/runtime_bridge.dart';
 import '../../runtime/runtime_state.dart';
 import '../../runtime/local_footprint.dart';
@@ -197,9 +195,7 @@ class SessionsDrawer extends ConsumerWidget {
         type: MaterialType.transparency,
         child: SafeArea(
           right: false,
-          child: Padding(
-            padding: EdgeInsets.only(top: isMacDesktop ? MacWindowChrome.titleBarHeight : 0),
-            child: Column(
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               if (short)
@@ -270,7 +266,6 @@ class SessionsDrawer extends ConsumerWidget {
                 ),
               ),
             ],
-          ),
           ),
         ),
       ),

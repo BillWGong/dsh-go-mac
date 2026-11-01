@@ -152,7 +152,7 @@ class _AppPageState extends State<AppPage> {
     final theme = Theme.of(context);
     final padding = MediaQuery.paddingOf(context);
     const barHeight = 56.0;
-    final macInset = isMacDesktop ? MacWindowChrome.titleBarHeight : 0.0;
+    const macInset = 0.0;
     final top = padding.top + macInset + barHeight;
     // Wide windows: one centred column (zero on phones). A phone on its side
     // keeps the column and the bar's keys clear of the cutout or navigation

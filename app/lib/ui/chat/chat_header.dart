@@ -96,7 +96,7 @@ class ChatHeader extends ConsumerWidget {
     final colors = theme.colorScheme;
     final dsh = DshColors.of(context);
     final mac = isMacDesktop;
-    final top = mac ? 0.0 : MediaQuery.paddingOf(context).top;
+    final top = MediaQuery.paddingOf(context).top;
     final barHeight = mac ? 44.0 : barHeightOf(context);
     final pillHeight = pillHeightOf(context);
     final titleStyle = theme.textTheme.titleSmall?.copyWith(fontSize: 15, height: 1.3);

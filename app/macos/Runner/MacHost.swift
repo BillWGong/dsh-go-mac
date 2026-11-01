@@ -219,7 +219,7 @@ final class MacHost: NSObject {
     appItem.submenu = appMenu
     appMenu.addItem(withTitle: "关于 \(appName)", action: #selector(NSApplication.orderFrontStandardAboutPanel(_:)), keyEquivalent: "")
     appMenu.addItem(.separator())
-    let phone = NSMenuItem(title: "手机版式", action: #selector(togglePhoneMode(_:)), keyEquivalent: "m")
+    let phone = NSMenuItem(title: "竖屏版式", action: #selector(togglePhoneMode(_:)), keyEquivalent: "m")
     phone.keyEquivalentModifierMask = [.command, .shift]
     phone.target = self
     phone.state = mode == .phone ? .on : .off
