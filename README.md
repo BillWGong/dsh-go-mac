@@ -1,9 +1,9 @@
 <div align="center">
 
-<a href="https://billwgong.github.io/dsh-go-mac/"><picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/images/hero-dark.svg">
-  <img src="docs/images/hero-light.svg" alt="DSH Go Mac — 把「运行」当成界面" width="100%">
-</picture></a>
+<a href="https://billwgong.github.io/dsh-go-mac/">
+<img src="docs/images/hero-dark.svg#gh-dark-mode-only" alt="DSH Go Mac — 把「运行」当成界面" width="100%">
+<img src="docs/images/hero-light.svg#gh-light-mode-only" alt="DSH Go Mac — 把「运行」当成界面" width="100%">
+</a>
 
 <p><a href="https://github.com/BillWGong/dsh-go-mac/releases/latest"><b>下载</b></a> · <a href="https://github.com/BillWGong/homebrew-tap">Homebrew</a> · <a href="https://www.bilibili.com/video/BV1njxJ6WE59/">演示视频</a> · <a href="https://billwgong.github.io/dsh-go-mac/">主页</a> · <a href="README.en.md">English</a></p>
 
