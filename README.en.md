@@ -1,9 +1,7 @@
 <div align="center">
 
-<a href="https://billwgong.github.io/dsh-go-mac/">
-<img src="docs/images/hero-dark.svg#gh-dark-mode-only" alt="DSH Go Mac — treat the run as the interface" width="100%">
-<img src="docs/images/hero-light.svg#gh-light-mode-only" alt="DSH Go Mac — treat the run as the interface" width="100%">
-</a>
+[![DSH Go Mac — treat the run as the interface](docs/images/hero-dark.svg#gh-dark-mode-only)](https://billwgong.github.io/dsh-go-mac/)
+[![DSH Go Mac — treat the run as the interface](docs/images/hero-light.svg#gh-light-mode-only)](https://billwgong.github.io/dsh-go-mac/)
 
 <p><a href="https://github.com/BillWGong/dsh-go-mac/releases/latest"><b>Download</b></a> · <a href="https://github.com/BillWGong/homebrew-tap">Homebrew</a> · <a href="https://www.bilibili.com/video/BV1njxJ6WE59/">Demo</a> · <a href="https://billwgong.github.io/dsh-go-mac/">Site</a> · <a href="README.md">简体中文</a></p>
 
