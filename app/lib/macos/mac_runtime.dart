@@ -24,6 +24,7 @@ import 'package:path_provider/path_provider.dart';
 
 import '../runtime/runtime_bridge.dart';
 import 'official_dsh.dart';
+import 'official_proxy.dart';
 
 /// macOS 上的一条本机引擎。
 class MacRuntimeBridge implements RuntimeBridge {
@@ -77,6 +78,10 @@ class MacRuntimeBridge implements RuntimeBridge {
   bool _starting = false;
   Timer? _healthTimer;
 
+  /// 官方模式的手机连接代理（手机连它，它注入官方 cookie）。
+  OfficialProxy? _phoneProxy;
+  int? _phoneProxyTarget;
+
   @override
   Stream<RuntimeEvent> get events => _events.stream;
 
@@ -129,6 +134,8 @@ class MacRuntimeBridge implements RuntimeBridge {
       final found = await _probeOfficial(force: true);
       _emitMap(_officialStatusMap(found));
     } else {
+      await _stopPhoneProxy();
+      await _clearPhoneAttach();
       await _loadInstalledState();
       _emitMap(_statusMap());
     }
@@ -147,6 +154,9 @@ class MacRuntimeBridge implements RuntimeBridge {
     _officialNow = found;
     if (found != null) {
       _log('[dsh-go] official DSH at ${found.authority}${found.version == null ? '' : ' (v${found.version})'}');
+      await _ensurePhoneProxy(found);
+    } else {
+      await _stopPhoneProxy();
     }
     return found;
   }
@@ -631,7 +641,9 @@ class MacRuntimeBridge implements RuntimeBridge {
     final port = _port;
     if (port == null) return;
     // token 行意味着服务已经在监听；先把手机握手写好，别被后面的探活超时拖累。
-    if (!_official) await _publishPhoneAttach();
+    if (!_official) {
+      await _publishPhoneAttach(processId: _process!.pid, base: Uri.parse(_baseUrl!), token: _token!);
+    }
     await _writeDiagnostics();
     for (var i = 0; i < 120; i++) {
       try {
@@ -738,6 +750,7 @@ class MacRuntimeBridge implements RuntimeBridge {
     }
     _stopping = false;
     await _clearPidFile();
+    await _stopPhoneProxy();
     await _clearPhoneAttach();
   }
 
@@ -776,18 +789,15 @@ class MacRuntimeBridge implements RuntimeBridge {
   /// 来复用已在运行的 `dsh web`（web.pid / web.st / web.cmd / web.log）。这里把内置引擎的
   /// pid、启动时间、默认启动命令和带 token 的地址写进去——手机就不会再起第二个 DSH，
   /// 也不会碰到官方 DSH 的 `~/.dsh`。
-  Future<void> _publishPhoneAttach() async {
-    final process = _process;
-    final base = _baseUrl;
-    final token = _token;
+  Future<void> _publishPhoneAttach({required int processId, required Uri base, required String token}) async {
     final home = Platform.environment['HOME'];
-    if (process == null || base == null || token == null || home == null) return;
+    if (home == null) return;
     try {
       final dir = Directory('$home/.dsh-app-remote');
       await dir.create(recursive: true);
       await Process.run('/bin/chmod', <String>['700', dir.path]);
-      final st = await Process.run('/bin/ps', <String>['-p', '${process.pid}', '-o', 'lstart=']);
-      await File('${dir.path}/web.pid').writeAsString('${process.pid}');
+      final st = await Process.run('/bin/ps', <String>['-p', '$processId', '-o', 'lstart=']);
+      await File('${dir.path}/web.pid').writeAsString('$processId');
       // 手机端用 $(ps -p PID -o lstart=) 比较，保留列宽空格，只去掉行尾换行。
       await File('${dir.path}/web.st').writeAsString('${st.stdout}'.replaceFirst(RegExp(r'\n+$'), ''));
       await File('${dir.path}/web.cmd').writeAsString('dsh web');
@@ -869,6 +879,36 @@ whenToUse: 用户在 DSH Go Mac 上遇到连接、引擎、手机连接或更新
 4. 官方 DSH 与内置引擎是两套数据：官方用 `~/.dsh`，内置引擎用 App 自己的数据目录；不要把两者混在一起排查。
 5. 结论要短：现象 → 原因 → 下一步。需要报 issue 时给一段可以直接粘贴的中文草稿，附上诊断里的版本与错误行。
 ''');
+  }
+
+  /// 官方模式下给手机一个可复用的本地代理；端口或 cookie 变了就重建。
+  Future<void> _ensurePhoneProxy(OfficialDsh official) async {
+    if (_phoneProxy != null && _phoneProxyTarget == official.port) return;
+    await _stopPhoneProxy();
+    try {
+      final proxy = OfficialProxy(
+        upstream: official.baseUri,
+        cookie: official.cookie,
+        onLog: (message) => _log('[dsh-go] $message'),
+      );
+      final started = await proxy.start();
+      _phoneProxy = proxy;
+      _phoneProxyTarget = official.port;
+      await _publishPhoneAttach(
+        processId: pid,
+        base: Uri.parse('http://127.0.0.1:${started.port}/'),
+        token: started.token,
+      );
+    } catch (error) {
+      _log('[dsh-go] official phone proxy failed: $error', 'stderr');
+      await _clearPhoneAttach();
+    }
+  }
+
+  Future<void> _stopPhoneProxy() async {
+    await _phoneProxy?.stop();
+    _phoneProxy = null;
+    _phoneProxyTarget = null;
   }
 
   Future<void> _clearPhoneAttach() async {
