@@ -56,9 +56,12 @@ else
   die "找不到 flutter。装 Flutter 3.47.x，或用 FLUTTER=/path/to/flutter 指定"
 fi
 
-# 3. 运行时（首次）
-if [[ ! -f "$APP/assets/runtime-macos/runtime-arm64.tar.gz" || ! -f "$APP/assets/runtime-macos/manifest.json" ]]; then
-  echo "== 生成本机引擎运行时（首次约 2–5 分钟）"
+# 3. 运行时（首次，或版本变了：缓存可能还是旧的 tar）
+runtime_version="$(sed -n 's/.*"runtimeVersion": "\([^"]*\)".*/\1/p' "$ROOT/runtime/build-runtime-macos.sh" | head -1)"
+manifest_version="$(python3 -c 'import json,sys;print(json.load(open(sys.argv[1])).get("runtimeVersion",""))' "$APP/assets/runtime-macos/manifest.json" 2>/dev/null || true)"
+if [[ ! -f "$APP/assets/runtime-macos/runtime-arm64.tar.gz" || ! -f "$APP/assets/runtime-macos/manifest.json" || "$manifest_version" != "$runtime_version" ]]; then
+  echo "== 生成本机引擎运行时（版本 ${runtime_version:-?}，约 2–5 分钟）"
+  rm -f "$APP/assets/runtime-macos/runtime-arm64.tar.gz" "$APP/assets/runtime-macos/manifest.json"
   bash "$ROOT/runtime/build-runtime-macos.sh"
 fi
 
