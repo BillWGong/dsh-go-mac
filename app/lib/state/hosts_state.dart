@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -88,7 +89,7 @@ String _short(String name) {
 // ── Secrets ──────────────────────────────────────────────────────────────────
 
 /// Keystore-backed in the app; tests override with [MemorySecretStore].
-final secretStoreProvider = Provider<SecretStore>((ref) => SecureSecretStore());
+final secretStoreProvider = Provider<SecretStore>((ref) => Platform.isMacOS ? FileSecretStore() : SecureSecretStore());
 
 // ── Saved SSH hosts ──────────────────────────────────────────────────────────
 
