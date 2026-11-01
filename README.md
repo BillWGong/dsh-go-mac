@@ -13,6 +13,14 @@ DeepSeek Harness 的 macOS 客户端。同一个引擎，零迁移。</p>
 
 </div>
 
+> [!IMPORTANT]
+> **先给原作者点一个 star：[ccch1mneyyy/dsh-go](https://github.com/ccch1mneyyy/dsh-go)**
+>
+> 这个仓库只是移植。没有原作者的 DSH Go，就没有 DSH Go Mac。请现在就点一下——这是对这份工作最起码的尊重。
+>
+> [![给原作者点 star](https://img.shields.io/github/stars/ccch1mneyyy/dsh-go?style=for-the-badge&logo=github&label=STAR%20THE%20ORIGINAL)](https://github.com/ccch1mneyyy/dsh-go)
+
+
 <p align="center"><img src="docs/images/demo.gif" alt="DSH Go Mac 真实录屏：思考、工具调用、运行详情" width="100%"></p>
 
 <p align="center"><sub>真实录屏，没有加速。一个需要工具调用的任务，从思考到运行详情。</sub></p>
@@ -107,6 +115,10 @@ AGPL-3.0。基于 [ccch1mneyyy/dsh-go](https://github.com/ccch1mneyyy/dsh-go)，
 
 <div align="center">
 
-**如果它让你少翻几次聊天记录，点个 star 就够了 ⭐**
+**最重要的事：先给原作者仓库点 star → [ccch1mneyyy/dsh-go](https://github.com/ccch1mneyyy/dsh-go)**
+
+如果这个移植也帮到了你，再给[本项目](https://github.com/BillWGong/dsh-go-mac)点一个。
+
+[![Star the original](https://img.shields.io/github/stars/ccch1mneyyy/dsh-go?style=for-the-badge&logo=github&label=STAR%20THE%20ORIGINAL)](https://github.com/ccch1mneyyy/dsh-go)
 
 </div>
