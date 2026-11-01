@@ -67,7 +67,12 @@ DSH Go Mac 让你在 Mac 上更好的使用 [DeepSeek Harness](https://github.co
 
 ## 更新
 
-**1.0.10**（当前）
+**1.0.11**（当前）
+
+- 修复新建对话失败：本地工作目录从 Android 的 `/root/workspace` 改为 Mac 的 `$HOME`
+- 路径显示与目录选择器的 home 同步为 Mac
+
+**1.0.10**
 
 - 顶栏与系统标题栏合并；竖屏版式改为系统标题栏占位，红绿灯不再与侧栏/顶栏重叠
 - 关于页版本号修正；检查更新指向本项目仓库
@@ -79,7 +84,7 @@ DSH Go Mac 让你在 Mac 上更好的使用 [DeepSeek Harness](https://github.co
 ## 安装
 
 从 [Releases](https://github.com/BillWGong/dsh-go-mac/releases/latest) 下载
-`dsh-go-mac-1.0.10-macos-arm64.dmg`，打开后把 **DSH Go Mac** 拖进 `Applications`。
+`dsh-go-mac-1.0.11-macos-arm64.dmg`，打开后把 **DSH Go Mac** 拖进 `Applications`。
 
 首次打开会被 Gatekeeper 拦（未签名构建）：右键 →「打开」，或
 
@@ -116,7 +121,7 @@ bash tooling/build-macos.sh --dmg
 
 ```
 app/build/macos/Build/Products/Release/dsh_go.app
-app/build/macos/dsh-go-mac-1.0.10-macos-arm64.dmg
+app/build/macos/dsh-go-mac-1.0.11-macos-arm64.dmg
 ```
 
 环境检查：`bash tooling/check-macos-env.sh`。
