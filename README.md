@@ -1,6 +1,8 @@
 # DSH Go Mac
 
-**DeepSeek Harness 的 macOS 原生客户端** —— Android 版 [DSH Go](https://github.com/ccch1mneyyy/dsh-go) 的移植。
+**同一个 DSH 引擎，一个更现代、更顺手的 macOS 客户端** —— 界面来自 Android 版 [DSH Go](https://github.com/ccch1mneyyy/dsh-go)。
+
+连你现在的官方 DSH，不迁移、不换引擎；过程信息、通知审批和动效是它的重点。
 
 Apple Silicon · Flutter + Swift · AGPL-3.0
 
@@ -15,8 +17,9 @@ Apple Silicon · Flutter + Swift · AGPL-3.0
 
 DSH Go Mac 让你在 Mac 上更好的使用 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)：
 
-- **本机引擎**：不用重新下载 dsh 官方版。App 内置 Node 24 + DSH，点一下就在你的
-  Mac 上跑起来，对话、工作区、插件都在本机。
+- **同一个引擎**：直接连这台 Mac 上正在运行的官方 DSH，共享对话、模型和插件——不迁移数据，
+  也不用装第二套运行时。
+- **本机引擎（可选）**：App 内置 Node 24 + DSH，点一下就在你的 Mac 上跑起来。
 - **远程主机**：连接电脑或服务器上的 DSH（SSH / DSH Remote），手机上那套体验原样搬过来；
   手机版 DSH Go 也可以通过 SSH 连到这台 Mac 的 DSH Go Mac（见下方「手机连接」）。
 - **原生界面**：不是套壳网页。聊天、工具审批、提问、插件面板、分享卡、桌宠、语音输入都是
