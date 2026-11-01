@@ -1,6 +1,5 @@
 // 官方 DSH 手机代理：登录换 cookie、HTTP 注入 cookie、WebSocket 转发。
 
-import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
