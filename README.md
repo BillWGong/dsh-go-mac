@@ -96,6 +96,12 @@ open "/Applications/DSH Go Mac.app"
 
 # 3. 未签名构建被 Gatekeeper 拦住时
 xattr -dr com.apple.quarantine "/Applications/DSH Go Mac.app"
+
+或者用 Homebrew：
+
+```bash
+brew install --cask BillWGong/tap/dsh-go-mac
+```
 ```
 
 首次启动：

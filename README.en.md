@@ -94,6 +94,12 @@ open "/Applications/DSH Go Mac.app"
 
 # 3. If Gatekeeper blocks the unsigned build
 xattr -dr com.apple.quarantine "/Applications/DSH Go Mac.app"
+
+Or with Homebrew:
+
+```bash
+brew install --cask BillWGong/tap/dsh-go-mac
+```
 ```
 
 First launch:
