@@ -42,11 +42,8 @@ final class MacHost: NSObject {
       self?.handleApp(call, result: result)
     }
 
-    // 顶栏与原生标题栏合并：内容铺满，标题文字隐藏，交通灯浮在上面。
-    window.titleVisibility = .hidden
-    window.titlebarAppearsTransparent = true
-    window.styleMask.insert(.fullSizeContentView)
     window.isMovableByWindowBackground = false
+    applyChrome(for: mode)
     windowChannel = FlutterMethodChannel(name: "dsh/window", binaryMessenger: messenger)
     windowChannel?.setMethodCallHandler { [weak self] call, result in
       self?.handleWindow(call, result: result)
@@ -128,6 +125,19 @@ final class MacHost: NSObject {
 
   // MARK: - 版式
 
+  /// 自适应：内容铺满、标题隐藏，顶栏和交通灯合成一条。
+  /// 竖屏：恢复系统标题栏占位（标题仍隐藏），任何内容都不会压到交通灯。
+  private func applyChrome(for mode: MacWindowMode) {
+    guard let window else { return }
+    window.titleVisibility = .hidden
+    window.titlebarAppearsTransparent = true
+    if mode == .phone {
+      window.styleMask.remove(.fullSizeContentView)
+    } else {
+      window.styleMask.insert(.fullSizeContentView)
+    }
+  }
+
   func applyMode(_ next: MacWindowMode, persist: Bool) {
     guard let window else {
       mode = next
@@ -143,6 +153,7 @@ final class MacHost: NSObject {
     if persist {
       UserDefaults.standard.set(next.rawValue, forKey: Self.modeKey)
     }
+    applyChrome(for: next)
     phoneMenuItem?.state = next == .phone ? .on : .off
     emit(["type": "mode", "mode": next.rawValue])
 

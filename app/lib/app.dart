@@ -3,8 +3,6 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'l10n/l10n.dart';
-import 'macos/macos_support.dart';
-import 'macos/window_chrome.dart';
 import 'macos/window_mode.dart';
 import 'performance/performance_state.dart';
 import 'state/app_info.dart';
@@ -144,14 +142,8 @@ class _DshAppState extends ConsumerState<DshApp> with WidgetsBindingObserver {
       // the launch screen of a cold start (启动画面).
       builder: (context, child) {
         final media = MediaQuery.of(context);
-        // macOS：交通灯浮在内容上，所有版式统一让出顶部这条，避免任何页面/抽屉/手机版式再重叠。
-        final macTop = isMacDesktop ? MacWindowChrome.titleBarHeight : 0.0;
         return MediaQuery(
-          data: media.copyWith(
-            disableAnimations: media.disableAnimations || performance.reduceMotion,
-            padding: macTop == 0 ? media.padding : media.padding.copyWith(top: media.padding.top + macTop),
-            viewPadding: macTop == 0 ? media.viewPadding : media.viewPadding.copyWith(top: media.viewPadding.top + macTop),
-          ),
+          data: media.copyWith(disableAnimations: media.disableAnimations || performance.reduceMotion),
           // macOS 手机版式：窗口被拉宽时内容仍是手机那条，居中（其他平台原样）。
           child: MacWindowFrame(
             child: Stack(

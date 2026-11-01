@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../l10n/l10n.dart';
 import '../../../macos/macos_support.dart';
+import '../../../macos/window_chrome.dart';
 import '../../../state/connection_state.dart' show hostNameProvider;
 import '../../../state/hosts_state.dart' show activeHostProvider;
 import '../../chat/chat_header.dart';
@@ -52,7 +53,8 @@ class AdaptiveRail extends ConsumerWidget {
   /// Top of the first key: centred on the chat header's bar.
   static double topOf(BuildContext context) {
     final bar = isMacDesktop ? 44.0 : ChatHeader.barHeightOf(context);
-    return MediaQuery.paddingOf(context).top + (bar - AdaptiveMetrics.key) / 2;
+    final base = isMacDesktop ? MacWindowChrome.titleBarHeight : MediaQuery.paddingOf(context).top;
+    return base + (bar - AdaptiveMetrics.key) / 2;
   }
 
   /// Gap under the last key: the composer's (8 above the gesture bar, or the
