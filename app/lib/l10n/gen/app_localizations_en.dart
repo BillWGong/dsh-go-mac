@@ -3623,6 +3623,29 @@ class L10nEn extends L10n {
   String get chatExpandTodos => 'Expand list';
 
   @override
+  String chatDockFolded(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count status bars stacked',
+      one: '1 status bar stacked',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get chatDockSpread => 'Expand';
+
+  @override
+  String get chatDockFold => 'Fold the status bars';
+
+  @override
+  String get chatDockNext => 'Next card';
+
+  @override
+  String get chatDockPrevious => 'Previous card';
+
+  @override
   String get chatTodoNotStarted => 'Not started';
 
   @override
@@ -8375,6 +8398,201 @@ class L10nEn extends L10n {
       'image generation,text to image,video generation,AI art,generate images,generate video';
 
   @override
+  String get mediaSettingsDefaults => 'Defaults';
+
+  @override
+  String get mediaSettingsLegacyDefault => 'Older general default';
+
+  @override
+  String get mediaSettingsLegacyDefaultHint => 'The 0.2.x setting; used when a kind has no default of its own';
+
+  @override
+  String get mediaSettingsLegacyDefaultStale => 'Its service is unavailable; clear it so generation does not fail';
+
+  @override
+  String get mediaSettingsLegacyDefaultClear => 'Clear the older general default';
+
+  @override
+  String get mediaSettingsDefaultModel => 'Default model';
+
+  @override
+  String get mediaSettingsDefaultFooterLegacy =>
+      'An older plugin has one default model; update it to set images and video separately.';
+
+  @override
+  String get mediaSettingsDefaultsFooter =>
+      'Choose a default model for images and for video; leave it on Auto to use the first available one.';
+
+  @override
+  String get mediaSettingsNoVideoModels => 'This host\'s catalogue has no video models yet';
+
+  @override
+  String get mediaSettingsServices => 'Services';
+
+  @override
+  String get mediaSettingsAddService => 'Add service';
+
+  @override
+  String get mediaSettingsAddServiceHint =>
+      'Start from a provider preset; endpoint, protocol and models come filled in';
+
+  @override
+  String mediaSettingsServiceLimit(int count) {
+    return 'Up to $count services';
+  }
+
+  @override
+  String get mediaSettingsNoServices => 'No services yet. Add a provider to start making images or video.';
+
+  @override
+  String get mediaSettingsNoModels => 'No models selected';
+
+  @override
+  String get mediaSettingsKeyMissing => 'No API key';
+
+  @override
+  String get mediaSettingsCatalogMissing =>
+      'The plugin on this host offers no model catalogue. Existing services can still be edited, but nothing can be added and no default chosen yet.';
+
+  @override
+  String get mediaSettingsCatalogBroken =>
+      'The model catalogue can\'t be read (it may be an incompatible version). Existing services can still be edited, but nothing can be added and no default chosen yet.';
+
+  @override
+  String get mediaSettingsCatalogEmpty =>
+      'The model catalogue has no models yet. Existing services can still be edited, but nothing can be added and no default chosen yet.';
+
+  @override
+  String get mediaSettingsNoPresets => 'There are no services to add from this catalogue yet.';
+
+  @override
+  String get mediaSettingsLimits => 'Request limits';
+
+  @override
+  String get mediaSettingsLimitsHint => 'Caps images and bytes per request; defaults are the plugin hard limits';
+
+  @override
+  String get mediaSettingsMaxImages => 'Images per request';
+
+  @override
+  String get mediaSettingsMaxImageBytes => 'Max bytes per original';
+
+  @override
+  String get mediaSettingsMaxResponseBytes => 'Max provider response bytes';
+
+  @override
+  String get mediaSettingsMaxTotalImageBytes => 'Max image bytes per request';
+
+  @override
+  String get mediaSettingsMaxVideoBytes => 'Max video bytes';
+
+  @override
+  String get mediaSettingsBudget => 'Cost protection';
+
+  @override
+  String get mediaSettingsDailyBudget => 'Daily budget (CNY)';
+
+  @override
+  String get mediaSettingsDailyBudgetHint => 'Resets on the Shanghai date; generation pauses once it\'s used up';
+
+  @override
+  String get mediaSettingsUnknownPriceHold => 'Hold per request when the price is unknown (CNY)';
+
+  @override
+  String get mediaSettingsUnknownPriceHoldHint => 'Reserved per request; not a cap the provider charges by';
+
+  @override
+  String get mediaSettingsApiKey => 'API key';
+
+  @override
+  String get mediaSettingsReuseKey => 'Reuse key';
+
+  @override
+  String get mediaSettingsReuseKeyHint =>
+      'Images and video from one provider can share one API key; no need to enter it again.';
+
+  @override
+  String get mediaSettingsReuseKeyNone => 'No other service from this provider yet.';
+
+  @override
+  String get mediaSettingsReuseKeyShared => 'Shared';
+
+  @override
+  String get mediaSettingsModels => 'Models';
+
+  @override
+  String get mediaSettingsModelsEmpty => 'The catalogue has no models for this protocol';
+
+  @override
+  String get mediaSettingsModelKeepOne => 'Keep at least one model';
+
+  @override
+  String get mediaSettingsModelMissing => 'Not in the catalogue';
+
+  @override
+  String get mediaSettingsAdvanced => 'Advanced';
+
+  @override
+  String get mediaSettingsBaseUrl => 'API base URL';
+
+  @override
+  String get mediaSettingsBaseUrlInvalid => 'The address must start with https://';
+
+  @override
+  String get mediaSettingsProvider => 'Provider id';
+
+  @override
+  String get mediaSettingsKeyRef => 'Credential name';
+
+  @override
+  String get mediaSettingsKeyRefInvalid => 'Use letters, digits and underscores only';
+
+  @override
+  String get mediaSettingsResponseFormat => 'Response format';
+
+  @override
+  String get mediaSettingsResponseFormatAuto => 'By protocol';
+
+  @override
+  String get mediaSettingsServiceId => 'Service ID';
+
+  @override
+  String get mediaSettingsServiceGone => 'This service is gone';
+
+  @override
+  String get mediaSettingsServiceGoneBody => 'It may have been removed elsewhere. Go back to add it again.';
+
+  @override
+  String get mediaSettingsDelete => 'Delete service';
+
+  @override
+  String mediaSettingsDeleteTitle(String name) {
+    return 'Delete “$name”?';
+  }
+
+  @override
+  String get mediaSettingsDeleteBody =>
+      'Only this host\'s service entry is removed; the API key is kept. Defaults pointing at it are cleared too.';
+
+  @override
+  String get mediaSettingsNoImageModels => 'The catalogue has no image models yet';
+
+  @override
+  String get mediaSettingsNoAvailableService => 'No service is ready yet (add one and enter its key)';
+
+  @override
+  String get mediaSettingsNoImageService => 'No image service is ready yet (add one and enter its key)';
+
+  @override
+  String get mediaSettingsNoVideoService => 'No video service is ready yet (add one and enter its key)';
+
+  @override
+  String get mediaSettingsKeyExternal => 'Managed by another setting; only referenced here';
+
+  @override
+  String get mediaSettingsEnabledHint => 'Turns this service off for generation';
+
+  @override
   String get nearbyThisChat => 'This chat';
 
   @override
@@ -8443,6 +8661,22 @@ class L10nEn extends L10n {
 
   @override
   String get performanceRemoteHint => 'Connect to a computer or server to reduce work on this phone';
+
+  @override
+  String get performanceRefresh => 'Refresh rate';
+
+  @override
+  String get performanceRefreshMax => 'Max';
+
+  @override
+  String get performanceRefreshSystem => 'System';
+
+  @override
+  String get performanceRefreshHint =>
+      'Auto: fastest while drawing, handed back when still; System: the system decides.';
+
+  @override
+  String get searchKwRefreshRate => 'refresh rate high refresh 120Hz 90Hz smooth';
 
   @override
   String get petActionSending => 'Sending…';
@@ -17268,6 +17502,19 @@ class L10nEn extends L10n {
   @override
   String viewUiReplyCancel(String value) {
     return 'Cancel: $value';
+  }
+
+  @override
+  String viewUiReplyOther(String value) {
+    return 'Other: $value';
+  }
+
+  @override
+  String get viewUiFreeTextHint => 'Other (type your own)';
+
+  @override
+  String viewUiChosenOther(String value) {
+    return 'Wrote: $value';
   }
 
   @override

@@ -10,6 +10,7 @@ import '../../macos/macos_support.dart';
 import '../../macos/window_mode.dart';
 import '../../macos/window_chrome.dart';
 import '../../state/ui_mode_state.dart';
+import '../common/discard_guard.dart';
 import '../common/pressable.dart';
 import '../common/ui_trace.dart';
 import '../common/side_insets.dart';
@@ -243,7 +244,10 @@ class _AppPageState extends State<AppPage> {
                           tooltip: l10n.commonBack,
                           // pop(), not maybePop(): a PopScope above the route can
                           // veto maybePop and leave the page with no way out.
-                          onPressed: () {
+                          onPressed: () async {
+                            // Let an open edit page ask before dropping its changes.
+                            if (!await DiscardGuard.confirmLeave(context)) return;
+                            if (!context.mounted) return;
                             final navigator = Navigator.of(context);
                             if (navigator.canPop()) {
                               navigator.pop();
