@@ -113,6 +113,11 @@ for diff in "$HERE"/patches/*.diff; do
   echo "  - $(basename "$diff")"
   patch --batch -N -s -p1 -d "$STAGE/runtime/dsh" <"$diff" || { echo "补丁失败：$diff" >&2; exit 1; }
 done
+# 删除补丁的伴随模块：上游由 rtbuild.py 复制，macOS 脚本需要自己放进去。
+if [[ -f "$HERE/session-deletion/core.mjs" ]]; then
+  install -m 644 "$HERE/session-deletion/core.mjs" \
+    "$STAGE/runtime/dsh/node_modules/@deepseek-ai/dsh-session-persistence-jsonl/lib/dsh-go-deletion.mjs"
+fi
 
 cat >"$STAGE/runtime/etc/dsh-app/runtime.json" <<EOF
 {
