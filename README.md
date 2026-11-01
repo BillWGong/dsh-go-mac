@@ -17,7 +17,8 @@ DSH Go Mac 让你在 Mac 上更好的使用 [DeepSeek Harness](https://github.co
 
 - **本机引擎**：不用重新下载 dsh 官方版。App 内置 Node 24 + DSH，点一下就在你的
   Mac 上跑起来，对话、工作区、插件都在本机。
-- **远程主机**：也可以连接电脑或服务器上的 DSH（SSH / DSH Remote），手机上那套体验原样搬过来，也可以让手机版 DSH Go链接电脑上的DSH Go Mac。
+- **远程主机**：连接电脑或服务器上的 DSH（SSH / DSH Remote），手机上那套体验原样搬过来；
+  手机版 DSH Go 也可以通过 SSH 连到这台 Mac 的 DSH Go Mac（见下方「手机连接」）。
 - **原生界面**：不是套壳网页。聊天、工具审批、提问、插件面板、分享卡、桌宠、语音输入都是
   上游那套 Flutter 界面，Mac 上重新接了系统能力。
 
@@ -29,7 +30,7 @@ DSH Go Mac 让你在 Mac 上更好的使用 [DeepSeek Harness](https://github.co
 | 界面 | Flutter | 同一套 Flutter 代码（`app/lib`） |
 | 平台层 | Kotlin（`app/android`） | Swift（`app/macos`） |
 | 本机引擎 | PRoot + Ubuntu + Node | 原生 Node 24 + DSH npm 包 |
-| 手机操控 / 无障碍 | Android AccessibilityService | **尚未移植**（见下文） |
+| Mac 操控（原手机操控） | Android AccessibilityService | **尚未移植**（见下文） |
 | 应用内更新 | 下载 APK 安装 | 走 DMG（尚未接入） |
 
 移植基于上游 **v1.0.4（commit `bf01594`）**。上游的 Android 构建仍然留在仓库里，未做改动。
