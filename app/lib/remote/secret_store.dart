@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 /// Where remote-access secrets live: SSH passwords and private keys, relay
@@ -44,4 +47,63 @@ class MemorySecretStore implements SecretStore {
 
   @override
   Future<void> delete(String key) async => values.remove(key);
+}
+
+
+/// macOS fallback for ad-hoc builds: the Keychain needs entitlements this
+/// unsigned bundle does not carry (errSecMissingEntitlement, -34018), so SSH
+/// secrets go to a 0600 JSON file under Application Support instead.
+class FileSecretStore implements SecretStore {
+  FileSecretStore({String? path}) : path = path ?? _defaultPath();
+
+  final String path;
+  Map<String, String>? _cache;
+
+  static String _defaultPath() {
+    final home = Platform.environment['HOME'] ?? '.';
+    return '$home/Library/Application Support/io.github.billwgong.dshgomac/remote-secrets.json';
+  }
+
+  Future<Map<String, String>> _load() async {
+    final cached = _cache;
+    if (cached != null) return cached;
+    try {
+      final file = File(path);
+      if (await file.exists()) {
+        final raw = jsonDecode(await file.readAsString());
+        if (raw is Map) {
+          return _cache = {
+            for (final entry in raw.entries) '${entry.key}': '${entry.value}',
+          };
+        }
+      }
+    } catch (_) {}
+    return _cache = <String, String>{};
+  }
+
+  Future<void> _save(Map<String, String> values) async {
+    final file = File(path);
+    await file.parent.create(recursive: true);
+    final temp = File('${file.path}.tmp');
+    await temp.writeAsString(jsonEncode(values), flush: true);
+    await Process.run('/bin/chmod', <String>['600', temp.path]);
+    await temp.rename(file.path);
+  }
+
+  @override
+  Future<String?> read(String key) async => (await _load())[key];
+
+  @override
+  Future<void> write(String key, String value) async {
+    final values = await _load();
+    values[key] = value;
+    await _save(values);
+  }
+
+  @override
+  Future<void> delete(String key) async {
+    final values = await _load();
+    values.remove(key);
+    await _save(values);
+  }
 }

@@ -1067,13 +1067,13 @@ whenToUse: 用户在 DSH Go Mac 上遇到连接、引擎、手机连接或更新
       _failure?.recent ?? (_logs.length > 40 ? _logs.sublist(_logs.length - 40) : List<String>.of(_logs));
 
   @override
-  Future<StorageAccess> storageStatus() async => const StorageAccess(granted: false, permission: false, legacy: false);
+  Future<StorageAccess> storageStatus() async => const StorageAccess(granted: true, permission: true, legacy: false);
 
   @override
-  Future<StorageAccess> requestStorage() async => const StorageAccess(granted: false, permission: false, legacy: false);
+  Future<StorageAccess> requestStorage() async => const StorageAccess(granted: true, permission: true, legacy: false);
 
   @override
-  Future<bool> openAllFilesAccess() async => false;
+  Future<bool> openAllFilesAccess() async => true;
 
   @override
   Future<bool?> batteryExempt() async => null;
