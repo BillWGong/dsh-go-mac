@@ -13,6 +13,14 @@ A macOS client for DeepSeek Harness. Same engine, no migration.</p>
 
 </div>
 
+> [!IMPORTANT]
+> **Star the original project first: [ccch1mneyyy/dsh-go](https://github.com/ccch1mneyyy/dsh-go)**
+>
+> This repo is only a port. Without the original DSH Go, DSH Go Mac would not exist. Do it now — it is the least this work deserves.
+>
+> [![Star the original](https://img.shields.io/github/stars/ccch1mneyyy/dsh-go?style=for-the-badge&logo=github&label=STAR%20THE%20ORIGINAL)](https://github.com/ccch1mneyyy/dsh-go)
+
+
 <p align="center"><img src="docs/images/demo.gif" alt="DSH Go Mac screen recording: thinking, tool calls, run details" width="100%"></p>
 
 <p align="center"><sub>A real recording, no speed-up. One tool-using task, from thinking to run details.</sub></p>
@@ -107,6 +115,10 @@ AGPL-3.0. Built on [ccch1mneyyy/dsh-go](https://github.com/ccch1mneyyy/dsh-go); 
 
 <div align="center">
 
-**If it saves you from scrolling through chat logs, a star is enough ⭐**
+**The most important thing: star the original project → [ccch1mneyyy/dsh-go](https://github.com/ccch1mneyyy/dsh-go)**
+
+If this port helped you too, star [this repo](https://github.com/BillWGong/dsh-go-mac) as well.
+
+[![Star the original](https://img.shields.io/github/stars/ccch1mneyyy/dsh-go?style=for-the-badge&logo=github&label=STAR%20THE%20ORIGINAL)](https://github.com/ccch1mneyyy/dsh-go)
 
 </div>
