@@ -1,331 +1,343 @@
-<p align="center">
-  <a href="README.md">简体中文</a> · <b>English</b>
+<div align="center">
+
+<img src="docs/images/banner.png" alt="DSH Go Mac" width="100%" />
+
+<h3>One DSH engine. A more modern, more fluid macOS client.</h3>
+
+<p><b>Detailed run context · smooth UX · modern motion</b><br/>
+Attach to your existing official DSH without migrating data — or run the bundled engine.</p>
+
+<p>
+  <a href="https://github.com/BillWGong/dsh-go-mac/releases/latest"><img alt="Release" src="https://img.shields.io/github/v/release/BillWGong/dsh-go-mac?style=flat-square&amp;label=release"></a>
+  <a href="https://github.com/BillWGong/dsh-go-mac/releases"><img alt="Downloads" src="https://img.shields.io/github/downloads/BillWGong/dsh-go-mac/total?style=flat-square&amp;label=downloads"></a>
+  <a href="LICENSE"><img alt="License" src="https://img.shields.io/badge/license-AGPL--3.0-blue?style=flat-square"></a>
+  <a href="#-requirements"><img alt="Platform" src="https://img.shields.io/badge/platform-macOS%2012%2B%20Apple%20Silicon-lightgrey?style=flat-square"></a>
+  <a href="https://github.com/BillWGong/dsh-go-mac/stargazers"><img alt="Stars" src="https://img.shields.io/github/stars/BillWGong/dsh-go-mac?style=flat-square"></a>
 </p>
 
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/hero-en-dark.webp">
-    <img src="docs/assets/hero-en-light.webp" alt="DSH Go: DeepSeek Harness, in your pocket" width="100%">
-  </picture>
-</p>
+<p><a href="https://github.com/BillWGong/dsh-go-mac/releases/latest"><b>Download</b></a> · <a href="https://www.bilibili.com/video/BV1njxJ6WE59/">Demo video</a> · <a href="docs/macos/README.md">Docs</a> · <a href="README.md">简体中文</a></p>
 
-<p align="center">
-  An Android client for DeepSeek Harness. Run DSH right on your phone, or drive the one on your computer.
-</p>
+</div>
 
-<p align="center">
-  <a href="https://github.com/ccch1mneyyy/dsh-go/releases/latest"><img alt="Android 8+" src="https://img.shields.io/badge/Android-8%2B-4B67B4?style=flat-square&logo=android&logoColor=white&labelColor=2B3245"></a>
-  <a href="LICENSE"><img alt="License AGPL-3.0" src="https://img.shields.io/badge/license-AGPL--3.0-4B67B4?style=flat-square&labelColor=2B3245"></a>
-  <a href="https://forum.dshtui.com"><img alt="Forum" src="https://img.shields.io/badge/forum-forum.dshtui.com-4B67B4?style=flat-square&labelColor=2B3245"></a>
-  <a href="https://qm.qq.com/q/OEy2RqZnqY"><img alt="QQ group 1132118290" src="https://img.shields.io/badge/QQ%20group-1132118290-4B67B4?style=flat-square&logo=tencentqq&logoColor=white&labelColor=2B3245"></a>
-</p>
+![DSH Go Mac](docs/images/new-chat.jpg)
 
-<br>
+> [!NOTE]
+> This is an unofficial community project, not affiliated with DeepSeek.  
+> The UI comes from [ccch1mneyyy/dsh-go](https://github.com/ccch1mneyyy/dsh-go) (AGPL-3.0); the platform layer is rewritten in Swift. See [NOTICE](NOTICE).
 
-<h3 align="center">Deepy and Whale girl keep you company</h3>
+---
 
-<p align="center">They code, flip, wave and nap along with DSH, and can follow you to the home screen.</p>
+## ✨ Why this client
 
-<p align="center">
-  <picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/pet-deepy-typing-en-dark.gif"><img src="docs/assets/pet-deepy-typing-en-light.gif" width="168" alt="Deepy coding"></picture> <picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/pet-deepy-happy-en-dark.gif"><img src="docs/assets/pet-deepy-happy-en-light.gif" width="168" alt="Deepy done"></picture> <picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/pet-deepy-notification-en-dark.gif"><img src="docs/assets/pet-deepy-notification-en-light.gif" width="168" alt="Deepy needs you"></picture> <picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/pet-deepy-sleeping-en-dark.gif"><img src="docs/assets/pet-deepy-sleeping-en-light.gif" width="168" alt="Deepy asleep"></picture>
-</p>
+The official Mac client is fine — engine, models and plugins are all there.  
+DSH Go Mac replaces **the layer you stare at all day**.
 
-<p align="center">
-  <picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/pet-girl-typing-en-dark.gif"><img src="docs/assets/pet-girl-typing-en-light.gif" width="168" alt="Whale girl coding"></picture> <picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/pet-girl-happy-en-dark.gif"><img src="docs/assets/pet-girl-happy-en-light.gif" width="168" alt="Whale girl done"></picture> <picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/pet-girl-notification-en-dark.gif"><img src="docs/assets/pet-girl-notification-en-light.gif" width="168" alt="Whale girl needs you"></picture> <picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/pet-girl-sleeping-en-dark.gif"><img src="docs/assets/pet-girl-sleeping-en-light.gif" width="168" alt="Whale girl asleep"></picture>
-</p>
+|  | Official client | **DSH Go Mac** |
+| :--- | :--- | :--- |
+| **Engine** | Official DSH | Official DSH (attach) or bundled engine |
+| **Data** | `~/.dsh` | Same data when attached — **no migration** |
+| **Runs** | Message-centric | Time / steps / changed files; trace, diff, files, progress, context |
+| **Approvals** | Basic | **Allow / deny from a system notification** |
+| **UI** | Official web / Electron style | Native Flutter UI from DSH Go, full motion |
+| **Hosts** | Single machine | Bundled / official / remote SSH / DSH Remote, one switcher |
+| **Phone** | — | The Android DSH Go can **SSH back into the Mac engine** |
 
-<br>
+<div align="center">
 
-<a id="download"></a>
-<h3 align="center">Download DSH Go</h3>
+**Not another engine — another way to drive the same one.**
 
-<p align="center">Get the latest APK from GitHub Releases or the download page at go.dshtui.com. Most phones need the arm64 package.</p>
+</div>
 
-<p align="center">
-  <a href="https://github.com/ccch1mneyyy/dsh-go/releases/latest"><img alt="Download from GitHub Releases" src="https://img.shields.io/badge/GitHub%20Releases-Download%20APK-4B67B4?style=for-the-badge&logo=github&logoColor=white&labelColor=2B3245"></a>&emsp;<a href="https://go.dshtui.com/download"><img alt="Download from go.dshtui.com" src="https://img.shields.io/badge/go.dshtui.com-Download%20page-4B67B4?style=for-the-badge&labelColor=2B3245"></a>
-</p>
+---
 
-<p align="center">
-  <b>Thank you all for supporting and loving DSH Go! iOS and HarmonyOS versions are coming as soon as I can make them. The more stars, the faster they come, hehe</b>
-</p>
-
-<p align="center">
-  <a href="https://github.com/ccch1mneyyy/dsh-go/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/ccch1mneyyy/dsh-go?style=flat-square&logo=github&label=Star&color=4B67B4&labelColor=2B3245"></a>
-</p>
-
-<p align="center">
-  <sub>New here? Start with the <a href="docs/guide/README.md">user guide</a>, and bring questions to the <a href="#community">forum and QQ group</a>.</sub><br>
-  <sub>An early test build signed with a different key can't be updated in place: uninstall it first, which clears your chats, the Linux environment and settings.</sub>
-</p>
-
-<br>
-
-<h3 align="center">Runs on your phone. Drives your computer.</h3>
-
-<p align="center">A Linux environment built in, no root and no Termux. Switch to the DSH on your computer in one tap.</p>
-
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/f-remote-en-dark.webp">
-    <img src="docs/assets/f-remote-en-light.webp" width="100%" alt="A chat on the phone, the host switcher, a chat on the computer">
-  </picture>
-</p>
-
-<br>
-
-<h3 align="center">Chime in, interrupt, stay tidy</h3>
-
-<p align="center">Send a message while DSH is replying, and tap "Send now" whenever you like. Finished steps fold into one line.</p>
-
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/f-steer-en-dark.webp">
-    <img src="docs/assets/f-steer-en-light.webp" width="100%" alt="A queued message during a reply; the folded process after it">
-  </picture>
-</p>
-
-<br>
-
-<h3 align="center">Native, with the web interface one tap away</h3>
-
-<p align="center">Switch between the native app and the official web interface on the same chat. It reopens in whichever you used last.</p>
-
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/f-web-en-dark.webp">
-    <img src="docs/assets/f-web-en-light.webp" width="100%" alt="The same chat in the native and the web interface">
-  </picture>
-</p>
-
-<br>
-
-<h3 align="center">Share cards, replays and links</h3>
-
-<p align="center">Turn a reply into a share card. Share a whole chat as a link that replays in any browser, end-to-end encrypted.</p>
-
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/f-share-en-dark.webp">
-    <img src="docs/assets/f-share-en-light.webp" width="100%" alt="A share card, a chat replay and the list of shared links">
-  </picture>
-</p>
-
-<br>
-
-<h3 align="center">Landscape and tablets</h3>
-
-<p align="center">New layouts for landscape phones and tablets: the sidebar stays, content stays centered, the keyboard never crowds.</p>
-
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/f-adaptive-en-dark.webp">
-    <img src="docs/assets/f-adaptive-en-light.webp" width="100%" alt="A tablet and a phone on its side">
-  </picture>
-</p>
-
-<br>
-
-<h3 align="center">Colors and home screen icons</h3>
-
-<p align="center">Six accent colors, your wallpaper's, or your own. Four home screen icons and three icon styles.</p>
-
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/f-theme-en-dark.webp">
-    <img src="docs/assets/f-theme-en-light.webp" width="100%" alt="Theme settings and two accent colors">
-  </picture>
-</p>
-
-<br>
-
-<h3 align="center">English and 中文</h3>
-
-<p align="center">The whole app speaks both. It follows your system, or pick one in Settings.</p>
-
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/f-lang-dark.webp">
-    <img src="docs/assets/f-lang-light.webp" width="100%" alt="The same chat in Chinese and in English">
-  </picture>
-</p>
-
-<br>
-
-<h3 align="center">Phone control</h3>
-
-<p align="center">DSH reads the screen and taps for you. Payments, passwords and codes always stay with you.</p>
-
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/f-phone-en-dark.webp">
-    <img src="docs/assets/f-phone-en-light.webp" width="100%" alt="Phone control and its confirmation modes">
-  </picture>
-</p>
-
-<br>
-
-## Features
-
-DSH Go combines a chat interface, an on-device runtime and remote connections. It is a third-party project built on [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness). The DSH engine runs on your phone; model requests are still handled by the model provider you configure.
-
-- **On-device runtime:** install Ubuntu, Node.js and DSH from the app without Root or a separate Termux installation.
-- **Remote connections:** use DSH on a computer or server through SSH or DSH Remote.
-- **Chat and tools:** switch models, send images, use voice input, and respond to tool approvals and questions. Chat and web interfaces are available.
-- **Plugin interfaces:** use native tool cards, forms and panels from plugins adapted for DSH Go. This repository includes an SDK, guides and examples.
-- **Phone control:** after you enable the required permissions, let the local engine read the screen, tap and type. You can stop it at any time.
-- **Sharing and appearance:** share, export and replay conversations, and customize themes, icons and pets.
-
-Capabilities depend on the host and connection. DSH Remote currently accepts image attachments only, does not open the web interface inside the app, limits plugin management to enabling or disabling plugins, and does not support DS Bot or conversation-log export. See [Engine and remote hosts](docs/guide/en/03-engine-hosts.md).
-
-## Install
-
-Installation requires Android 8.0 (API 26) or later. The **arm64** package on the Releases page is for typical 64-bit Android phones; the x64 package for x86_64 devices and emulators is under “Other builds” at the end of the release notes. This repository has no 32-bit ARM build.
-
-1. Download the APK for your device architecture from [GitHub Releases](https://github.com/ccch1mneyyy/dsh-go/releases/latest) or the [download page](https://go.dshtui.com/download), and follow Android's prompt to allow that installation source.
-2. On first launch, choose an on-device runtime or a remote host.
-3. Configure a model and its credentials for the selected host, then start a conversation. Some remote providers must be configured on the host itself.
-
-A remote-only setup does not need a local runtime on the phone. Phone control works with the local engine outside safe mode and requires permissions such as Accessibility, as explained in the app. Non-disruptive mode additionally requires Android 14 or later and Shizuku or self-ADB. Follow the [user guide](docs/guide/README.md) for setup.
-
-The local engine uses compatible PRoot startup by default. Direct startup is off by default in Developer options; see [Troubleshooting](docs/guide/en/11-faq.md) for compatibility and fallback behavior. The current Android build targets APK sideloading, not Google Play distribution.
-
-## Data and permissions
-
-Model requests go to the provider you configure. During phone-control tasks, relevant screen text may be sent to the model, and vision-capable models may receive screenshots. Read the app's permission disclosure before enabling the feature.
-
-“Send anonymous usage statistics” is on by default. You can turn it off during onboarding or in Settings → Privacy and sharing. See [Troubleshooting](docs/guide/en/11-faq.md) for the fields collected and what happens when it is disabled. Review content before sharing it; recipients can save a copy of a shared link or file's contents.
-
-## FAQ
-
-<details>
-<summary><b>Is this an official DeepSeek app?</b></summary>
-<br>
-
-No. DSH Go is an unofficial client made by the community, built on the open-source [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness). DSH itself runs on your phone; model requests go to the provider you configure, so it needs a connection and bills your account with that provider.
-
-</details>
-
-<details>
-<summary><b>Is it safe?</b></summary>
-<br>
-
-The local web interface only answers to the app itself. Shared links are end-to-end encrypted: the key lives only in the link, and the server never sees the content. Phone control always hands payments, passwords, codes and system settings back to you.
-
-</details>
-
-<details>
-<summary><b>Will the system kill it in the background?</b></summary>
-<br>
-
-Some battery savers hold apps back. When that happens, DSH Go tells you and opens the right setting, on vivo, Xiaomi, Huawei, Honor and OPPO.
-
-</details>
-
-<details>
-<summary><b>What phone do I need?</b></summary>
-<br>
-
-Android 8 or later. On a phone, download the package on the Releases page; the x86_64 build for emulators is under “Other builds” at the end of the release notes. Running DSH on the phone needs the built-in environment, so keep about 1 GB free; connecting to DSH on a computer or server doesn't.
-
-</details>
-
-<details>
-<summary><b>Is it open source?</b></summary>
-<br>
-
-Yes. The code is in this repository under [AGPL-3.0](LICENSE); `sdk/` and `examples/` are MIT. The DSH Go name and logo, and the mascots Deepy and Whale girl, are not covered by the open-source license; see [ASSETS.md](ASSETS.md).
-
-</details>
-
-## Build from source
-
-The following workflow targets **Linux x86_64**. The toolchain script currently defaults to JDK 17, Flutter 3.47.7 and the Android SDK/NDK. The app requires Dart `^3.13.5`. Prepare Bash, Git, curl, tar, unzip, xz, Python 3, zstd (for unpacking zstd-compressed deb archives when Python does not provide `compression.zstd`), file and standard GNU utilities. Resolving Ubuntu package locks again also requires gpgv.
-
-Start with the complete source tree and project assets. Fonts, images and other files declared in `app/pubspec.yaml` are build inputs. The following script generates the runtime bundle.
+## 🚀 Quick start
 
 ```bash
-git clone https://github.com/ccch1mneyyy/dsh-go.git
-cd dsh-go
+# 1. Download the DMG (Apple Silicon / macOS 12+)
+open https://github.com/BillWGong/dsh-go-mac/releases/latest
 
-bash tooling/setup-toolchain.sh
-source tooling/env.sh
-flutter --version
-java -version
-
-bash runtime/build-runtime.sh arm64-v8a
-DSH_BETA_TOKEN_FILE= bash tooling/build-apk.sh -f arm64 --keep-daemon
+# 2. Drag it into Applications, then open it:
+open "/Applications/DSH Go Mac.app"
+# If Gatekeeper blocks it: right-click → Open, or
+xattr -dr com.apple.quarantine "/Applications/DSH Go Mac.app"
 ```
 
-The toolchain script downloads the SDK/NDK and emulator images and runs Android SDK license acceptance. Its default location is `~/dev`; set `DEV_ROOT` to use a separate directory. The script reuses existing installations, so check their versions before building.
+On first launch the app looks for a local official DSH:
 
-The output is `app/build/app/outputs/flutter-apk/app-arm64-release.apk`. Runtime assembly uses the versions and verification data pinned in the repository and needs network access to download dependencies. `DSH_BETA_TOKEN_FILE=` leaves out the maintainer's beta-channel token. `--keep-daemon` preserves Gradle daemons, which is useful when working on other Android projects at the same time.
+- **Already using the official client?** Pick “Connect to official DSH” — no migration, no runtime install.
+- **Want the bundled engine?** Pick “This Mac” and install the ~750 MB runtime.
+- **Remote?** Pick “Remote host”, then SSH or DSH Remote.
 
-For an x86_64 APK, generate its runtime first:
+---
+
+## 📸 Screenshots
+
+<div align="center">
+
+| Connect to official DSH (first run) | New chat |
+| :---: | :---: |
+| ![Connect to official DSH](docs/images/official-mode.jpg) | ![New chat](docs/images/new-chat.jpg) |
+
+[▶ Watch the demo](https://www.bilibili.com/video/BV1njxJ6WE59/)
+
+</div>
+
+---
+
+## 🧩 Features
+
+|  |  |
+| :--- | :--- |
+| **Run context** time / steps / changed files; trace, diff, files, progress, context | **Approvals** allow / deny straight from a notification; tap to jump back |
+| **Thinking preview** fixed height, tap the body to collapse; finished turns fold away | **Commands** slash completion at the cursor without losing the draft |
+| **Tables & code** three table tints, syntax highlighting, Mermaid, math | **Sessions** permanent delete (long-press / multi-select), archive restore, new chat in a folder |
+| **Share card** export as an image with two QR codes (original + this port) | **Hosts** bundled / official / remote, one switcher with a clear source |
+| **Native** notifications, files, PDF, speech, desktop pet, deep links, dark mode | **Window** adaptive ⇄ portrait layout (`⌘⇧M`), merged title bar |
+| **Phone link** IP / user / port / password guidance right in the app | **Privacy** official mode never rewrites official data; secrets stay local |
+
+---
+
+## 🌐 Three host modes
+
+| Mode | What it does | Runtime needed |
+| :--- | :--- | :---: |
+| **Local · bundled** | Node 24 + DSH inside the app; one-click install | ✅ |
+| **Local · official** | Attach to the running DeepSeek Harness; shared chats / models / plugins | ❌ |
+| **Remote** | SSH (password / key, TOFU fingerprint) or DSH Remote | ❌ |
+
+> [!TIP]
+> Official DSH and the bundled engine keep separate data: official uses `~/.dsh`, the bundled engine uses the app's own `Application Support` directory. Switching never mixes them.
+
+---
+
+## 📱 Phone → Mac
+
+1. **Mac**: enable `System Settings › General › Sharing › Remote Login`
+2. **App**: open `Settings › Local engine › Phone link` (or the switcher's “Phone link”):
+   - Host: `user@LAN-IP`
+   - Port: `22`
+   - Password: **your Mac login password** (not a DeepSeek key)
+3. **DSH Go on the phone**: `Switch host › Add SSH host`, enter the details, keep the default `dsh web` command
+4. After connecting:
+   - Bundled mode: the phone drives the Mac's bundled engine
+   - Official mode: the phone drives the same official DSH (local cookie-injecting proxy, HTTP + WebSocket)
+
+---
+
+## 🏗 Architecture
+
+```mermaid
+flowchart LR
+  UI["DSH Go Mac UI<br/>Flutter"] --> H{"Host switcher"}
+  H --> O["Local official DSH<br/>127.0.0.1:random"]
+  H --> B["Bundled engine<br/>Node 24 + DSH"]
+  H --> R["Remote<br/>SSH / DSH Remote"]
+  P["DSH Go (phone)"] -. "SSH reuse" .-> B
+  P -. "SSH + cookie proxy" .-> O
+```
+
+<details>
+<summary><b>How the bundled engine runs</b></summary>
+
+- Runtime: Node 24 + `@deepseek-ai/dsh` + pnpm + `dsh-go-bridge`
+- Launch: `node bin.js web --patch … --host 127.0.0.1 --port <free> --no-open`
+- Parse `dsh web: http://…?token=` from stdout, log in with `DshClient`
+- `manifest.json` carries the version, sha256 and launch argv; the tar unpacks into Application Support
+- Process supervision, health checks, orphan reaping, safe mode
+</details>
+
+<details>
+<summary><b>How official DSH attach works</b></summary>
+
+- `lsof` finds the official process listening on `127.0.0.1:<port>`
+- Read the `client-connection/browser-session` secret from `~/.dsh/.credentials.yaml`
+- Mint a `DshCookie` locally (HMAC-SHA256, bound to the authority) and `DshClient.connect(cookie:)`
+- Official data is never modified; switch back and forth at any time
+</details>
+
+<details>
+<summary><b>The phone proxy (official mode)</b></summary>
+
+The official server only accepts cookies; the phone only knows `dsh web` tokens. The app runs a loopback reverse proxy:
+
+- Answers the phone's login with a local 303 + cookie
+- Forwards HTTP / WebSocket to the official port, injecting the official cookie and rewriting Host
+- Writes the handshake into `~/.dsh-app-remote` for the phone's existing protocol
+</details>
+
+---
+
+## ⌨️ Shortcuts
+
+| Keys | Action |
+| :--- | :--- |
+| <kbd>⌘</kbd> <kbd>⇧</kbd> <kbd>M</kbd> | Toggle adaptive / portrait layout |
+| <kbd>Return</kbd> | Send if enabled in settings (off by default) |
+| <kbd>Shift</kbd> + <kbd>Return</kbd> | New line |
+| <kbd>⌘</kbd> / <kbd>Ctrl</kbd> + <kbd>Return</kbd> | Always send |
+| <kbd>Esc</kbd> <kbd>Esc</kbd> | Stop the current turn (twice within 500 ms) |
+| <kbd>⌘</kbd> <kbd>C</kbd> / <kbd>V</kbd> / <kbd>A</kbd> | Copy / paste / select all |
+
+---
+
+## 📦 Requirements
+
+- Apple Silicon (arm64)
+- macOS 12 or newer (developed on macOS 26 / 27)
+- ~750 MB disk for the bundled engine; not needed for official-only use
+
+---
+
+## 🛠 Build from source
+
+<details>
+<summary><b>Expand build steps</b></summary>
+
+Prerequisites:
+
+1. Full Xcode; accept the licence once:
+   ```bash
+   sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+   sudo xcodebuild -license accept
+   ```
+2. Flutter 3.47.x (Dart 3.13.5) on `PATH`, or pass `FLUTTER=`
+3. ~8 GB free disk
 
 ```bash
-bash runtime/build-runtime.sh x86_64
-DSH_BETA_TOKEN_FILE= bash tooling/build-apk.sh -f x64 --keep-daemon
+git clone https://github.com/BillWGong/dsh-go-mac.git
+cd dsh-go-mac
+
+bash runtime/build-runtime-macos.sh   # build the bundled runtime (~2–5 min, 193 MB)
+bash tooling/build-macos.sh --dmg     # produce .app and DMG
 ```
 
-Without `app/android/key.properties`, a local release build uses debug signing. It cannot replace an official installation signed with a different key. Use a test device and preserve existing data; do not uninstall your daily-use app just to resolve a signing mismatch. Do not commit signing keys or their configuration.
+Artifacts:
 
-To inspect APK build commands without building:
+```
+app/build/macos/Build/Products/Release/dsh_go.app
+app/build/macos/dsh-go-mac-1.0.17-macos-arm64.dmg
+```
+
+Environment check: `bash tooling/check-macos-env.sh`.
+</details>
+
+<details>
+<summary><b>Tests</b></summary>
 
 ```bash
-DSH_BETA_TOKEN_FILE= bash tooling/build-apk.sh --dry-run -f all
+cd app
+flutter analyze
+flutter test test/macos           # macOS platform layer
+flutter test test/chat test/state # shared UI / state
 ```
+</details>
 
-## Repository layout
+---
 
-| Path | Contents |
-| --- | --- |
-| `app/` | Flutter interface and Android Kotlin platform code |
-| `packages/dsh_client/` | Dart client for the DSH Web API |
-| `packages/dsh_remote/` | Dart client for DSH Remote |
-| `runtime/` | Linux runtime assembly, engine patches and the app bridge |
-| `sdk/plugin-kit/` | Native plugin authoring kit, used from the repository and not published to npm |
-| `examples/plugins/` | Example plugins |
-| `docs/guide/`, `docs/plugins/` | User and plugin development guides |
-| `docs/assets/` | Showcase images, pet animations and community QR codes used on this page |
-| `tooling/` | Toolchain, APK build and diagnostic scripts |
-| `services/`, `site/`, `infra/` | Companion sharing service, website and deployment materials |
+## ❓ FAQ
 
-## Contribute
+<details>
+<summary><b>How does this relate to the official client?</b></summary>
 
-Report bugs and suggest improvements in [Issues](https://github.com/ccch1mneyyy/dsh-go/issues). For code, documentation and translation changes, start with [CONTRIBUTING.en.md](CONTRIBUTING.en.md). Plugin authors can use the [plugin guides](docs/plugins/en/README.md) and [SDK](sdk/plugin-kit/README.en.md).
+Another client for the same engine. When attached, chats, models and plugins are shared; no data migration.
+</details>
 
-Report security issues through [SECURITY.en.md](SECURITY.en.md). Keep vulnerability details and credentials out of public issues.
+<details>
+<summary><b>Why 255 MB app + 750 MB runtime?</b></summary>
 
-<a id="community"></a>
+The app ships Node + DSH as a 193 MB archive; the first bundled-engine run unpacks it (~750 MB). Official-only use skips it.
+</details>
 
-## Community
+<details>
+<summary><b>Unsigned / won't open?</b></summary>
 
-- **Forum**: [forum.dshtui.com](https://forum.dshtui.com)
-- **QQ group**: `1132118290` ([join](https://qm.qq.com/q/OEy2RqZnqY))
-- **WeChat group**: scan the code below; if it has expired, join the QQ group
-<!-- Telegram: link to come, add a line here -->
+Right-click → Open, or run `xattr -dr com.apple.quarantine "/Applications/DSH Go Mac.app"`. No Apple signing or notarization yet.
+</details>
 
-<p align="center">
-  <a href="https://qm.qq.com/q/OEy2RqZnqY"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/qr-qq-en-dark.webp"><img src="docs/assets/qr-qq-en-light.webp" width="300" alt="QQ group DSH-Go!!, number 1132118290"></picture></a>&emsp;&emsp;<picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/qr-wechat-en-dark.webp"><img src="docs/assets/qr-wechat-en-light.webp" width="300" alt="WeChat group DSHGo 2群"></picture>
-</p>
+<details>
+<summary><b>Saving an SSH host fails?</b></summary>
 
-<p align="center">
-  <sub>QQ group <code>1132118290</code>. On a computer, <a href="https://qm.qq.com/q/OEy2RqZnqY">join with one click</a>. The WeChat code changes every week; if it has expired, join the QQ group.</sub>
-</p>
+Since 1.0.16, remote secrets on macOS live in a 0600 file (`~/Library/Application Support/io.github.billwgong.dshgomac/remote-secrets.json`) instead of the Keychain. Ad-hoc signing has no Keychain entitlement; this is intentional.
+</details>
 
-## License and acknowledgments
+<details>
+<summary><b>Where did “delete conversation” go?</b></summary>
 
-This project is licensed under [AGPL-3.0](LICENSE). `sdk/` and `examples/` remain **MIT**. Third-party code and assets retain the terms stated in their own notices.
+Permanent delete needs the bundled runtime `macos-r2`. Existing installs should reinstall the runtime from `Settings › Local engine` (keep conversations when prompted). Official mode does not support deletion.
+</details>
 
-- [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness): the agent DSH Go runs and connects to.
-- [DSH-TUI](https://github.com/ccch1mneyyy/dsh-TUI): home of the mascots, Deepy and Whale girl.
+<details>
+<summary><b>The phone can't connect?</b></summary>
 
-Code derived from Phase is used with the author's permission. DeepSeek Harness, PiPilot, DS Bot, DSH Remote and other third-party components and assets retain their own licenses and attribution. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for sources and terms.
+Check Remote Login, that the app is running, and that the phone uses the Mac's LAN IP + login password. Official mode also needs the app attached to the official DSH.
+</details>
 
-The DSH Go name, logo and mascots (Deepy and Whale girl) are not covered by the AGPL; see [ASSETS.md](ASSETS.md) for their terms.
+<details>
+<summary><b>Intel Mac / Windows?</b></summary>
 
-<sub>Remote connections draw on the [ds-harness-remote](https://github.com/liguobao/ds-harness-remote) project and its server. Thanks to its author, liguobao.</sub>
+Apple Silicon only; Windows is not planned.
+</details>
 
-<br>
+---
 
-<p align="center"><sub>DSH Go is an unofficial client made by the community. It is not affiliated with or endorsed by DeepSeek. DeepSeek names and marks belong to their owners.</sub></p>
+## 🗺 Roadmap
+
+| Status | Item |
+| :---: | :--- |
+| ✅ | Bundled engine, official DSH attach, remote SSH / DSH Remote |
+| ✅ | Notification approvals, files / PDF / speech, desktop pet |
+| ✅ | Phone link (bundled + official) |
+| ✅ | Permanent delete, archive restore, share card with two QR codes |
+| 🚧 | Mac control (AX + ScreenCaptureKit + MCP tools + per-action approval) · [design](docs/macos/mac-control.md) |
+| 🚧 | In-app update (DMG download and replace) |
+| 🚧 | Signing / notarization |
+
+---
+
+## 📝 Changelog
+
+<details>
+<summary><b>1.0.17 → 1.0.10</b></summary>
+
+**1.0.17** — synced upstream 1.0.8 shared UI: thinking preview, turn folding, dsh-ui free-form answers, media settings, plugin settings, credential affinity, update source fix, drawer performance
+
+**1.0.16** — fixed #5 SSH host save (Keychain -34018) and #6 file permission page
+
+**1.0.15** — synced 25 upstream commits: permanent delete, archive restore, new chat in a folder, table tints, plugin entries, slash completion, model names / token units
+
+**1.0.14** — phone link for official mode (local cookie-injecting proxy)
+
+**1.0.11** — fixed new chat failing (`/root/workspace` → `$HOME`)
+
+**1.0.10** — merged title bar, portrait layout, share card QR codes, macOS copy
+
+Full history: [Releases](https://github.com/BillWGong/dsh-go-mac/releases).
+</details>
+
+---
+
+## 🤝 Contributing
+
+- Bugs / feature requests: [Issues](https://github.com/BillWGong/dsh-go-mac/issues)
+- Code: fork → branch → PR; run `flutter analyze` and the relevant tests first
+- Upstream DSH Go issues belong in [ccch1mneyyy/dsh-go](https://github.com/ccch1mneyyy/dsh-go)
+- Design and port notes: [docs/macos/README.md](docs/macos/README.md) · [Mac control design](docs/macos/mac-control.md)
+
+---
+
+## 📄 License
+
+- This project: [AGPL-3.0](LICENSE)
+- Upstream DSH Go: AGPL-3.0, [ccch1mneyyy/dsh-go](https://github.com/ccch1mneyyy/dsh-go)
+- DeepSeek Harness: [deepseek-ai/deepseek-harness](https://github.com/deepseek-ai/deepseek-harness)
+- Brand assets: see [NOTICE](NOTICE) and [ASSETS.md](ASSETS.md)
+
+<div align="center">
+
+**If it saves you from installing Linux, a star is the best support ⭐**
+
+[![Star](https://img.shields.io/github/stars/BillWGong/dsh-go-mac?style=for-the-badge&logo=github&label=Star%20this%20repo)](https://github.com/BillWGong/dsh-go-mac)
+
+<sub>Built with Flutter + Swift · Not affiliated with DeepSeek</sub>
+
+</div>
