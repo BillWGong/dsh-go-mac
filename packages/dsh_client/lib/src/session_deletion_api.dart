@@ -21,6 +21,8 @@ extension SessionDeletionApi on DshClient {
     final response = await transport.connection.getBounded(
       sessionDeletionCapabilityPath,
       maxBytes: _maxReplyBytes,
+      // 服务器会按 Accept-Encoding 压缩，能力探测必须解压后再解析。
+      autoUncompress: true,
       timeout: timeout,
     );
     if (response.statusCode == 404 || response.statusCode == 405 || response.statusCode == 501) return false;
