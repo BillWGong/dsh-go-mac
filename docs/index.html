@@ -17,7 +17,7 @@ html,body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-syst
 body{background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:40px 40px}
 a{color:inherit}
 .wrap{max-width:1080px;margin:0 auto;padding:0 24px}
-header{padding:72px 0 36px}
+header{padding:48px 0 36px}
 .brand{font-size:13px;letter-spacing:.18em;color:var(--muted);text-transform:uppercase}
 h1{font-size:clamp(38px,6vw,64px);line-height:1.05;letter-spacing:-.02em;margin:18px 0 16px}
 h1 em{font-style:normal;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
@@ -27,7 +27,7 @@ h1 em{font-style:normal;background:linear-gradient(90deg,var(--accent),var(--acc
 .btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#08101f;border:none}
 .btn:hover{transform:translateY(-1px)}
 .meta{color:#6f82a5;font-size:13px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
-.hero{margin:24px 0 0;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:var(--panel);box-shadow:0 40px 120px rgba(0,0,0,.55)}
+.hero{margin:8px 0 0;border-radius:18px;overflow:hidden}
 .hero img{display:block;width:100%;height:auto}
 section{padding:64px 0;border-top:1px solid var(--line)}
 h2{font-size:clamp(26px,4vw,38px);letter-spacing:-.01em;margin:0 0 14px}
@@ -51,17 +51,14 @@ footer a{color:#9db4dc;text-decoration:none}
 <body>
 <div class="wrap">
 <header>
-  <div class="brand">DSH Go Mac · macOS</div>
-  <h1>把「运行」当成<em>界面</em>。</h1>
-  <p class="lede">DeepSeek Harness 的第二个 macOS 客户端。同一个引擎，零迁移；过程信息、通知审批和原生动效。</p>
-  <div class="actions">
+  <div class="hero"><img src="images/hero-dark.svg" alt="DSH Go Mac — 把运行当成界面"></div>
+  <div class="actions" style="margin-top:28px">
     <a class="btn primary" href="https://github.com/BillWGong/dsh-go-mac/releases/latest">下载 DMG</a>
-    <a class="btn" href="https://github.com/BillWGong/dsh-go-mac">GitHub</a>
+    <a class="btn" href="https://github.com/BillWGong/homebrew-tap">Homebrew</a>
     <a class="btn" href="https://www.bilibili.com/video/BV1njxJ6WE59/">演示视频</a>
+    <a class="btn" href="https://github.com/BillWGong/dsh-go-mac">GitHub</a>
   </div>
   <div class="meta">macOS 12+ · Apple Silicon · AGPL-3.0 · v1.0.17</div>
-  <div class="hero"><img src="images/hero-dark.svg" alt="DSH Go Mac — 把运行当成界面"></div>
-</section>
 </header>
 
 <section>
