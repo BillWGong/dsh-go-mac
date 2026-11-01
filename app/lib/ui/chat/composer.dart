@@ -55,10 +55,14 @@ class Composer extends StatefulWidget {
     this.waitHint,
     this.onContentInserted,
     this.maxLines = 6,
+    this.sendOnEnter,
   });
 
   final TextEditingController controller;
   final FocusNode? focusNode;
+
+  /// Override the 「Return 发送」 setting (null reads the provider).
+  final bool? sendOnEnter;
 
   /// 已连上 DSH。没连上时可以先打字,但发不出去。
   final bool connected;
@@ -159,6 +163,7 @@ class _ComposerState extends State<Composer> {
 
   /// 读一次设置（没有 ProviderScope 的测试里退回上游行为）。
   bool _sendOnEnterEnabled() {
+    if (widget.sendOnEnter case final value?) return value;
     try {
       return ProviderScope.containerOf(context, listen: false).read(settingsProvider).sendOnEnter;
     } catch (_) {
@@ -170,7 +175,7 @@ class _ComposerState extends State<Composer> {
   /// Two consecutive Esc presses within 500 ms stop the turn. The pair is
   /// local to the focused, eligible editor; a single Esc never leaves it.
   KeyEventResult _hardwareKey(FocusNode node, KeyEvent event) {
-    if (event is! KeyDownEvent) return KeyEventResult.ignored;
+    if (event is! KeyDownEvent && event is! KeyRepeatEvent) return KeyEventResult.ignored;
     final composing = widget.controller.value.composing;
     if (composing.isValid && !composing.isCollapsed) {
       _lastEscape = null;
@@ -184,6 +189,8 @@ class _ComposerState extends State<Composer> {
     // 设置 › Return 发送：Return 直接发，Shift+Return 换行；⌘/Ctrl+Return 始终发送。
     final plainEnterSends = enter && !accelerator && !keys.isShiftPressed && _sendOnEnterEnabled();
     if (enter && (accelerator || plainEnterSends)) {
+      // 按住不放：吞掉重复事件，不重复发送、也不插入换行。
+      if (event is KeyRepeatEvent) return KeyEventResult.handled;
       final draft = widget.controller.text.trim().isNotEmpty || widget.hasAttachments;
       final dictating = widget.voice?.active ?? false;
       if (draft && widget.connected && !widget.busy && !dictating) _send();
