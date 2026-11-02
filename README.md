@@ -24,6 +24,14 @@ DeepSeek Harness 的 macOS 客户端。同一个引擎，零迁移。</p>
 <p align="center"><img src="docs/images/demo.gif" alt="DSH Go Mac 真实录屏：思考、工具调用、运行详情" width="100%"></p>
 
 <p align="center"><sub>真实录屏，没有加速。一个需要工具调用的任务，从思考到运行详情。</sub></p>
+<p align="center">
+  <a href="https://www.star-history.com/#BillWGong/dsh-go-mac&type=date&legend=top-left">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=BillWGong/dsh-go-mac&type=date&legend=top-left&theme=dark">
+      <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=BillWGong/dsh-go-mac&type=date&legend=top-left">
+    </picture>
+  </a>
+</p>
 
 > [!NOTE]
 > 非官方社区项目，与 DeepSeek 无隶属关系。界面来自 [ccch1mneyyy/dsh-go](https://github.com/ccch1mneyyy/dsh-go)（AGPL-3.0），平台层以 Swift 重写。归属见 [NOTICE](NOTICE)。
