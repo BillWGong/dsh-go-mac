@@ -17,7 +17,7 @@ void main() {
     // 干净 clone 里没有运行时包（manifest 是生成物）；跑过
     // runtime/build-runtime-macos.sh 后才会出现。
     if (status.bundledVersion != null) {
-      expect(status.bundledVersion, 'macos-r1');
+      expect(status.bundledVersion, 'macos-r3');
       expect(status.dshVersion, '0.2.1-rc.4');
     }
   });

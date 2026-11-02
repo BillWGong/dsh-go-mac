@@ -101,7 +101,7 @@ abstract class L10n {
   /// No description provided for @searchKwA11yRestore.
   ///
   /// In zh, this message translates to:
-  /// **'无障碍,恢复,重连,自动恢复,掉线,授权,ADB,Shizuku'**
+  /// **'无障碍,恢复,重连,自动恢复,掉线,授权,ADB,Shizuku,Sui,root'**
   String get searchKwA11yRestore;
 
   /// No description provided for @a11yRestoreNeedsGrant.
@@ -128,6 +128,30 @@ abstract class L10n {
   /// **'授权并开启'**
   String get a11yRestoreGrant;
 
+  /// No description provided for @a11yRestoreGrantShizuku.
+  ///
+  /// In zh, this message translates to:
+  /// **'通过 Shizuku 授予'**
+  String get a11yRestoreGrantShizuku;
+
+  /// No description provided for @a11yRestoreGrantShizukuPermission.
+  ///
+  /// In zh, this message translates to:
+  /// **'先授权 Shizuku，再授予权限'**
+  String get a11yRestoreGrantShizukuPermission;
+
+  /// No description provided for @a11yRestoreGrantAdb.
+  ///
+  /// In zh, this message translates to:
+  /// **'通过自连 ADB 授予'**
+  String get a11yRestoreGrantAdb;
+
+  /// No description provided for @a11yRestoreRootNote.
+  ///
+  /// In zh, this message translates to:
+  /// **'通过已授权的 root 连接，只授予这一项权限。'**
+  String get a11yRestoreRootNote;
+
   /// No description provided for @a11yRestoreSetup.
   ///
   /// In zh, this message translates to:
@@ -139,6 +163,12 @@ abstract class L10n {
   /// In zh, this message translates to:
   /// **'请在 Shizuku 中允许授权'**
   String get a11yRestoreWaiting;
+
+  /// No description provided for @a11yRestoreWaitingSui.
+  ///
+  /// In zh, this message translates to:
+  /// **'请在 Sui 中允许授权'**
+  String get a11yRestoreWaitingSui;
 
   /// No description provided for @a11yRestoreComputer.
   ///
@@ -5924,6 +5954,24 @@ abstract class L10n {
   /// **'未发送'**
   String get chatUnsent;
 
+  /// No description provided for @chatFailedSubmission.
+  ///
+  /// In zh, this message translates to:
+  /// **'未送达 · 已保留'**
+  String get chatFailedSubmission;
+
+  /// No description provided for @chatEditFailedSubmission.
+  ///
+  /// In zh, this message translates to:
+  /// **'编辑后重发'**
+  String get chatEditFailedSubmission;
+
+  /// No description provided for @chatErrReasoningEffortUnsupported.
+  ///
+  /// In zh, this message translates to:
+  /// **'当前模型不支持此推理档位，请调整档位或换模型'**
+  String get chatErrReasoningEffortUnsupported;
+
   /// No description provided for @chatSteerNextStep.
   ///
   /// In zh, this message translates to:
@@ -8143,6 +8191,78 @@ abstract class L10n {
   /// In zh, this message translates to:
   /// **'{month}月{day}日'**
   String commonMonthDay(String month, int day);
+
+  /// No description provided for @engineNewChatDefaultsLast.
+  ///
+  /// In zh, this message translates to:
+  /// **'新对话默认（上次选择）'**
+  String get engineNewChatDefaultsLast;
+
+  /// No description provided for @engineNewChatDefaultsFixed.
+  ///
+  /// In zh, this message translates to:
+  /// **'新对话默认（固定）'**
+  String get engineNewChatDefaultsFixed;
+
+  /// No description provided for @engineNewChatUseLast.
+  ///
+  /// In zh, this message translates to:
+  /// **'沿用上次'**
+  String get engineNewChatUseLast;
+
+  /// No description provided for @engineNewChatUseFixed.
+  ///
+  /// In zh, this message translates to:
+  /// **'固定默认'**
+  String get engineNewChatUseFixed;
+
+  /// No description provided for @engineNewChatDefaultsHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'保存在当前主机，只影响新对话的模型和思考深度。权限仍用独立默认，不继承临时会话授权。'**
+  String get engineNewChatDefaultsHint;
+
+  /// No description provided for @engineNewChatDefaultsLegacy.
+  ///
+  /// In zh, this message translates to:
+  /// **'此引擎仅支持沿用上次选择；不支持固定默认，也无法确认切换时默认值是否保存成功。'**
+  String get engineNewChatDefaultsLegacy;
+
+  /// No description provided for @engineNewChatDefaultsUnsupported.
+  ///
+  /// In zh, this message translates to:
+  /// **'此主机没有可编辑的默认模型设置'**
+  String get engineNewChatDefaultsUnsupported;
+
+  /// No description provided for @engineNewChatDefaultsSelectionUnavailable.
+  ///
+  /// In zh, this message translates to:
+  /// **'此模型或思考深度已不可用，请重新选择。'**
+  String get engineNewChatDefaultsSelectionUnavailable;
+
+  /// No description provided for @engineNewChatDefaultsInheritedEffort.
+  ///
+  /// In zh, this message translates to:
+  /// **'主机基础配置指定了思考深度，不能在这里为无思考模型清除。请先调整主机配置。'**
+  String get engineNewChatDefaultsInheritedEffort;
+
+  /// No description provided for @engineNewChatDefaultsSaving.
+  ///
+  /// In zh, this message translates to:
+  /// **'正在保存并确认默认值…'**
+  String get engineNewChatDefaultsSaving;
+
+  /// No description provided for @engineNewChatDefaultsUnconfirmed.
+  ///
+  /// In zh, this message translates to:
+  /// **'没能确认完整默认值，请刷新后检查模型和思考深度。主机基础配置或其他客户端可能已改变它们。'**
+  String get engineNewChatDefaultsUnconfirmed;
+
+  /// No description provided for @engineModelDefaultSaveFailed.
+  ///
+  /// In zh, this message translates to:
+  /// **'当前对话的模型已切换，但新对话默认未保存。请到设置 › 模型检查并重试。'**
+  String get engineModelDefaultSaveFailed;
 
   /// No description provided for @engineAccountSignedIn.
   ///
@@ -13418,6 +13538,36 @@ abstract class L10n {
   /// **'开启后，Shift+Enter 换行。屏幕键盘仍换行；Ctrl/⌘+Enter 始终可发送。'**
   String get hubHardwareEnterSendsHint;
 
+  /// No description provided for @hubQuickPanel.
+  ///
+  /// In zh, this message translates to:
+  /// **'左滑快捷入口'**
+  String get hubQuickPanel;
+
+  /// No description provided for @hubQuickPanelSwipe.
+  ///
+  /// In zh, this message translates to:
+  /// **'左滑打开'**
+  String get hubQuickPanelSwipe;
+
+  /// No description provided for @hubQuickPanelSwipeHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'在对话里从右向左滑。代码块、表格这些能横向滚动的内容不受影响。'**
+  String get hubQuickPanelSwipeHint;
+
+  /// No description provided for @hubQuickPanelItems.
+  ///
+  /// In zh, this message translates to:
+  /// **'显示的入口'**
+  String get hubQuickPanelItems;
+
+  /// No description provided for @hubQuickPanelItemsNone.
+  ///
+  /// In zh, this message translates to:
+  /// **'没有选择，左滑不会打开'**
+  String get hubQuickPanelItemsNone;
+
   /// No description provided for @launchScreenTitle.
   ///
   /// In zh, this message translates to:
@@ -15824,23 +15974,11 @@ abstract class L10n {
   /// **'在看不见的屏幕上操作'**
   String get phoneDndHiddenScreen;
 
-  /// No description provided for @phoneDndShizukuReady.
-  ///
-  /// In zh, this message translates to:
-  /// **'Shizuku · 可以用了'**
-  String get phoneDndShizukuReady;
-
   /// No description provided for @phoneNotReadyYet.
   ///
   /// In zh, this message translates to:
   /// **'还没准备好'**
   String get phoneNotReadyYet;
-
-  /// No description provided for @phoneDndAdbReady.
-  ///
-  /// In zh, this message translates to:
-  /// **'自连 ADB · 可以用了'**
-  String get phoneDndAdbReady;
 
   /// No description provided for @phoneActionFailedLater.
   ///
@@ -15911,20 +16049,8 @@ abstract class L10n {
   /// No description provided for @phoneDndKeepDebugging.
   ///
   /// In zh, this message translates to:
-  /// **'连接 Wi-Fi，并保持开发者选项和无线调试开启。'**
+  /// **'用 Shizuku 或自连 ADB 时，连接 Wi‑Fi 并保持无线调试开启。'**
   String get phoneDndKeepDebugging;
-
-  /// No description provided for @phoneDndUsingShizuku.
-  ///
-  /// In zh, this message translates to:
-  /// **'正在使用：Shizuku'**
-  String get phoneDndUsingShizuku;
-
-  /// No description provided for @phoneDndUsingAdb.
-  ///
-  /// In zh, this message translates to:
-  /// **'正在使用：自连 ADB'**
-  String get phoneDndUsingAdb;
 
   /// No description provided for @phoneReady.
   ///
@@ -15932,17 +16058,167 @@ abstract class L10n {
   /// **'可以用了'**
   String get phoneReady;
 
-  /// No description provided for @phoneDndUseShizuku.
-  ///
-  /// In zh, this message translates to:
-  /// **'用 Shizuku'**
-  String get phoneDndUseShizuku;
-
   /// No description provided for @phoneDndDirectAdb.
   ///
   /// In zh, this message translates to:
   /// **'自连 ADB'**
   String get phoneDndDirectAdb;
+
+  /// No description provided for @phoneDndChannels.
+  ///
+  /// In zh, this message translates to:
+  /// **'通道'**
+  String get phoneDndChannels;
+
+  /// No description provided for @phoneDndShizukuFor.
+  ///
+  /// In zh, this message translates to:
+  /// **'装了 Shizuku App 的手机'**
+  String get phoneDndShizukuFor;
+
+  /// No description provided for @phoneDndSuiFor.
+  ///
+  /// In zh, this message translates to:
+  /// **'Magisk 或 KernelSU 装了 Sui 模块'**
+  String get phoneDndSuiFor;
+
+  /// No description provided for @phoneDndRootFor.
+  ///
+  /// In zh, this message translates to:
+  /// **'已 root 的手机'**
+  String get phoneDndRootFor;
+
+  /// No description provided for @phoneDndAdbFor.
+  ///
+  /// In zh, this message translates to:
+  /// **'不装别的 App，用无线调试'**
+  String get phoneDndAdbFor;
+
+  /// No description provided for @phoneDndStateInUse.
+  ///
+  /// In zh, this message translates to:
+  /// **'使用中'**
+  String get phoneDndStateInUse;
+
+  /// No description provided for @phoneDndStateNotReady.
+  ///
+  /// In zh, this message translates to:
+  /// **'未就绪'**
+  String get phoneDndStateNotReady;
+
+  /// No description provided for @phoneDndStateUsable.
+  ///
+  /// In zh, this message translates to:
+  /// **'可以用'**
+  String get phoneDndStateUsable;
+
+  /// No description provided for @phoneDndStateNeedsGrant.
+  ///
+  /// In zh, this message translates to:
+  /// **'待授权'**
+  String get phoneDndStateNeedsGrant;
+
+  /// No description provided for @phoneDndStateNotRunning.
+  ///
+  /// In zh, this message translates to:
+  /// **'未运行'**
+  String get phoneDndStateNotRunning;
+
+  /// No description provided for @phoneDndStateNotInstalled.
+  ///
+  /// In zh, this message translates to:
+  /// **'未安装'**
+  String get phoneDndStateNotInstalled;
+
+  /// No description provided for @phoneDndStateNotFound.
+  ///
+  /// In zh, this message translates to:
+  /// **'未检测到'**
+  String get phoneDndStateNotFound;
+
+  /// No description provided for @phoneDndStateViaSui.
+  ///
+  /// In zh, this message translates to:
+  /// **'由 Sui 提供'**
+  String get phoneDndStateViaSui;
+
+  /// No description provided for @phoneDndStateWaiting.
+  ///
+  /// In zh, this message translates to:
+  /// **'等待授权'**
+  String get phoneDndStateWaiting;
+
+  /// No description provided for @phoneDndStateDisconnected.
+  ///
+  /// In zh, this message translates to:
+  /// **'未连接'**
+  String get phoneDndStateDisconnected;
+
+  /// No description provided for @phoneDndStateNotPaired.
+  ///
+  /// In zh, this message translates to:
+  /// **'未配对'**
+  String get phoneDndStateNotPaired;
+
+  /// No description provided for @phoneDndShizukuViaSui.
+  ///
+  /// In zh, this message translates to:
+  /// **'这台手机的 Shizuku 接口由 Sui 提供，请改用 Sui。'**
+  String get phoneDndShizukuViaSui;
+
+  /// No description provided for @phoneDndSuiMissing.
+  ///
+  /// In zh, this message translates to:
+  /// **'没有检测到 Sui。在 Magisk 或 KernelSU 里装好 Sui 模块并重启手机，再回到这里。'**
+  String get phoneDndSuiMissing;
+
+  /// No description provided for @phoneDndSuiRunning.
+  ///
+  /// In zh, this message translates to:
+  /// **'Sui 接口可用'**
+  String get phoneDndSuiRunning;
+
+  /// No description provided for @phoneDndSuiStopped.
+  ///
+  /// In zh, this message translates to:
+  /// **'Sui 接口当前不可用。确认 Sui 模块已启用，重启手机后再试。'**
+  String get phoneDndSuiStopped;
+
+  /// No description provided for @phoneDndSuiAllSet.
+  ///
+  /// In zh, this message translates to:
+  /// **'Sui 这边准备好了。'**
+  String get phoneDndSuiAllSet;
+
+  /// No description provided for @phoneDndSuiPermissionFailed.
+  ///
+  /// In zh, this message translates to:
+  /// **'没能请求 Sui 授权。确认 Sui 模块已启用后再试。'**
+  String get phoneDndSuiPermissionFailed;
+
+  /// No description provided for @phoneDndRootWaiting.
+  ///
+  /// In zh, this message translates to:
+  /// **'正在等待 root 授权，请在 root 管理器的弹窗里选择。'**
+  String get phoneDndRootWaiting;
+
+  /// No description provided for @phoneDndRootConnected.
+  ///
+  /// In zh, this message translates to:
+  /// **'root 已连接。断开后要回到这里再选一次；打开上面的「保持 root 通道」，DSH Go 才会自己再去申请。'**
+  String get phoneDndRootConnected;
+
+  /// No description provided for @phoneDndRootConnectedKept.
+  ///
+  /// In zh, this message translates to:
+  /// **'root 已连接。断开后 DSH Go 会自己向 root 管理器再次申请。'**
+  String get phoneDndRootConnectedKept;
+
+  /// No description provided for @phoneDndRootRetry.
+  ///
+  /// In zh, this message translates to:
+  /// **'重新申请 root 授权'**
+  String get phoneDndRootRetry;
 
   /// No description provided for @phoneDndInstallShizuku.
   ///
@@ -16022,12 +16298,6 @@ abstract class L10n {
   /// **'已连接'**
   String get phoneDndConnected;
 
-  /// No description provided for @phoneDndPairOnce.
-  ///
-  /// In zh, this message translates to:
-  /// **'配对一次（不用装别的 App）'**
-  String get phoneDndPairOnce;
-
   /// No description provided for @phoneDndDeveloperOptionsStep.
   ///
   /// In zh, this message translates to:
@@ -16093,12 +16363,6 @@ abstract class L10n {
   /// In zh, this message translates to:
   /// **'打开「USB 调试（安全设置）」需插入 SIM 卡并登录小米账号。'**
   String get phoneDndXiaomiUsbHint;
-
-  /// No description provided for @phoneDndEnable.
-  ///
-  /// In zh, this message translates to:
-  /// **'启用不打扰模式'**
-  String get phoneDndEnable;
 
   /// No description provided for @phoneDndEnterCodeTitle.
   ///
@@ -17282,23 +17546,41 @@ abstract class L10n {
   /// **'「{app}」不再逐步确认？'**
   String phoneAppRulesSkipStepsTitle(String app);
 
-  /// No description provided for @phoneDndShizukuStatus.
-  ///
-  /// In zh, this message translates to:
-  /// **'Shizuku · {reason}'**
-  String phoneDndShizukuStatus(String reason);
-
-  /// No description provided for @phoneDndAdbStatus.
-  ///
-  /// In zh, this message translates to:
-  /// **'自连 ADB · {reason}'**
-  String phoneDndAdbStatus(String reason);
-
   /// No description provided for @phoneDndBrowserFailed.
   ///
   /// In zh, this message translates to:
   /// **'打不开浏览器。网址：{url}'**
   String phoneDndBrowserFailed(String url);
+
+  /// No description provided for @phoneDndChannelReady.
+  ///
+  /// In zh, this message translates to:
+  /// **'{channel} · 可以用了'**
+  String phoneDndChannelReady(String channel);
+
+  /// No description provided for @phoneDndChannelStatus.
+  ///
+  /// In zh, this message translates to:
+  /// **'{channel} · {reason}'**
+  String phoneDndChannelStatus(String channel, String reason);
+
+  /// No description provided for @phoneDndUsing.
+  ///
+  /// In zh, this message translates to:
+  /// **'正在使用：{channel}'**
+  String phoneDndUsing(String channel);
+
+  /// No description provided for @phoneDndEnableWith.
+  ///
+  /// In zh, this message translates to:
+  /// **'{mode, select, shizuku{用 Shizuku 开启} sui{用 Sui 开启} root{用 Root 开启} adb{用自连 ADB 开启} other{启用不打扰模式}}'**
+  String phoneDndEnableWith(String mode);
+
+  /// No description provided for @phoneDndSwitchTo.
+  ///
+  /// In zh, this message translates to:
+  /// **'{mode, select, shizuku{改用 Shizuku} sui{改用 Sui} root{改用 Root} adb{改用自连 ADB} other{改用这个通道}}'**
+  String phoneDndSwitchTo(String mode);
 
   /// No description provided for @phoneControlWorkingApp.
   ///
@@ -17663,7 +17945,7 @@ abstract class L10n {
   /// No description provided for @phoneDndManualConnect.
   ///
   /// In zh, this message translates to:
-  /// **'手动连接'**
+  /// **'按端口连接'**
   String get phoneDndManualConnect;
 
   /// No description provided for @phoneDndConnectPortLabel.
@@ -17737,6 +18019,150 @@ abstract class L10n {
   /// In zh, this message translates to:
   /// **'请允许手机操控通知的弹出提醒'**
   String get phoneBackgroundNotificationBlocked;
+
+  /// No description provided for @phonePrivilegedUpgrade.
+  ///
+  /// In zh, this message translates to:
+  /// **'此版本尚不支持该特权通道，请更新 DSH Go 后使用。'**
+  String get phonePrivilegedUpgrade;
+
+  /// No description provided for @phonePrivilegedSui.
+  ///
+  /// In zh, this message translates to:
+  /// **'Sui'**
+  String get phonePrivilegedSui;
+
+  /// No description provided for @phonePrivilegedRoot.
+  ///
+  /// In zh, this message translates to:
+  /// **'Root'**
+  String get phonePrivilegedRoot;
+
+  /// No description provided for @phonePrivilegedSuiDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'使用 Sui 模块提供的接口，仅在主动点击时申请授权。'**
+  String get phonePrivilegedSuiDescription;
+
+  /// No description provided for @phonePrivilegedRootDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'适用于 Magisk、KernelSU 或 APatch；只有主动选择后才首次执行 root 命令。'**
+  String get phonePrivilegedRootDescription;
+
+  /// No description provided for @phonePrivilegedRootPrepare.
+  ///
+  /// In zh, this message translates to:
+  /// **'申请 root 授权'**
+  String get phonePrivilegedRootPrepare;
+
+  /// No description provided for @phonePrivilegedRootUnchecked.
+  ///
+  /// In zh, this message translates to:
+  /// **'尚未检查'**
+  String get phonePrivilegedRootUnchecked;
+
+  /// No description provided for @phonePrivilegedGrantRoot.
+  ///
+  /// In zh, this message translates to:
+  /// **'通过 root 授予'**
+  String get phonePrivilegedGrantRoot;
+
+  /// No description provided for @phonePrivilegedGrantSui.
+  ///
+  /// In zh, this message translates to:
+  /// **'通过 Sui 授予'**
+  String get phonePrivilegedGrantSui;
+
+  /// No description provided for @phonePrivilegedGrantSuiPermission.
+  ///
+  /// In zh, this message translates to:
+  /// **'先授权 Sui，再授予权限'**
+  String get phonePrivilegedGrantSuiPermission;
+
+  /// No description provided for @phonePrivilegedSuggested.
+  ///
+  /// In zh, this message translates to:
+  /// **'建议'**
+  String get phonePrivilegedSuggested;
+
+  /// No description provided for @phonePrivilegedRootRiskTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'给 DSH Go root 权限？'**
+  String get phonePrivilegedRootRiskTitle;
+
+  /// No description provided for @phonePrivilegedRootRiskBody.
+  ///
+  /// In zh, this message translates to:
+  /// **'root 管理器（Magisk、KernelSU 或 APatch）会弹窗问你。允许后，DSH Go 以 root 运行自己的后台服务；只有打开「保持 root 通道」，断开或重启后才会自己再去申请。'**
+  String get phonePrivilegedRootRiskBody;
+
+  /// No description provided for @phoneKeepTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'{mode, select, shizuku{保持 Shizuku 通道} sui{保持 Sui 通道} root{保持 root 通道} adb{保持自连 ADB 通道} other{保持这个通道}}'**
+  String phoneKeepTitle(String mode);
+
+  /// No description provided for @phoneKeepRootDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'断开、重开 App 或重启手机后，DSH Go 会自己再向 root 管理器申请；给不给仍由管理器决定。'**
+  String get phoneKeepRootDescription;
+
+  /// No description provided for @phoneKeepSharedDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'断开、重开 App 或重启手机后，DSH Go 用已有的授权自己连回去，不会替你申请授权。'**
+  String get phoneKeepSharedDescription;
+
+  /// No description provided for @phoneKeepAdbDescription.
+  ///
+  /// In zh, this message translates to:
+  /// **'断开、重开 App 或重启手机后，DSH Go 用已有的配对在 Wi‑Fi 下自己连回去；有「自动恢复无障碍」的权限时，还会试着打开一次无线调试。'**
+  String get phoneKeepAdbDescription;
+
+  /// No description provided for @phoneKeepRestoring.
+  ///
+  /// In zh, this message translates to:
+  /// **'正在重新连接'**
+  String get phoneKeepRestoring;
+
+  /// No description provided for @phoneKeepWaiting.
+  ///
+  /// In zh, this message translates to:
+  /// **'等通道可用后再连'**
+  String get phoneKeepWaiting;
+
+  /// No description provided for @phoneKeepWaitingService.
+  ///
+  /// In zh, this message translates to:
+  /// **'等所选服务运行后再连'**
+  String get phoneKeepWaitingService;
+
+  /// No description provided for @phoneKeepWaitingPermission.
+  ///
+  /// In zh, this message translates to:
+  /// **'还没有授权；授权后会自己连上'**
+  String get phoneKeepWaitingPermission;
+
+  /// No description provided for @phoneKeepWaitingNetwork.
+  ///
+  /// In zh, this message translates to:
+  /// **'等连上 Wi‑Fi 后再连'**
+  String get phoneKeepWaitingNetwork;
+
+  /// No description provided for @phoneKeepNotPaired.
+  ///
+  /// In zh, this message translates to:
+  /// **'还没有配对，请先完成无线调试配对'**
+  String get phoneKeepNotPaired;
+
+  /// No description provided for @phoneKeepFailed.
+  ///
+  /// In zh, this message translates to:
+  /// **'没连上；下次打开 App 或开始操控时再试'**
+  String get phoneKeepFailed;
 
   /// No description provided for @phoneModeTitle.
   ///
@@ -24287,7 +24713,7 @@ abstract class L10n {
   /// No description provided for @searchKwDnd.
   ///
   /// In zh, this message translates to:
-  /// **'免打扰,Shizuku,ADB,后台操作'**
+  /// **'免打扰,Shizuku,Sui,root,ADB,后台操作'**
   String get searchKwDnd;
 
   /// No description provided for @searchKwEngine.
@@ -24602,6 +25028,12 @@ abstract class L10n {
   /// **'提问提醒'**
   String get searchKwNotifyQuestion;
 
+  /// No description provided for @searchKwNotifyLive.
+  ///
+  /// In zh, this message translates to:
+  /// **'灵动岛,实时活动,流体云,超级岛,原子岛,胶囊,状态栏进度,锁屏进度'**
+  String get searchKwNotifyLive;
+
   /// No description provided for @searchKwNotifySystem.
   ///
   /// In zh, this message translates to:
@@ -24835,6 +25267,12 @@ abstract class L10n {
   /// In zh, this message translates to:
   /// **'统计,使用统计,匿名,隐私,数据,改进,遥测,分析'**
   String get searchKwUsageStats;
+
+  /// No description provided for @searchKwQuickPanel.
+  ///
+  /// In zh, this message translates to:
+  /// **'左滑,快捷入口,手势,滑动,目录,自定义目录,快捷,常用入口'**
+  String get searchKwQuickPanel;
 
   /// No description provided for @shellDeletePermanently.
   ///
@@ -26594,6 +27032,18 @@ abstract class L10n {
   /// **'已归档 {count} 个对话，{failed} 个没能归档'**
   String shellChatsArchivedPartial(int count, int failed);
 
+  /// No description provided for @shellQuickPanel.
+  ///
+  /// In zh, this message translates to:
+  /// **'快捷入口'**
+  String get shellQuickPanel;
+
+  /// No description provided for @shellQuickPanelHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'在「{path}」里调整'**
+  String shellQuickPanelHint(String path);
+
   /// The star prompt's first line. hours is the whole hours of use so far, rounded down; 0 is half an hour (the first ask comes after 30 minutes). The word joiner keeps the ~ on the line of the word before it.
   ///
   /// In zh, this message translates to:
@@ -27323,7 +27773,7 @@ abstract class L10n {
   /// No description provided for @stateChatTextOnlyModel.
   ///
   /// In zh, this message translates to:
-  /// **'当前模型只能读文字，图片已作为文件发给 AI。想让 AI 直接看图，请换成 V4.1 Flash'**
+  /// **'当前模型未声明支持图片，已按文件发送。可换模型，或把自定义模型的输入类型设为「文本和图片」'**
   String get stateChatTextOnlyModel;
 
   /// No description provided for @stateAttachmentUploadFailed.
@@ -27335,7 +27785,7 @@ abstract class L10n {
   /// No description provided for @stateChatImageModelRequired.
   ///
   /// In zh, this message translates to:
-  /// **'当前模型看不了图片，换成 V4.1 Flash 再发'**
+  /// **'当前模型未声明支持图片。请换模型，或把自定义模型的输入类型设为「文本和图片」再发'**
   String get stateChatImageModelRequired;
 
   /// No description provided for @stateSendFailed.
@@ -28607,8 +29057,14 @@ abstract class L10n {
   /// No description provided for @stateAttachmentFileLimit.
   ///
   /// In zh, this message translates to:
-  /// **'文件「{name}」超过 30 MB'**
+  /// **'文件「{name}」超过 200 MB'**
   String stateAttachmentFileLimit(String name);
+
+  /// No description provided for @stateAttachmentTotalLimit.
+  ///
+  /// In zh, this message translates to:
+  /// **'附件总大小超过 400 MB'**
+  String get stateAttachmentTotalLimit;
 
   /// No description provided for @stateBotFinished.
   ///
@@ -28859,7 +29315,7 @@ abstract class L10n {
   /// No description provided for @appSlogan.
   ///
   /// In zh, this message translates to:
-  /// **'把 DSH 装进你的 Mac'**
+  /// **'随时随刻，想go就Go！'**
   String get appSlogan;
 
   /// No description provided for @updateCheck.
@@ -29041,6 +29497,18 @@ abstract class L10n {
   /// In zh, this message translates to:
   /// **'安装包还在，随时可以再装。'**
   String get updateInstallCancelledMessage;
+
+  /// No description provided for @updateInstallUnconfirmed.
+  ///
+  /// In zh, this message translates to:
+  /// **'尚未确认安装结果'**
+  String get updateInstallUnconfirmed;
+
+  /// No description provided for @updateInstallUnconfirmedMessage.
+  ///
+  /// In zh, this message translates to:
+  /// **'安装包已保留。可先检查系统提示，再重试或用系统安装器打开。'**
+  String get updateInstallUnconfirmedMessage;
 
   /// No description provided for @updateSignatureMismatch.
   ///
