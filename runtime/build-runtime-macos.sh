@@ -121,7 +121,7 @@ fi
 
 cat >"$STAGE/runtime/etc/dsh-app/runtime.json" <<EOF
 {
-  "runtimeVersion": "macos-r2",
+  "runtimeVersion": "macos-r3",
   "platform": "darwin-arm64",
   "dshVersion": "$DSH_VERSION",
   "nodeVersion": "$NODE_VERSION",
@@ -146,7 +146,7 @@ python3 - "$OUT" "$archive" "$bytes" "$sha" "$((unpacked * 1024))" "$DSH_VERSION
 import json, os, sys
 out, archive, size, sha, unpacked, dsh, node = sys.argv[1:8]
 manifest = {
-    "runtimeVersion": "macos-r2",
+    "runtimeVersion": "macos-r3",
     "abi": "arm64",
     "platform": "darwin-arm64",
     "archive": f"assets/runtime-macos/{archive}",
