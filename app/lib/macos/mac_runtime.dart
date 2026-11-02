@@ -548,6 +548,9 @@ class MacRuntimeBridge implements RuntimeBridge {
       final runtimeDir = await _runtimeDir();
       final home = await _homeDir();
       await home.create(recursive: true);
+      // 覆盖层里写的是绝对路径：App 被移动、运行时被手工替换后，启动前都要重写，
+      // 否则 dsh-app-boot 会因读不到 overlay 直接崩溃。
+      await _ensureRuntimeLayout(runtimeDir, manifest);
       // 上次退出没能收掉的引擎（崩溃、强制退出）不能占着端口。
       await _reapStale(runtimeDir);
       await _ensureSupportSkill(await _dshHome());
