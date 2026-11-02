@@ -1,113 +1,343 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" class="no-js">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>DSH Go Mac — 把「运行」当成界面</title>
-<meta name="description" content="DeepSeek Harness 的第二个 macOS 客户端。同一个引擎，零迁移；过程信息、通知审批和原生动效。">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DSH Go Mac — 把运行当成界面</title>
+<meta name="description" content="DeepSeek Harness 的第二个 macOS 客户端。同一个引擎，零迁移；运行过程、通知审批和原生动效。">
+<meta name="theme-color" content="#08090a">
+<link rel="canonical" href="https://dsh.billw.top/">
 <meta property="og:type" content="website">
-<meta property="og:title" content="DSH Go Mac — 把「运行」当成界面">
+<meta property="og:url" content="https://dsh.billw.top/">
+<meta property="og:title" content="DSH Go Mac — 把运行当成界面">
 <meta property="og:description" content="同一个 DSH 引擎，一个更愿意天天打开的 macOS 客户端。">
 <meta property="og:image" content="https://dsh.billw.top/images/og.png">
 <meta name="twitter:card" content="summary_large_image">
-<style>
-:root{--bg:#090c14;--panel:#111827;--line:#243149;--ink:#f5f7fb;--muted:#93a4c3;--accent:#6ea8ff;--accent2:#8b7bff}
-*{box-sizing:border-box}
-html,body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang SC","Helvetica Neue",Arial,sans-serif}
-body{background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:40px 40px}
-a{color:inherit}
-.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
-header{padding:48px 0 36px}
-.brand{font-size:13px;letter-spacing:.18em;color:var(--muted);text-transform:uppercase}
-h1{font-size:clamp(38px,6vw,64px);line-height:1.05;letter-spacing:-.02em;margin:18px 0 16px}
-h1 em{font-style:normal;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
-.lede{font-size:19px;line-height:1.6;color:var(--muted);max-width:620px;margin:0 0 28px}
-.actions{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px}
-.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 20px;border-radius:999px;text-decoration:none;font-weight:600;font-size:15px;border:1px solid var(--line);transition:.15s}
-.btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#08101f;border:none}
-.btn:hover{transform:translateY(-1px)}
-.meta{color:#6f82a5;font-size:13px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
-.hero{margin:8px 0 0;border-radius:18px;overflow:hidden}
-.hero img{display:block;width:100%;height:auto}
-section{padding:64px 0;border-top:1px solid var(--line)}
-h2{font-size:clamp(26px,4vw,38px);letter-spacing:-.01em;margin:0 0 14px}
-h2 span{color:var(--accent)}
-p.body{color:var(--muted);font-size:17px;line-height:1.7;max-width:680px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;margin-top:28px}
-.card{background:rgba(17,24,39,.7);border:1px solid var(--line);border-radius:16px;padding:22px}
-.card h3{margin:0 0 8px;font-size:17px}
-.card p{margin:0;color:var(--muted);font-size:14.5px;line-height:1.65}
-.shot{border:1px solid var(--line);border-radius:16px;overflow:hidden;margin-top:26px}
-.shot img{display:block;width:100%}
-.shot.narrow{max-width:660px;margin-left:auto;margin-right:auto}
-pre{background:#0d1422;border:1px solid var(--line);border-radius:14px;padding:18px;overflow:auto;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13.5px;line-height:1.7;color:#cfe0ff}
-code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
-footer{padding:48px 0 72px;color:#6f82a5;font-size:13px;border-top:1px solid var(--line)}
-footer a{color:#9db4dc;text-decoration:none}
-.tiny{font-size:13px;color:#6f82a5}
-@media (prefers-reduced-motion:no-preference){.hero img{animation:none}}
-</style>
+<link rel="preload" href="assets/fonts/instrument-serif-normal-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/instrument-serif-italic-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/instrument-sans.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="icon" href="assets/brand/glyph.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/site.css">
+<script>document.documentElement.className='js';</script>
+<noscript><style>.evidence-track{flex-direction:column;width:auto}.proof{width:100%}.proof-media{height:auto;max-height:none}.proof-media img{height:auto;object-fit:contain}</style></noscript>
 </head>
 <body>
-<div class="wrap">
-<header>
-  <a class="star-original" href="https://github.com/ccch1mneyyy/dsh-go">
-    ★ 先给原作者点一个 star：ccch1mneyyy/dsh-go →
-  </a>
-  <div class="hero"><img src="images/demo.gif" alt="DSH Go Mac 真实录屏"></div>
-  <div class="actions" style="margin-top:28px">
-    <a class="btn primary" href="https://github.com/BillWGong/dsh-go-mac/releases/latest">下载 DMG</a>
-    <a class="btn" href="https://github.com/BillWGong/homebrew-tap">Homebrew</a>
-    <a class="btn" href="https://www.bilibili.com/video/BV1njxJ6WE59/">演示视频</a>
-    <a class="btn" href="https://github.com/BillWGong/dsh-go-mac">GitHub</a>
+
+<div class="grain" aria-hidden="true"></div>
+<div class="cursor" id="cursor" aria-hidden="true"></div>
+
+<div class="loader" id="loader" aria-hidden="true">
+  <div class="loader-inner">
+    <div class="brandline"><img src="assets/brand/glyph.svg" alt="" width="30" height="29" style="display:block;margin-bottom:14px">DSH GO MAC — MACOS CLIENT<br>THE RUN IS THE INTERFACE</div>
+    <div class="counter"><span id="loadCount">00</span><sup style="font-size:.22em;vertical-align:top">%</sup></div>
   </div>
-  <div class="meta">macOS 12+ · Apple Silicon · AGPL-3.0 · v1.0.18</div>
+  <div class="bar" id="loadBar"></div>
+</div>
+
+<header class="nav" id="nav">
+  <a class="brand" href="#top" aria-label="DSH Go Mac 首页">
+    <span class="mark" aria-hidden="true"><img src="assets/brand/glyph.svg" alt="" width="26" height="25"></span>
+    DSH GO MAC
+  </a>
+  <nav class="nav-links" aria-label="主导航">
+    <a href="#evidence">证据</a>
+    <a href="#surface">界面</a>
+    <a href="#engine">引擎</a>
+    <a href="#native">原生</a>
+    <a href="#install">安装</a>
+  </nav>
+  <div class="nav-right">
+    <a class="ghost" href="https://github.com/BillWGong/dsh-go-mac" target="_blank" rel="noopener">GitHub ↗</a>
+    <a class="btn small" data-magnetic href="https://github.com/BillWGong/dsh-go-mac/releases/latest" target="_blank" rel="noopener">下载 DMG <span class="arrow">↗</span></a>
+  </div>
+  <button class="menu-btn" id="menuBtn" aria-label="打开菜单" aria-expanded="false"><span></span><span></span></button>
+  <div class="nav-progress"><i id="navProgress"></i></div>
 </header>
 
-<section>
-  <h2><span>01</span> · 十秒，没有加速</h2>
-  <div class="shot"><img src="images/demo.gif" alt="真实录屏"></div>
+<aside class="rail" aria-hidden="true">
+  <span class="rail-line"></span>
+  <a href="#evidence" data-rail="evidence">01 — EVIDENCE</a>
+  <a href="#surface" data-rail="surface">02 — SURFACE</a>
+  <a href="#engine" data-rail="engine">03 — ENGINE</a>
+  <a href="#native" data-rail="native">04 — NATIVE</a>
+  <a href="#install" data-rail="install">05 — INSTALL</a>
+</aside>
 
-  <h2 style="margin-top:48px"><span>02</span> · 运行是一等公民</h2>
-  <p class="body">一轮任务结束，三个数先给你：用时、步骤、改动文件。下面五个页签：轨迹、改动、文件、进度、上下文。点「改动」是 diff，点「轨迹」回看每一步。</p>
-  <div class="shot narrow"><img src="images/run-detail.jpg" alt="运行详情"></div>
-</section>
+<div class="menu" id="menu" aria-hidden="true">
+  <a href="#evidence">证据<small>01 — REAL RECORDING</small></a>
+  <a href="#surface">界面<small>02 — THE RUN</small></a>
+  <a href="#engine">引擎<small>03 — ZERO MIGRATION</small></a>
+  <a href="#native">原生<small>04 — NATIVE</small></a>
+  <a href="#install">安装<small>05 — INSTALL</small></a>
+  <div class="menu-foot">
+    <a href="https://github.com/BillWGong/dsh-go-mac/releases/latest" target="_blank" rel="noopener">下载 DMG ↗</a>
+    <a href="https://github.com/BillWGong/dsh-go-mac" target="_blank" rel="noopener">GitHub ↗</a>
+    <span>macOS 12+ · APPLE SILICON · AGPL-3.0 · v1.0.18</span>
+  </div>
+</div>
 
-<section>
-  <h2><span>03</span> · 同一个引擎，零迁移</h2>
-  <p class="body">首次启动检测本机正在运行的 DeepSeek Harness。点「连接官方 DSH」，对话、模型、插件原样都在，读的还是 <code>~/.dsh</code>。也可以切到内置引擎，或远程 SSH / DSH Remote。</p>
-  <div class="shot"><img src="images/official-mode.jpg" alt="连接官方 DSH"></div>
-</section>
+<main id="top">
 
-<section>
-  <h2><span>04</span> · 原生，不是套壳</h2>
-  <div class="grid">
-    <div class="card"><h3>Flutter + Swift</h3><p>界面是同一套 Flutter，平台层是 Swift。通知、文件、PDF、语音、桌宠、窗口、深链全走 macOS API。</p></div>
-    <div class="card"><h3>没有 Electron</h3><p>本机引擎是原生 Node 24 + DSH。没有内嵌浏览器，没有额外的运行时壳。</p></div>
-    <div class="card"><h3>动效是功能</h3><p>思考胶囊呼吸、工具行滑入、折叠连续展开。长任务里扫一眼就知道状态。</p></div>
+<section class="hero" id="hero">
+  <canvas id="scene" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <div class="hero-grid">
+      <div class="hero-copy">
+        <p class="eyebrow" data-hero="eyebrow"><span class="dot"></span> DSH GO MAC — MACOS CLIENT / 001</p>
+        <h1 aria-label="把运行当成界面">
+          <span class="line" data-hero="line"><span>把运行</span></span>
+          <span class="line second" data-hero="line"><span>当成<em>界面</em>。</span></span>
+        </h1>
+        <p class="hero-sub" data-hero="sub">DeepSeek Harness 的第二个 macOS 客户端。同一个引擎，零迁移。它把一轮任务的全貌摆在你面前，而不是折进聊天记录。</p>
+        <div class="hero-cta" data-hero="cta">
+          <a class="btn" data-magnetic href="https://github.com/BillWGong/dsh-go-mac/releases/latest" target="_blank" rel="noopener">下载 DMG <span class="arrow">↗</span></a>
+          <a class="link" href="#install">或用 Homebrew 安装 <span>↓</span></a>
+          <a class="link" href="https://www.bilibili.com/video/BV1njxJ6WE59/" target="_blank" rel="noopener">看 10 秒录屏 ↗</a>
+        </div>
+        <p class="hero-meta" data-hero="meta">
+          <span>macOS 12+</span><span>Apple Silicon</span><span>AGPL-3.0</span><span>v1.0.18</span>
+        </p>
+        <p style="margin-top:18px;font-size:12px;color:var(--fg-dim)" data-hero="meta">
+          <a class="link" style="border-color:rgba(255,74,28,.5);color:var(--accent)" href="https://github.com/ccch1mneyyy/dsh-go" target="_blank" rel="noopener">★ 先给原作者点一个 star：ccch1mneyyy/dsh-go ↗</a>
+        </p>
+      </div>
+
+      <aside class="hero-shot" data-hero="card" aria-label="运行详情">
+        <div class="hero-shot-top"><span class="live-dot"></span> RUN 001 · COMPLETE <span>0:41</span></div>
+        <div class="hero-shot-img"><img src="images/app/hero-panel.jpg" alt="DSH Go Mac 运行详情：用时、步骤、改动文件与轨迹" width="700" height="1500" loading="eager"></div>
+        <div class="hero-shot-foot"><span>0:41 TOTAL</span><span>6 STEPS</span><span>1 FILE</span></div>
+      </aside>
+    </div>
+
+    <div class="hero-bottom">
+      <span class="scroll">SCROLL TO INSPECT</span>
+      <span class="line"></span>
+      <span>运行过程，一等公民</span>
+    </div>
   </div>
 </section>
 
-<section>
-  <h2>装上</h2>
-  <pre><code># 下载（Apple Silicon / macOS 12+）
-open https://github.com/BillWGong/dsh-go-mac/releases/latest
+<div class="ticker" aria-hidden="true">
+  <div class="ticker-track">
+    <span>TRACE</span><i>◆</i><span>DIFF</span><i>◆</i><span>FILES</span><i>◆</i><span>PROGRESS</span><i>◆</i><span>CONTEXT</span><i>◆</i><span>THE RUN IS THE INTERFACE</span><i>◆</i>
+    <span>TRACE</span><i>◆</i><span>DIFF</span><i>◆</i><span>FILES</span><i>◆</i><span>PROGRESS</span><i>◆</i><span>CONTEXT</span><i>◆</i><span>THE RUN IS THE INTERFACE</span><i>◆</i>
+  </div>
+</div>
 
-# 或者用 Homebrew
-brew install --cask BillWGong/tap/dsh-go-mac
-
-# 拖进 Applications，首次打开
-open "/Applications/DSH Go Mac.app"
-
-# 未签名构建被 Gatekeeper 拦住时
-xattr -dr com.apple.quarantine "/Applications/DSH Go Mac.app"</code></pre>
-  <p class="body" style="margin-top:18px">首次启动：已在用官方 DSH → 选「连接官方 DSH」；想用内置引擎 → 选「本机」；连远程 → 选「远程主机」。</p>
+<section class="section evidence" id="evidence">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <span class="kicker" data-reveal>01 / EVIDENCE</span>
+        <h2 data-reveal>真实，<em>没有加速</em>。</h2>
+      </div>
+      <p class="lead" data-reveal>一个需要工具调用的真实任务，和它跑完之后留下的东西。录屏没有剪辑，截图没有摆拍。</p>
+    </div>
+  </div>
+  <div class="evidence-pin" id="evidencePin">
+    <div class="evidence-track" id="evidenceTrack">
+      <article class="proof">
+        <div class="proof-meta"><span>01 / RECORDING</span><span>10.0 S · NO CUTS</span></div>
+        <div class="proof-media"><img src="images/demo.gif" alt="DSH Go Mac 真实录屏" width="1000" height="695" loading="lazy"></div>
+        <p>思考、建目录、写文件、运行。一个真实的工具调用回合。</p>
+      </article>
+      <article class="proof">
+        <div class="proof-meta"><span>02 / RUN</span><span>0:41 · 6 STEPS · 1 FILE</span></div>
+        <div class="proof-media"><img src="images/app/app-dark.jpg" alt="一次真实运行的对话与右侧运行详情" width="2360" height="1320" loading="lazy"></div>
+        <p>右侧不是装饰：用时、步骤、改动文件，全部来自这次运行。</p>
+      </article>
+      <article class="proof">
+        <div class="proof-meta"><span>03 / SURFACE</span><span>NEW CHAT · 本机</span></div>
+        <div class="proof-media"><img src="images/app/new-chat.jpg" alt="DSH Go Mac 新对话界面" width="1700" height="1400" loading="lazy"></div>
+        <p>它先是一个安静的 macOS 客户端，然后才是运行详情。</p>
+      </article>
+    </div>
+  </div>
 </section>
 
-<footer>
-  <div>非官方社区项目，与 DeepSeek 无隶属关系。基于 <a href="https://github.com/ccch1mneyyy/dsh-go">ccch1mneyyy/dsh-go</a>（AGPL-3.0）。</div>
-  <div style="margin-top:8px"><a href="https://github.com/BillWGong/dsh-go-mac">GitHub</a> · <a href="https://github.com/BillWGong/dsh-go-mac/releases">Releases</a> · <a href="https://github.com/BillWGong/dsh-go-mac/issues">Issues</a></div>
+<section class="section surface" id="surface">
+  <div class="surface-pin" id="surfacePin">
+    <span class="surface-num" aria-hidden="true">02</span>
+    <div class="wrap">
+      <div class="surface-grid">
+        <div class="surface-copy">
+          <span class="kicker" data-reveal>02 / THE SURFACE</span>
+          <h2 data-reveal>运行是<br><em>一等公民</em>。</h2>
+          <p data-reveal>一轮任务结束，三个数先给你：用时、步骤、改动文件。下面五个页签：轨迹、改动、文件、进度、上下文。点「改动」就是 diff，点「轨迹」回看每一步。</p>
+          <ul class="surface-list" data-reveal>
+            <li><b>01</b> 每条思考、工具调用、耗时独立成行</li>
+            <li><b>02</b> 审批和提问从消息流里浮出来</li>
+            <li><b>03</b> 长任务里，扫一眼就知道状态</li>
+          </ul>
+        </div>
+
+        <div class="console" id="console" data-reveal>
+          <div class="console-head">
+            <span class="lights"><i></i><i></i><i></i></span>
+            <span id="consoleTitle">run 001 · 做个下载进度条</span>
+            <span class="right" id="consoleStatus">进行中</span>
+          </div>
+          <div class="console-body">
+            <div class="console-metrics">
+              <div><b id="mTime">2:01:57</b><span>用时</span></div>
+              <div><b id="mSteps">122</b><span>步骤</span></div>
+              <div><b id="mFiles">1</b><span>改动文件</span></div>
+            </div>
+            <div class="console-tabs" aria-hidden="true">
+              <span class="on" data-tab="trace">轨迹</span><span data-tab="diff">改动</span><span data-tab="files">文件</span><span data-tab="progress">进度</span><span data-tab="context">上下文</span>
+            </div>
+            <div class="console-rows" id="consoleRows">
+              <div class="crow on"><i>◌</i><b>思考 · 决定调用 1 个工具</b><time>1.8s</time></div>
+              <div class="crow on"><i>›_</i><b>运行 · mkdir -p /tmp/dsh-demo</b><time>0.1s</time></div>
+              <div class="crow on"><i>+</i><b>写入 · progress.py</b><time>+28</time></div>
+              <div class="crow"><i>›_</i><b>运行 · python3 progress.py</b><time>0:03</time></div>
+              <div class="crow"><i>◌</i><b>思考 · 20 行进度，0.5 秒一行</b><time>0.0s</time></div>
+            </div>
+            <div class="console-diff" id="consoleDiff"><span class="diff-file">progress.py  +28 −1</span><span class="add">+ for i in range(1, 21):</span><br><span class="add">+     print(f"{i*5:3d}%")</span><br><span class="del">- time.sleep(0.2)</span><br><span class="add">+ time.sleep(0.5)</span></div>            <div class="console-spark" aria-hidden="true">
+              <div class="spark-label"><span>STEP TIMELINE</span><span>122 STEPS / 2:01:57</span></div>
+              <svg viewBox="0 0 320 40" preserveAspectRatio="none"><polyline points="0,31 10,28 20,30 30,22 40,25 50,18 60,21 70,14 80,17 90,12 100,15 110,9 120,12 130,8 140,11 150,6 160,9 170,7 180,10 190,5 200,8 210,6 220,9 230,4 240,7 250,5 260,8 270,3 280,6 290,4 300,7 310,2 320,5" fill="none" stroke="currentColor" stroke-width="1"/></svg>
+            </div>
+
+            <div class="console-toast"><div><b>需要你确认</b><span>运行 python3 progress.py</span></div><span class="yes">允许</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section engine" id="engine">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <span class="kicker" data-reveal>03 / ZERO MIGRATION</span>
+        <h2 data-reveal>同一个引擎，<br><em>零迁移</em>。</h2>
+      </div>
+      <p class="lead" data-reveal>它不替换你的引擎。首次启动检测本机官方 DSH，连上后读的还是同一个 <code style="font-family:var(--mono);font-size:.92em">~/.dsh</code>。</p>
+    </div>
+
+    <div class="engine-body">
+      <div data-reveal>
+        <div class="hosts" role="tablist" aria-label="主机模式">
+          <button class="host on" data-host="official" role="tab" aria-selected="true"><span class="no">01</span><span><b>连接官方 DSH</b><span>对话、模型、插件原样都在</span></span><span class="arr">↗</span></button>
+          <button class="host" data-host="bundled" role="tab" aria-selected="false"><span class="no">02</span><span><b>内置引擎</b><span>Node 24 + DSH，装进 App</span></span><span class="arr">↗</span></button>
+          <button class="host" data-host="remote" role="tab" aria-selected="false"><span class="no">03</span><span><b>远程主机</b><span>SSH / DSH Remote</span></span><span class="arr">↗</span></button>
+        </div>
+        <p class="host-note" id="hostNote">不迁移、不复制。读的还是 <code style="font-family:var(--mono)">~/.dsh</code>，官方客户端随时可以继续用。</p>
+      </div>
+
+      <div class="engine-visual" data-parallax="0.05">
+        <div class="engine-frame" data-reveal>
+          <span class="cross tl"></span><span class="cross br"></span>
+          <img src="images/app/new-chat.jpg" alt="DSH Go Mac 新对话与主机状态" width="1700" height="1400" loading="lazy">
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section native" id="native">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <span class="kicker" data-reveal>04 / NATIVE</span>
+        <h2 data-reveal>没有壳。<br><em>只有 macOS</em>。</h2>
+      </div>
+      <p class="lead" data-reveal>Flutter 界面、Swift 平台层、原生 Node 引擎。没有 Electron，没有内嵌浏览器。</p>
+    </div>
+
+    <div class="native-list">
+      <article class="native-row" data-reveal>
+        <span class="no">01</span>
+        <h3>通知里就能审批</h3>
+        <p>一轮结束、等待确认，系统通知上直接「允许 / 拒绝」，点一下回到对话。不是网页里的按钮。</p>
+        <span class="plus">+</span>
+      </article>
+      <article class="native-row" data-reveal>
+        <span class="no">02</span>
+        <h3>文件、PDF、语音、桌宠</h3>
+        <p>打开、另存、PDFKit 预览、SFSpeechRecognizer 语音、无边框桌宠浮窗，全走 macOS API。</p>
+        <span class="plus">+</span>
+      </article>
+      <article class="native-row" data-reveal>
+        <span class="no">03</span>
+        <h3>动效是功能，不是装饰</h3>
+        <p>思考胶囊呼吸、工具行滑入、折叠连续展开。长任务里，扫一眼就知道状态。</p>
+        <span class="plus">+</span>
+      </article>
+    </div>
+
+    <div class="native-art" data-reveal>
+      <img src="images/app/app-dark.jpg" alt="DSH Go Mac 的一次真实运行" width="2360" height="1320" loading="lazy">
+      <div class="native-toast" aria-hidden="true">
+        <div class="t-head"><span>DSH GO MAC</span><b>现在</b></div>
+        <div class="t-body"><span class="logo">D</span> 需要你确认 · 运行 python3 progress.py</div>
+        <div class="t-actions"><span>允许</span><span>拒绝</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section install" id="install">
+  <div class="wrap">
+    <span class="kicker" data-reveal>05 / INSTALL</span>
+    <h2 data-reveal>装上，<em>再评判</em>。</h2>
+
+    <div class="install-grid">
+      <div class="terminal" data-reveal>
+        <div class="term-head"><i></i><i></i><i></i><span>zsh — dsh-go</span></div>
+        <button class="copy" id="copyCmd" type="button">复制命令</button>
+        <pre><code><span class="prompt">$</span> brew install --cask <span class="hl">BillWGong/tap/dsh-go-mac</span>
+
+<span class="dim"># 或下载 DMG（Apple Silicon / macOS 12+）</span>
+<span class="prompt">$</span> open https://github.com/BillWGong/dsh-go-mac/releases/latest
+
+<span class="dim"># 未签名构建被 Gatekeeper 拦住时</span>
+<span class="prompt">$</span> xattr -dr com.apple.quarantine "/Applications/DSH Go Mac.app"</code></pre>
+        <div class="term-foot"><span>首次启动 · 选「连接官方 DSH」或「本机」</span><a href="https://github.com/BillWGong/dsh-go-mac/releases/latest" target="_blank" rel="noopener">下载 DMG ↗</a></div>
+      </div>
+
+      <div class="install-side" data-reveal>
+        <ol class="steps">
+          <li><b>01</b><span>已在用官方 DSH：启动后选「连接官方 DSH」，不装运行时，读同一个 <code style="font-family:var(--mono);font-size:.92em">~/.dsh</code>。</span></li>
+          <li><b>02</b><span>想让 Mac 自己跑：选「本机」，安装约 750 MB 运行时。</span></li>
+          <li><b>03</b><span>连远程：选「远程主机」，SSH 或 DSH Remote。</span></li>
+        </ol>
+        <a class="star-card" href="https://github.com/ccch1mneyyy/dsh-go" target="_blank" rel="noopener">
+          <span class="star-k"><span>最重要的事</span><span>STAR THE ORIGINAL ↗</span></span>
+          <b>先给原作者点一个 star。</b>
+          <p>这个仓库只是移植。没有 ccch1mneyyy 的 DSH Go，就没有 DSH Go Mac。</p>
+          <span class="arrow">github.com/ccch1mneyyy/dsh-go →</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer-top">
+      <div>非官方社区项目，与 DeepSeek 无隶属关系。<br>基于 <a href="https://github.com/ccch1mneyyy/dsh-go" target="_blank" rel="noopener" style="color:var(--fg)">ccch1mneyyy/dsh-go</a>（AGPL-3.0）。</div>
+      <div class="footer-links">
+        <a href="https://github.com/BillWGong/dsh-go-mac" target="_blank" rel="noopener">GitHub ↗</a>
+        <a href="https://github.com/BillWGong/dsh-go-mac/releases" target="_blank" rel="noopener">Releases ↗</a>
+        <a href="https://github.com/BillWGong/dsh-go-mac/issues" target="_blank" rel="noopener">Issues ↗</a>
+        <a href="https://www.bilibili.com/video/BV1njxJ6WE59/" target="_blank" rel="noopener">Demo ↗</a>
+      </div>
+    </div>
+    <div class="footer-word" aria-hidden="true">DSH GO MAC</div>
+    <div class="footer-bottom">
+      <span>© 2026 DSH GO MAC · BUILT WITH FLUTTER + SWIFT</span>
+      <span>DESIGNED FOR THE RUN · v1.0.18</span>
+    </div>
+  </div>
 </footer>
-</div>
+
+</main>
+
+<script src="assets/vendor/lenis.min.js" defer></script>
+<script src="assets/vendor/gsap.min.js" defer></script>
+<script src="assets/vendor/ScrollTrigger.min.js" defer></script>
+<script src="assets/site.js" defer></script>
 </body>
 </html>
