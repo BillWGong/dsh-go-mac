@@ -25,6 +25,15 @@ A macOS client for DeepSeek Harness. Same engine, no migration.</p>
 
 <p align="center"><sub>A real recording, no speed-up. One tool-using task, from thinking to run details.</sub></p>
 
+<p align="center">
+  <a href="https://www.star-history.com/#BillWGong/dsh-go-mac&type=date&legend=top-left">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=BillWGong/dsh-go-mac&type=date&legend=top-left&theme=dark">
+      <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=BillWGong/dsh-go-mac&type=date&legend=top-left">
+    </picture>
+  </a>
+</p>
+
 > [!NOTE]
 > Unofficial community project, not affiliated with DeepSeek. The UI comes from [ccch1mneyyy/dsh-go](https://github.com/ccch1mneyyy/dsh-go) (AGPL-3.0); the platform layer is written in Swift. See [NOTICE](NOTICE).
 
