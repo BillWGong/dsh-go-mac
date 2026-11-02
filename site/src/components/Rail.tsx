@@ -9,7 +9,7 @@ const ITEMS = [
 ];
 
 export function Rail() {
-  const [active, setActive] = useState('evidence');
+  const [active, setActive] = useState('');
   useEffect(() => {
     const els = ITEMS.map(([id]) => document.getElementById(id)).filter(Boolean) as HTMLElement[];
     const io = new IntersectionObserver((entries) => {
