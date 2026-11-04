@@ -10,7 +10,7 @@ A macOS client for DeepSeek Harness. Same engine, no migration.</p>
 <p><a href="https://github.com/BillWGong/dsh-go-mac/releases/latest"><b>Download DMG</b></a> ·
 <a href="https://github.com/BillWGong/homebrew-tap">brew install --cask BillWGong/tap/dsh-go-mac</a> ·
 <a href="https://www.bilibili.com/video/BV1njxJ6WE59/">Demo</a> ·
-<a href="https://billwgong.github.io/dsh-go-mac/">Site</a> ·
+<a href="https://dsh.billw.top/">Site</a> ·
 <a href="README.md">简体中文</a></p>
 
 </div>
