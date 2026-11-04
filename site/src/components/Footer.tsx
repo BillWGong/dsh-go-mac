@@ -16,7 +16,7 @@ export function Footer() {
         <div className="footer-word" aria-hidden>DSH GO MAC</div>
         <div className="footer-bottom">
           <span>© 2026 DSH GO MAC · BUILT WITH FLUTTER + SWIFT</span>
-          <span>DESIGNED FOR THE RUN · v1.0.18</span>
+          <span>DESIGNED FOR THE RUN · v1.0.19</span>
         </div>
       </div>
     </footer>

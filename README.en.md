@@ -5,6 +5,8 @@
 <p><b>Treat the run as the interface.</b><br/>
 A macOS client for DeepSeek Harness. Same engine, no migration.</p>
 
+<p><sub>Current release <b>v1.0.19</b> · synced with upstream DSH Go <b>1.0.10</b></sub></p>
+
 <p><a href="https://github.com/BillWGong/dsh-go-mac/releases/latest"><b>Download DMG</b></a> ·
 <a href="https://github.com/BillWGong/homebrew-tap">brew install --cask BillWGong/tap/dsh-go-mac</a> ·
 <a href="https://www.bilibili.com/video/BV1njxJ6WE59/">Demo</a> ·

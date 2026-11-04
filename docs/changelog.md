@@ -1,5 +1,17 @@
 # 更新日志 · Changelog
 
+## 1.0.19 · 2026-11-04
+
+### 中文
+
+- 同步上游 DSH Go 1.0.10：远程主机详情与工作区上传、动效细节、模型默认值与定时授权补丁、PRoot 临时文件清理。
+- macOS 版保留原生窗口、菜单栏、系统通知审批和本地/远程主机流程；设置页补充原作者信息与移植署名。
+
+### English
+
+- Synced with upstream DSH Go 1.0.10: host details and workspace uploads, motion polish, model-default and schedule-authorization patches, and PRoot temp-file cleanup.
+- The macOS build keeps its native window, menu bar, notification approvals, and local/remote host flows; About now credits both the upstream author and the Mac port.
+
 每个版本先中文、后英文。发版时把对应版本的正文（不含版本标题）作为 Release 正文，见 `docs/release.md`。
 
 ## 1.0.4 · 2026-10-31
