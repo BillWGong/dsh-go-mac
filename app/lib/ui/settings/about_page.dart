@@ -1,14 +1,15 @@
-// 关于 dsh-go: the version, updates, the star, the licences, and under them
-// the brand mark and the slogan (the disclaimer is on the licence page).
+// About DSH Go: app information, the original author and personal profiles,
+// then the brand mark, slogan and unofficial-app disclaimer.
 
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../l10n/l10n.dart';
 import '../../state/app_info.dart';
+import '../../state/star_prompt.dart' show starLinkOpenerProvider;
 import '../../state/update_state.dart';
 import '../shell/brand_mark.dart';
 import '../shell/page_frame.dart';
@@ -52,18 +53,6 @@ class AboutPage extends ConsumerWidget {
               ),
             ),
             SettingsTile(
-              icon: AppIcons.starProject,
-              title: AppLocale.isEnglish ? 'Support the original author' : '支持项目原作者',
-              subtitle: AppLocale.isEnglish
-                  ? 'DSH Go (Android) by ${AppInfo.upstreamAuthor}'
-                  : 'DSH Go（Android）· 作者 ${AppInfo.upstreamAuthor}',
-              onTap: () async {
-                try {
-                  await launchUrl(Uri.parse(AppInfo.upstreamUrl), mode: LaunchMode.externalApplication);
-                } catch (_) {}
-              },
-            ),
-            SettingsTile(
               spot: Spots.licenses,
               onTap: () => showLicensePage(
                 context: context,
@@ -72,6 +61,29 @@ class AboutPage extends ConsumerWidget {
                 applicationIcon: const Padding(padding: EdgeInsets.all(12), child: BrandMark(size: 56, tile: true)),
                 applicationLegalese: AppInfo.disclaimer,
               ),
+            ),
+          ],
+        ),
+        SettingsSection(
+          title: l10n.hubAboutAuthor,
+          children: [
+            const SettingsTile(title: AppInfo.upstreamAuthor),
+            _authorLink(
+              context,
+              ref,
+              'about-author-bilibili',
+              l10n.hubAboutBilibili,
+              AppInfo.authorBilibiliName,
+              AppInfo.authorBilibiliUrl,
+            ),
+            _authorLink(context, ref, 'about-author-x', l10n.hubAboutX, AppInfo.authorXHandle, AppInfo.authorXUrl),
+            _authorLink(
+              context,
+              ref,
+              'about-author-github',
+              l10n.hubAboutGithub,
+              '@${AppInfo.upstreamAuthor}',
+              AppInfo.authorGithubUrl,
             ),
           ],
         ),
@@ -88,9 +100,13 @@ class AboutPage extends ConsumerWidget {
               ),
               const SizedBox(height: 6),
               Text(
-                AppLocale.isEnglish
-                    ? 'DSH Go Mac by ${AppInfo.author} · based on DSH Go by ${AppInfo.upstreamAuthor}'
-                    : 'DSH Go Mac · 作者 ${AppInfo.author} · 基于 DSH Go（${AppInfo.upstreamAuthor}）',
+                '${AppInfo.name} · ${AppInfo.author}',
+                textAlign: TextAlign.center,
+                style: theme.textTheme.labelSmall?.copyWith(color: colors.textTertiary),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                AppInfo.disclaimer,
                 textAlign: TextAlign.center,
                 style: theme.textTheme.labelSmall?.copyWith(color: colors.textTertiary),
               ),
@@ -99,5 +115,38 @@ class AboutPage extends ConsumerWidget {
         ),
       ],
     );
+  }
+
+  Widget _authorLink(BuildContext context, WidgetRef ref, String key, String title, String handle, String url) =>
+      Semantics(
+        link: true,
+        child: SettingsTile(
+          key: ValueKey(key),
+          title: title,
+          subtitle: handle,
+          trailing: Icon(AppIcons.openExternal, size: 18, color: DshColors.of(context).textTertiary),
+          onTap: () => unawaited(_openAuthorLink(context, ref, Uri.parse(url))),
+        ),
+      );
+
+  Future<void> _openAuthorLink(BuildContext context, WidgetRef ref, Uri url) async {
+    final l10n = context.l10n;
+    final messenger = ScaffoldMessenger.maybeOf(context);
+    try {
+      if (await ref.read(starLinkOpenerProvider)(url)) return;
+    } catch (_) {
+      // As with the project's link, fall back to copying when no browser opens.
+    }
+    var copied = true;
+    try {
+      await Clipboard.setData(ClipboardData(text: url.toString()));
+    } catch (_) {
+      copied = false;
+    }
+    if (messenger?.mounted ?? false) {
+      messenger!.showSnackBar(
+        SnackBar(content: Text(copied ? l10n.shellBrowserUrlCopied : l10n.stateBrowserOpenFailed)),
+      );
+    }
   }
 }
