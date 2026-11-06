@@ -162,149 +162,149 @@ class _ChatHeaderState extends ConsumerState<ChatHeader> {
             behavior: HitTestBehavior.translucent,
             onPanStart: mac ? (_) => MacWindowChrome.drag() : null,
             child: BackdropGroup(
-            child: SizedBox(
-              key: const ValueKey('chat-header-bar'),
-              height: barHeight,
-              child: _HeaderRow(
-                titleFloor: titleFloor,
-                clockExtra: clockExtra,
-                children: [
-                  // A subagent conversation shows 「‹ 上级对话」 here.
-                  HeaderLeadSlot(
-                    menu: !(chrome?.showsMenuKey ?? true)
-                        ? const SizedBox.shrink()
-                        : SizedBox.square(
-                            key: const ValueKey('chat-menu'),
-                            dimension: 44,
-                            child: GlassSurface(
-                              tier: GlassTier.chrome,
-                              circle: true,
-                              grouped: true,
-                              onTap: widget.onOpenDrawer,
-                              child: Tooltip(
-                                message: chrome?.menuTooltip ?? l10n.chatChats,
-                                child: Center(child: Icon(AppIcons.menu, size: 22, color: colors.onSurface)),
-                              ),
-                            ),
-                          ),
-                  ),
-                  Semantics(
-                    button: widget.onTitleTap != null,
-                    hint: widget.onTitleTap == null ? null : l10n.chatViewChatDetails,
-                    child: GlassSurface(
-                      tier: GlassTier.chrome,
-                      stadium: true,
-                      grouped: true,
-                      onTap: widget.onTitleTap,
-                      // At least the 44 of the round key and the model
-                      // chip beside it; 16 on the left, and on the right 16
-                      // or the schedule clock, concentric with the end.
-                      child: ConstrainedBox(
-                        key: const ValueKey('chat-title-pill'),
-                        constraints: BoxConstraints(minHeight: pillHeight),
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: _pillPadding),
-                          // A new title or status, or the clock coming and
-                          // going, glides the pill to its new width instead
-                          // of snapping.
-                          child: SmoothSize(
-                            duration: AppMotion.of(context, AppMotion.standard),
-                            curve: AppMotion.std,
-                            alignment: Alignment.centerLeft,
-                            child: _PillContent(
-                              textFloor: titleFloor - _pillPadding * 2,
-                              text: Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 4),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    HeaderTitleText(widget.title, style: titleStyle),
-                                    _StatusLine(
-                                      status: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          StatusDot(tone: widget.status.tone, size: _dot),
-                                          const SizedBox(width: _dotGap),
-                                          Flexible(
-                                            child: _StatusLabel(
-                                              status: widget.status,
-                                              style: statusStyle?.copyWith(
-                                                color: widget.status.tone == StatusTone.warn
-                                                    ? dsh.warning
-                                                    : dsh.textTertiary,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      detail: switch (widget.detail) {
-                                        final detail? => FluidTextSwap(
-                                          value: detail,
-                                          child: Text(
-                                            ' · $detail',
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: statusStyle?.copyWith(color: dsh.textTertiary),
-                                          ),
-                                        ),
-                                        null => const SizedBox.shrink(),
-                                      },
-                                    ),
-                                  ],
+              child: SizedBox(
+                key: const ValueKey('chat-header-bar'),
+                height: barHeight,
+                child: _HeaderRow(
+                  titleFloor: titleFloor,
+                  clockExtra: clockExtra,
+                  children: [
+                    // A subagent conversation shows 「‹ 上级对话」 here.
+                    HeaderLeadSlot(
+                      menu: !(chrome?.showsMenuKey ?? true)
+                          ? const SizedBox.shrink()
+                          : SizedBox.square(
+                              key: const ValueKey('chat-menu'),
+                              dimension: 44,
+                              child: GlassSurface(
+                                tier: GlassTier.chrome,
+                                circle: true,
+                                grouped: true,
+                                onTap: widget.onOpenDrawer,
+                                child: Tooltip(
+                                  message: chrome?.menuTooltip ?? l10n.chatChats,
+                                  child: Center(child: Icon(AppIcons.menu, size: 22, color: colors.onSurface)),
                                 ),
                               ),
-                              end: HeaderScheduleCap(pillHeight: pillHeight),
+                            ),
+                    ),
+                    Semantics(
+                      button: widget.onTitleTap != null,
+                      hint: widget.onTitleTap == null ? null : l10n.chatViewChatDetails,
+                      child: GlassSurface(
+                        tier: GlassTier.chrome,
+                        stadium: true,
+                        grouped: true,
+                        onTap: widget.onTitleTap,
+                        // At least the 44 of the round key and the model
+                        // chip beside it; 16 on the left, and on the right 16
+                        // or the schedule clock, concentric with the end.
+                        child: ConstrainedBox(
+                          key: const ValueKey('chat-title-pill'),
+                          constraints: BoxConstraints(minHeight: pillHeight),
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: _pillPadding),
+                            // A new title or status, or the clock coming and
+                            // going, glides the pill to its new width instead
+                            // of snapping.
+                            child: SmoothSize(
+                              duration: AppMotion.of(context, AppMotion.standard),
+                              curve: AppMotion.std,
+                              alignment: Alignment.centerLeft,
+                              child: _PillContent(
+                                textFloor: titleFloor - _pillPadding * 2,
+                                text: Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 4),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      HeaderTitleText(widget.title, style: titleStyle),
+                                      _StatusLine(
+                                        status: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            StatusDot(tone: widget.status.tone, size: _dot),
+                                            const SizedBox(width: _dotGap),
+                                            Flexible(
+                                              child: _StatusLabel(
+                                                status: widget.status,
+                                                style: statusStyle?.copyWith(
+                                                  color: widget.status.tone == StatusTone.warn
+                                                      ? dsh.warning
+                                                      : dsh.textTertiary,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        detail: switch (widget.detail) {
+                                          final detail? => FluidTextSwap(
+                                            value: detail,
+                                            child: Text(
+                                              ' · $detail',
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: statusStyle?.copyWith(color: dsh.textTertiary),
+                                            ),
+                                          ),
+                                          null => const SizedBox.shrink(),
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                end: HeaderScheduleCap(pillHeight: pillHeight),
+                              ),
                             ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                  // The agents capsule, then the model chip (a subagent
-                  // conversation has no model chip). Flexible: the chip
-                  // takes the width this row gives it.
-                  HeaderTrailingSlot(
-                    trailing: switch (widget.trailing) {
-                      final trailing? => Flexible(child: _ChipSlot(child: trailing)),
-                      null => null,
-                    },
-                  ),
-                  // Mirrors the menu key; gone on the new-chat screen. On a
-                  // wide window the key that unfolds 对话详情 follows it.
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      SmoothSize(
-                        duration: AppMotion.of(context, AppMotion.quick),
-                        child: widget.onNewChat == null
-                            ? const SizedBox.shrink()
-                            : Padding(
-                                padding: const EdgeInsets.only(left: HeaderTrailingSlot.gap),
-                                child: SizedBox.square(
-                                  key: const ValueKey('chat-new-chat'),
-                                  dimension: 44,
-                                  child: GlassSurface(
-                                    tier: GlassTier.chrome,
-                                    circle: true,
-                                    grouped: true,
-                                    onTap: widget.onNewChat,
-                                    child: Tooltip(
-                                      message: l10n.commonNewChat,
-                                      child: Center(child: Icon(AppIcons.newChat, size: 22, color: colors.onSurface)),
+                    // The agents capsule, then the model chip (a subagent
+                    // conversation has no model chip). Flexible: the chip
+                    // takes the width this row gives it.
+                    HeaderTrailingSlot(
+                      trailing: switch (widget.trailing) {
+                        final trailing? => Flexible(child: _ChipSlot(child: trailing)),
+                        null => null,
+                      },
+                    ),
+                    // Mirrors the menu key; gone on the new-chat screen. On a
+                    // wide window the key that unfolds 对话详情 follows it.
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        SmoothSize(
+                          duration: AppMotion.of(context, AppMotion.quick),
+                          child: widget.onNewChat == null
+                              ? const SizedBox.shrink()
+                              : Padding(
+                                  padding: const EdgeInsets.only(left: HeaderTrailingSlot.gap),
+                                  child: SizedBox.square(
+                                    key: const ValueKey('chat-new-chat'),
+                                    dimension: 44,
+                                    child: GlassSurface(
+                                      tier: GlassTier.chrome,
+                                      circle: true,
+                                      grouped: true,
+                                      onTap: widget.onNewChat,
+                                      child: Tooltip(
+                                        message: l10n.commonNewChat,
+                                        child: Center(child: Icon(AppIcons.newChat, size: 22, color: colors.onSurface)),
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                      ),
-                      const DetailPanelKey(),
-                    ],
-                  ),
-                ],
+                        ),
+                        const DetailPanelKey(),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
           ),
         ),
       ],
@@ -685,10 +685,7 @@ class _RenderStatusLine extends RenderBox
     final (status, detail) = _measure(constraints, ChildLayoutHelper.layoutChild);
     size = _sizeOf(constraints, status, detail);
     (firstChild!.parentData! as _StatusLineParentData).offset = Offset(0, (size.height - status.height) / 2);
-    (lastChild!.parentData! as _StatusLineParentData).offset = Offset(
-      status.width,
-      (size.height - detail.height) / 2,
-    );
+    (lastChild!.parentData! as _StatusLineParentData).offset = Offset(status.width, (size.height - detail.height) / 2);
   }
 
   @override

@@ -213,83 +213,83 @@ class SessionsDrawer extends ConsumerWidget {
             top: isMacDesktop && MacWindow.mode.value != MacWindowMode.phone ? MacWindowChrome.titleBarHeight : 0,
           ),
           child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            if (short)
-              Expanded(
-                child: NestedScrollView(
-                  headerSliverBuilder: (context, _) => [
-                    SliverToBoxAdapter(
-                      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: top),
-                    ),
-                  ],
-                  body: list,
-                ),
-              )
-            else ...[
-              ...top,
-              Expanded(child: list),
-            ],
-            // The action bar lies exactly over the identity bar, which
-            // keeps its size while hidden: same height at any text size.
-            _ReportHeight(
-              height: identityBarHeight,
-              child: Stack(
-                children: [
-                  AnimatedOpacity(
-                    opacity: selecting ? 0 : 1,
-                    duration: quick,
-                    child: IgnorePointer(
-                      ignoring: selecting,
-                      child: ExcludeSemantics(
-                        excluding: selecting,
-                        child: IdentityBar(
-                          onHost: () => showHostSheet(context, onManage: () => onOpen(DrawerDestination.remote)),
-                          onLocalDetails: () => onOpen(DrawerDestination.engine),
-                          onFeatures: () => onOpen(DrawerDestination.features),
-                          onSettings: () => onOpen(DrawerDestination.settings),
-                          onSettingsHold: () => onOpen(DrawerDestination.settingsSearch),
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (short)
+                Expanded(
+                  child: NestedScrollView(
+                    headerSliverBuilder: (context, _) => [
+                      SliverToBoxAdapter(
+                        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: top),
+                      ),
+                    ],
+                    body: list,
+                  ),
+                )
+              else ...[
+                ...top,
+                Expanded(child: list),
+              ],
+              // The action bar lies exactly over the identity bar, which
+              // keeps its size while hidden: same height at any text size.
+              _ReportHeight(
+                height: identityBarHeight,
+                child: Stack(
+                  children: [
+                    AnimatedOpacity(
+                      opacity: selecting ? 0 : 1,
+                      duration: quick,
+                      child: IgnorePointer(
+                        ignoring: selecting,
+                        child: ExcludeSemantics(
+                          excluding: selecting,
+                          child: IdentityBar(
+                            onHost: () => showHostSheet(context, onManage: () => onOpen(DrawerDestination.remote)),
+                            onLocalDetails: () => onOpen(DrawerDestination.engine),
+                            onFeatures: () => onOpen(DrawerDestination.features),
+                            onSettings: () => onOpen(DrawerDestination.settings),
+                            onSettingsHold: () => onOpen(DrawerDestination.settingsSearch),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  Positioned.fill(
-                    child: AnimatedSwitcher(
-                      duration: quick,
-                      child: selecting
-                          ? SelectionActionBar(
-                              key: const ValueKey('selecting'),
-                              onMove: () {
-                                if (ref.read(drawerScopeProvider)?.readOnly == false) {
-                                  moveToFolderFlow(
-                                    context,
-                                    ref,
-                                    ref.read(drawerSelectionProvider)?.toList() ?? const [],
-                                  );
-                                }
-                              },
-                              onPin: () {
-                                if (ref.read(drawerScopeProvider)?.readOnly == false) pinSelectionFlow(context, ref);
-                              },
-                              onArchive: () {
-                                if (ref.read(drawerScopeProvider)?.readOnly == false) {
-                                  archiveSelectionFlow(context, ref);
-                                }
-                              },
-                              onDelete: () {
-                                if (ref.read(drawerScopeProvider)?.readOnly == false) {
-                                  unawaited(deleteSelectionFlow(context, ref));
-                                }
-                              },
-                            )
-                          : const SizedBox.shrink(),
+                    Positioned.fill(
+                      child: AnimatedSwitcher(
+                        duration: quick,
+                        child: selecting
+                            ? SelectionActionBar(
+                                key: const ValueKey('selecting'),
+                                onMove: () {
+                                  if (ref.read(drawerScopeProvider)?.readOnly == false) {
+                                    moveToFolderFlow(
+                                      context,
+                                      ref,
+                                      ref.read(drawerSelectionProvider)?.toList() ?? const [],
+                                    );
+                                  }
+                                },
+                                onPin: () {
+                                  if (ref.read(drawerScopeProvider)?.readOnly == false) pinSelectionFlow(context, ref);
+                                },
+                                onArchive: () {
+                                  if (ref.read(drawerScopeProvider)?.readOnly == false) {
+                                    archiveSelectionFlow(context, ref);
+                                  }
+                                },
+                                onDelete: () {
+                                  if (ref.read(drawerScopeProvider)?.readOnly == false) {
+                                    unawaited(deleteSelectionFlow(context, ref));
+                                  }
+                                },
+                              )
+                            : const SizedBox.shrink(),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
-        ),
+            ],
+          ),
         ),
       ),
     );
