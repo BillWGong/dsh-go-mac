@@ -12,7 +12,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class _Bridge extends RuntimeBridge {
   final statusResult = Completer<RuntimeStatus>();
-  final logsResult = Completer<RuntimeLogSnapshot>();
+  final logsResult = Completer<List<String>>();
   final calls = <String>[];
   @override
   Stream<RuntimeEvent> get events => const Stream.empty();
@@ -23,7 +23,7 @@ class _Bridge extends RuntimeBridge {
   }
 
   @override
-  Future<RuntimeLogSnapshot> logSnapshot({int lines = 300}) {
+  Future<List<String>> logs({int lines = 500}) {
     calls.add('logs');
     return logsResult.future;
   }
@@ -60,11 +60,11 @@ void main() {
       ],
     );
     expect(c.read(readListIdentityProvider), isNull);
-    expect(bridge.calls, ['logs', 'status']);
+    expect(bridge.calls, ['status']);
     c.dispose();
     bridge.statusResult.complete(const RuntimeStatus(phase: RuntimePhase.installed, installedVersion: 'v'));
     await Future<void>.delayed(Duration.zero);
-    expect(bridge.calls, ['logs', 'status'], reason: 'no start after disposal');
+    expect(bridge.calls, ['status'], reason: 'no logs or start after disposal');
   });
 
   test('logs and status failure returning after disposal are discarded', () async {
@@ -73,7 +73,7 @@ void main() {
     c.read(localRuntimeProvider);
     bridge.statusResult.complete(const RuntimeStatus(phase: RuntimePhase.installed, installedVersion: 'v'));
     await Future<void>.delayed(Duration.zero);
-    expect(bridge.calls, ['logs', 'status']);
+    expect(bridge.calls, ['status', 'logs']);
     c.dispose();
     bridge.logsResult.completeError(StateError('late platform error'));
     await Future<void>.delayed(Duration.zero);
@@ -87,7 +87,7 @@ void main() {
     final before = c.read(readListCredentialEpochProvider);
     await runtime.install();
     expect(c.read(readListCredentialEpochProvider), greaterThan(before));
-    expect(bridge.calls, ['logs', 'status', 'install']);
+    expect(bridge.calls, ['status', 'install']);
     c.dispose();
     bridge.statusResult.complete(const RuntimeStatus(phase: RuntimePhase.installed, installedVersion: 'v'));
     await Future<void>.delayed(Duration.zero);

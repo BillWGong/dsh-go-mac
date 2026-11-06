@@ -32,7 +32,6 @@ void main() {
             overrides: [
               performanceChannelProvider.overrideWithValue(channel),
               appLanguageProvider.overrideWith(() => _Language(language)),
-              noUiJson,
             ],
             child: const DshApp(home: PerformancePage()),
           ),

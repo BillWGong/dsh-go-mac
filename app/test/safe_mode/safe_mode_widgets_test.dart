@@ -31,11 +31,10 @@ void main() {
   late RecordingRuntime runtime;
 
   List<Override> overrides(RuntimeStatus status) {
-    runtime = RecordingRuntime(LocalRuntimeState(loaded: true, status: status));
+    runtime = RecordingRuntime(LocalRuntimeState(loaded: true, status: status, logs: sampleLogs));
     return [
       runtimeBridgeProvider.overrideWithValue(bridge),
       localRuntimeProvider.overrideWith(() => runtime),
-      localRuntimeLogsProvider.overrideWithBuild((ref, notifier) => sampleLogs),
       settingsProvider.overrideWith(() => FakeSettings(const AppSettings(loaded: true))),
     ];
   }

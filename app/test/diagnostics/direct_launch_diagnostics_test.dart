@@ -56,7 +56,6 @@ void main() {
                 runtime: LocalRuntimeState(status: status, loaded: true),
                 settings: const AppSettings(),
                 connection: 'fixture',
-                logLines: 0,
               )['runtime']
               as Map;
       final bundle =

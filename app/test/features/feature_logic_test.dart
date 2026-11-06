@@ -267,7 +267,8 @@ void main() {
     test('a skill takes free text and gets its own icon', () {
       final all = mergeSlashCommands(host, skills: const [skill]);
       expect(resolveSlashCommand(all, 'code-review')?.kind, SlashCommandKind.skill);
-      expect(PaletteContent.of(all, '/code-review 看看 auth 模块'), isNull, reason: 'the argument is already there');
+      final hint = PaletteContent.of(all, '/code-review 看看 auth 模块');
+      expect((hint! as PaletteHint).command.name, 'code-review');
       expect(slashIcon(skill), isNot(slashIconFor('code-review')));
       expect(resolveSlashCommand(all, '全部功能')?.name, 'features');
     });

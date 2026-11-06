@@ -393,9 +393,8 @@ void main() {
             brightness: Brightness.light,
             overrides: [
               localRuntimeProvider.overrideWith(
-                () => FakeRuntime(const LocalRuntimeState(loaded: true, status: runningStatus)),
+                () => FakeRuntime(const LocalRuntimeState(loaded: true, status: runningStatus, logs: sampleLogs)),
               ),
-              localRuntimeLogsProvider.overrideWithBuild((ref, notifier) => sampleLogs),
               settingsProvider.overrideWith(() => FakeSettings(const AppSettings(loaded: true))),
               sessionsProvider.overrideWith(() => FakeSessions(sampleSessions())),
             ],

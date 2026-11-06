@@ -78,9 +78,8 @@ void main() {
     () => HomeShell(chatBuilder: (_) => const _FakeChat(), initiallyOpen: true),
     overrides: () => [
       localRuntimeProvider.overrideWith(
-        () => FakeRuntime(const LocalRuntimeState(loaded: true, status: runningStatus)),
+        () => FakeRuntime(const LocalRuntimeState(loaded: true, status: runningStatus, logs: sampleLogs)),
       ),
-      localRuntimeLogsProvider.overrideWithBuild((ref, notifier) => sampleLogs),
       sessionsProvider.overrideWith(() => FakeSessions(sampleSessions())),
       currentSessionProvider.overrideWith(() => FakeCurrentSession('s2')),
     ],
@@ -91,9 +90,8 @@ void main() {
     () => const EngineScreen(),
     overrides: () => [
       localRuntimeProvider.overrideWith(
-        () => FakeRuntime(const LocalRuntimeState(loaded: true, status: runningStatus)),
+        () => FakeRuntime(const LocalRuntimeState(loaded: true, status: runningStatus, logs: sampleLogs)),
       ),
-      localRuntimeLogsProvider.overrideWithBuild((ref, notifier) => sampleLogs),
       settingsProvider.overrideWith(() => FakeSettings(const AppSettings(loaded: true))),
     ],
   );

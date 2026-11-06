@@ -30,7 +30,7 @@ void main() {
             connected: connected,
             busy: busy,
             sessionReady: sessionReady,
-            hardwareEnterSends: enterSends,
+            sendOnEnter: enterSends,
             running: running,
             onSend: send ?? () {},
             onStop: stop ?? () {},

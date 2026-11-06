@@ -278,11 +278,8 @@ class FakeSessions extends SessionsController {
   final String created;
   var creates = 0;
 
-  /// What the session list says.
-  var listed = const <SessionSummary>[];
-
   @override
-  Future<List<SessionSummary>> build() async => listed;
+  Future<List<SessionSummary>> build() async => const [];
 
   @override
   Future<String> create() async {

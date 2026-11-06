@@ -15,7 +15,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../chat/support/harness.dart';
-import '../remote/support/ready_mux.dart';
 import '../remote/support/wait.dart';
 import '../support/english_preview.dart';
 
@@ -33,13 +32,6 @@ class _Settings extends SettingsController {
 }
 
 DshClient _client() => DshClient(DshConnection(Uri.parse('http://127.0.0.1:9')));
-
-class _LocalClient extends DshClient {
-  _LocalClient() : super(DshConnection(Uri.parse('http://127.0.0.1:9')));
-  final _mux = ReadyMux();
-  @override
-  DshMux get mux => _mux;
-}
 
 /// Chinese for this test, whatever the run defaults to.
 void _useChinese() {
@@ -59,7 +51,7 @@ void main() {
         settingsProvider.overrideWith(_Settings.new),
         localRuntimeProvider.overrideWith(_Runtime.new),
         networkKicksProvider.overrideWithValue(const Stream.empty()),
-        localClientConnectorProvider.overrideWithValue(({required baseUri, required token}) async => _LocalClient()),
+        localClientConnectorProvider.overrideWithValue(({required baseUri, required token}) async => _client()),
       ],
     );
     addTearDown(c.dispose);

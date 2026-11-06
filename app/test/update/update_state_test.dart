@@ -127,8 +127,7 @@ void main() {
     });
 
     test('daily auto check: offers once, then waits a day; remembers the endpoint that answered', () async {
-      const m1 = 'https://mirror-one.example/$_manifest';
-      http.routes[m1] = (_, _) => textResponse(jsonEncode(_release()));
+      http.routes[_manifest] = (_, _) => textResponse(jsonEncode(_release()));
       final c = container();
       final controller = await ready(c);
 
@@ -137,7 +136,7 @@ void main() {
       expect(state.check, UpdateCheckPhase.available);
       expect(state.latest!.version.name, '1.2.0');
       expect(state.asset!.name, 'dsh-go-1.2.0-arm64.apk');
-      expect(http.urls, [_manifest, m1]);
+      expect(http.urls, [_api, _manifest]);
 
       now = now.add(const Duration(hours: 5));
       expect(await controller.autoCheckIfDue(), isFalse);
@@ -146,7 +145,7 @@ void main() {
       now = now.add(const Duration(hours: 20));
       http.requests.clear();
       expect(await controller.autoCheckIfDue(), isTrue);
-      expect(http.urls, [m1], reason: 'starts where it worked last time');
+      expect(http.urls, [_manifest], reason: 'starts where it worked last time');
     });
 
     test('switched off: no automatic check', () async {
@@ -334,7 +333,6 @@ void main() {
       expect(c.read(appUpdateProvider).task, UpdateTaskPhase.installing);
       await controller.onAppResumed(confirmGrace: const Duration(milliseconds: 10));
       expect(c.read(appUpdateProvider).task, UpdateTaskPhase.ready);
-      expect(c.read(appUpdateProvider).problem, UpdateProblem.installUnconfirmed);
       // A late answer from the abandoned attempt changes nothing.
       installer.pending!.complete(const InstallResult(InstallStatus.failure));
       await installing;

@@ -59,8 +59,9 @@ Future<void> _pump(
       overrides: [
         pluginInventoryProvider.overrideWith((ref) async => read != null ? await read() : _snapshot(inventory!)),
         activeHostProvider.overrideWith(() => FixedHost(host)),
-        localRuntimeLogsProvider.overrideWithBuild((ref, notifier) => const ['plugin load log line']),
-        localRuntimeProvider.overrideWith(() => FakeRuntime(const LocalRuntimeState(loaded: true))),
+        localRuntimeProvider.overrideWith(
+          () => FakeRuntime(const LocalRuntimeState(loaded: true, logs: ['plugin load log line'])),
+        ),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
