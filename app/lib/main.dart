@@ -59,23 +59,24 @@ Future<void> _startApp() async {
   }
   final container = ProviderContainer(
     overrides: [
-        if (macRuntime != null) runtimeBridgeProvider.overrideWithValue(macRuntime),
-        if (macRuntime != null) macRuntimeBridgeProvider.overrideWithValue(macRuntime),
-        // Mac 是桌面性能档：别因为拿不到手机的性能快照就把默认判成「轻量」，
-        // 那会关掉自动启动和桌宠。
-        if (isMacDesktop)
-          performanceDefaultsProvider.overrideWith((ref) {
-            final prefs = ref.watch(performancePrefsProvider);
-            return PerformanceDefaults(
-              lightweight: false,
-              blur: prefs.blur ?? true,
-              reduceMotion: !(prefs.animations ?? true),
-              petEnabled: true,
-              autoStartLocal: true,
-              recommendRemote: false,
-            );
-          }),
-      ],
+      if (macRuntime != null) runtimeBridgeProvider.overrideWithValue(macRuntime),
+      if (macRuntime != null) macRuntimeBridgeProvider.overrideWithValue(macRuntime),
+      // Mac 是桌面性能档：别因为拿不到手机的性能快照就把默认判成「轻量」，
+      // 那会关掉自动启动和桌宠。
+      if (isMacDesktop)
+        performanceDefaultsProvider.overrideWith((ref) {
+          final prefs = ref.watch(performancePrefsProvider);
+          return PerformanceDefaults(
+            lightweight: false,
+            blur: prefs.blur ?? true,
+            reduceMotion: !(prefs.animations ?? true),
+            fluidMotion: !(prefs.animations ?? true) ? false : (prefs.fluid ?? true),
+            petEnabled: true,
+            autoStartLocal: true,
+            recommendRemote: false,
+          );
+        }),
+    ],
   );
   if (isMacDesktop) MacMenuBar(container).start();
   runApp(UncontrolledProviderScope(container: container, child: const DshApp()));
