@@ -348,3 +348,5 @@ code{overflow-wrap:anywhere}
 @media(max-width:1100px){
   .console-toast{position:relative;left:auto;right:auto;bottom:auto;margin-top:12px}
 }
+
+.install-note{max-width:760px;margin-top:20px;padding-left:14px;border-left:2px solid var(--signal);color:var(--dim);font-size:13px;line-height:1.8}

@@ -1,5 +1,23 @@
 # 更新日志 · Changelog
 
+## 1.0.20 · 2026-11-06
+
+### 中文
+
+- 内置引擎升级到 DSH 0.2.2-rc.1，同步上游 DSH Go 1.0.11。
+- 升级会替换内置运行时；对话、插件和设置保留，运行时里手动安装的依赖需要重装。
+- 调度任务改用新规则；旧版引擎不能读回新建的定时任务。
+- 同步手机版 Web 抽屉与设置页、灵动动效、插件槽位，以及分享、远程、更新和语音修复。
+- macOS 原生窗口、菜单栏和系统通知审批不变。
+
+### English
+
+- The bundled engine is now DSH 0.2.2-rc.1, synced with upstream DSH Go 1.0.11.
+- Upgrading replaces the bundled runtime; conversations, plugins and settings are kept, while packages installed inside the runtime need to be reinstalled.
+- Scheduled tasks use the new rule format; the old engine cannot read tasks created with it.
+- Includes the phone web drawer and settings, fluid motion, plugin slots, plus sharing, remote, update and voice fixes from upstream.
+- The native macOS window, menu bar and notification approvals are unchanged.
+
 ## 1.0.19 · 2026-11-04
 
 ### 中文

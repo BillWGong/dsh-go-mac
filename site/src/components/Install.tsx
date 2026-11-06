@@ -18,6 +18,9 @@ export function Install() {
       <div className="shell">
         <span className="kicker">05 / INSTALL</span>
         <RevealTitle>装上，<em>再评判</em>。</RevealTitle>
+        <p className="install-note">
+          1.0.20 的内置引擎是 DSH 0.2.2-rc.1。升级会替换运行时；对话、插件和设置保留，运行时里手动安装的依赖需要重装。
+        </p>
 
         <div className="install-grid">
           <div className="terminal">

@@ -90,7 +90,7 @@ export function Nav() {
             <motion.div className="menu-foot" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.35 }}>
               <a href={LINKS.download} target="_blank" rel="noopener">下载 DMG ↗</a>
               <a href={LINKS.github} target="_blank" rel="noopener">GitHub ↗</a>
-              <span>macOS 12+ · APPLE SILICON · AGPL-3.0 · v1.0.19</span>
+              <span>macOS 12+ · APPLE SILICON · AGPL-3.0 · v1.0.20</span>
             </motion.div>
           </motion.div>
         )}

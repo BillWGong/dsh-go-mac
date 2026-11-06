@@ -79,7 +79,7 @@ tooling/build-macos.sh        一条命令出 .app / .dmg
 ```
 runtime/
   node/          Node v24.22.1 darwin-arm64（含 npm、pnpm 11）
-  dsh/           npm ci 出来的 DSH 0.2.1-rc.4 依赖树 + runtime/patches/*.diff
+  dsh/           npm ci 出来的 DSH 0.2.2-rc.1 依赖树 + runtime/patches/*.diff
   bridge/        dsh-go-bridge（插件清单 / 原生插件协议）
   etc/dsh-app/   启动 overlay（每次启动由 App 重写，里面是绝对路径）
   home/          引擎的 HOME（.dsh、工作区、插件都在这）
@@ -137,8 +137,12 @@ Mac 上已经装了官方 DeepSeek Harness 时，可以让 DSH Go Mac 直接接�
 ```
 ~/Library/Application Support/io.github.billwgong.dshgomac/
   runtime/            安装后的引擎（卸载/重置会删掉）
+  runtime/home/       内置引擎的 HOME：.dsh、插件和工作区
   runtime-state.json  已安装版本、安全模式、连续失败计数
 ```
+
+从 1.0.20 起，替换内置运行时会保留 `runtime/home`；设置 › 引擎 ›「内置引擎可更新」会停引擎、
+替换 node/dsh 后重新启动。升级失败时旧运行时和旧 home 会放回去。
 
 运行 `bash runtime/build-runtime-macos.sh` 可单独重建运行时；`--clean` 丢弃缓存重来。
 

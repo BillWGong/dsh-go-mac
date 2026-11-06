@@ -5,7 +5,7 @@
 <p><b>把「运行」当成界面。</b><br/>
 DeepSeek Harness 的 macOS 客户端。同一个引擎，零迁移。</p>
 
-<p><sub>当前版本 <b>v1.0.19</b> · 同步上游 DSH Go <b>1.0.10</b></sub></p>
+<p><sub>当前版本 <b>v1.0.20</b> · 内置引擎 DSH 0.2.2-rc.1 · 同步上游 DSH Go 1.0.11</sub></p>
 
 <p><a href="https://github.com/BillWGong/dsh-go-mac/releases/latest"><b>下载 DMG</b></a> ·
 <a href="https://github.com/BillWGong/homebrew-tap">brew install --cask BillWGong/tap/dsh-go-mac</a> ·
