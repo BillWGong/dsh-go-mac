@@ -46,7 +46,7 @@ class _Setup {
         _Sessions(local),
         session: session,
         states: {?session: const ChatState(loading: false)},
-        settings: AppSettings(loaded: true, apiKey: testKey, hardwareEnterSends: enterSends),
+        settings: AppSettings(loaded: true, apiKey: testKey, sendOnEnter: enterSends),
       ),
       carrier = referenceHost(now: DateTime.now());
 
