@@ -17,9 +17,31 @@ void main() {
     // 干净 clone 里没有运行时包（manifest 是生成物）；跑过
     // runtime/build-runtime-macos.sh 后才会出现。
     if (status.bundledVersion != null) {
-      expect(status.bundledVersion, 'macos-r3');
-      expect(status.dshVersion, '0.2.1-rc.4');
+      expect(status.bundledVersion, 'macos-r4');
+      expect(status.dshVersion, '0.2.2-rc.1');
     }
+  });
+
+  test('已安装旧 runtime 时标记为可更新', () {
+    const current = RuntimeStatus(
+      phase: RuntimePhase.installed,
+      installedVersion: 'macos-r4',
+      bundledVersion: 'macos-r4',
+    );
+    const outdated = RuntimeStatus(
+      phase: RuntimePhase.installed,
+      installedVersion: 'macos-r3',
+      bundledVersion: 'macos-r4',
+    );
+    const official = RuntimeStatus(
+      phase: RuntimePhase.installed,
+      installedVersion: 'macos-r3',
+      bundledVersion: 'macos-r4',
+      official: true,
+    );
+    expect(current.runtimeOutdated, isFalse);
+    expect(outdated.runtimeOutdated, isTrue);
+    expect(official.runtimeOutdated, isFalse);
   });
 
   test('Android 专属能力在 Mac 上返回明确的「没有」，不抛异常', () async {

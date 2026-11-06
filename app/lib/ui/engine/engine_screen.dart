@@ -9,6 +9,7 @@ import '../../macos/phone_link_page.dart';
 import '../../runtime/runtime_bridge.dart';
 import '../../runtime/runtime_state.dart';
 import '../../runtime/local_footprint.dart';
+import '../../state/app_info.dart';
 import '../../state/engine_control.dart';
 import '../../state/safe_mode_state.dart';
 import '../../state/settings_state.dart';
@@ -87,7 +88,9 @@ class EngineScreen extends ConsumerWidget {
         GlassIconButton(
           icon: AppIcons.webApp,
           tooltip: l10n.commonWeb,
-          onPressed: status.phase == RuntimePhase.running && status.token != null ? () => _push(context, const LocalWebScreen()) : null,
+          onPressed: status.phase == RuntimePhase.running && status.token != null
+              ? () => _push(context, const LocalWebScreen())
+              : null,
         ),
       ],
       hero: PageHero(
@@ -180,6 +183,7 @@ class EngineScreen extends ConsumerWidget {
                 InfoRow(label: l10n.phoneEngineArchitecture, value: status.abi ?? '—', mono: true),
               ],
             ),
+            if (status.runtimeOutdated) SettingsSection(children: [_RuntimeUpdateRow(status: status)]),
             if (!missing && !status.official)
               SettingsSection(
                 children: [
@@ -348,6 +352,83 @@ class _Capsule extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Offers the runtime shipped with this app when an older one is installed.
+/// The install path keeps `home` and any reset-kept files, so conversations,
+/// plugins and settings survive the engine upgrade.
+class _RuntimeUpdateRow extends ConsumerStatefulWidget {
+  const _RuntimeUpdateRow({required this.status});
+
+  final RuntimeStatus status;
+
+  @override
+  ConsumerState<_RuntimeUpdateRow> createState() => _RuntimeUpdateRowState();
+}
+
+class _RuntimeUpdateRowState extends ConsumerState<_RuntimeUpdateRow> {
+  bool _busy = false;
+
+  Future<void> _update() async {
+    final en = AppLocale.isEnglish;
+    final ok = await showAppDialog<bool>(
+      context: context,
+      builder: (dialog) => AlertDialog(
+        title: Text(en ? 'Update bundled engine' : '更新内置引擎'),
+        content: Text(
+          en
+              ? '${widget.status.installedVersion} will be replaced with ${widget.status.bundledVersion} '
+                    '(DSH ${AppInfo.bundledEngineVersion}). Conversations, plugins and settings are kept. '
+                    'Packages installed inside the old runtime need to be reinstalled.'
+              : '${widget.status.installedVersion} 将替换为 ${widget.status.bundledVersion}'
+                    '（DSH ${AppInfo.bundledEngineVersion}）。对话、插件和设置会保留；'
+                    '旧运行时里手动安装的依赖需要重装。',
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(dialog, false), child: Text(en ? 'Cancel' : '取消')),
+          FilledButton(onPressed: () => Navigator.pop(dialog, true), child: Text(en ? 'Update' : '更新')),
+        ],
+      ),
+    );
+    if (ok != true || !mounted) return;
+
+    setState(() => _busy = true);
+    final container = ProviderScope.containerOf(context, listen: false);
+    try {
+      final runtime = ref.read(localRuntimeProvider.notifier);
+      await runtime.stop();
+      await runtime.install();
+      await EngineControl.ensureStarted(container);
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(en ? 'Bundled engine updated.' : '内置引擎已更新。')));
+      }
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(en ? 'Engine update failed: $error' : '内置引擎更新失败：$error')));
+      }
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final en = AppLocale.isEnglish;
+    final status = widget.status;
+    return SettingsTile(
+      icon: AppIcons.download,
+      title: en ? 'Bundled engine update available' : '内置引擎可更新',
+      subtitle: '${status.installedVersion} → ${status.bundledVersion} · DSH ${AppInfo.bundledEngineVersion}',
+      trailing: _busy || status.phase == RuntimePhase.installing
+          ? const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2))
+          : null,
+      onTap: _busy || status.phase == RuntimePhase.installing ? null : () => unawaited(_update()),
     );
   }
 }

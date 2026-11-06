@@ -37,7 +37,7 @@ PY=(python3 -I "$HERE/lib/rtbuild.py")
 
 # ---- pinned inputs (override via environment; pinned hashes then must be updated too) ----
 RUNTIME_REVISION="${RUNTIME_REVISION:-r14}"  # backend stack R7 (bundle-scoped plugin-config) + 076 callback fix + four rc.4 fixes; DSH as r12
-DSH_VERSION="${DSH_VERSION:-0.2.1-rc.4}"
+DSH_VERSION="${DSH_VERSION:-0.2.2-rc.1}"
 NODE_VERSION="${NODE_VERSION:-24.22.1}"
 # pnpm runs DSH's plugin installs (pluginManager / `dsh plugin`); the version the DSH repo pins.
 PNPM_VERSION="${PNPM_VERSION:-11.28.5}"

@@ -256,12 +256,15 @@ class RuntimeStatus {
     'launchFailureReason': launchFailureReason,
   };
 
-  bool get isRunning =>
-      phase == RuntimePhase.running && baseUrl != null && (token != null || cookie != null);
+  bool get isRunning => phase == RuntimePhase.running && baseUrl != null && (token != null || cookie != null);
 
   /// The install stopped because what a reset kept could not go back (Kotlin
   /// `KeepFailed`); `install(dropKept: true)` gives it up and carries on.
   bool get keepFailed => phase == RuntimePhase.error && (error?.startsWith('install failed: keep: ') ?? false);
+
+  /// An older built-in runtime is installed while the app bundles a newer one.
+  bool get runtimeOutdated =>
+      !official && installedVersion != null && bundledVersion != null && installedVersion != bundledVersion;
 
   /// The engine is (or will next start) in safe mode.
   bool get inSafeMode => mode == EngineMode.safe;

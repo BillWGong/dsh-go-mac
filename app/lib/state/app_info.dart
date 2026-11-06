@@ -6,7 +6,7 @@ import '../l10n/l10n.dart';
 /// constant kept in sync with `pubspec.yaml` (`version: 1.0.2+1`). Release builds can
 /// override it: `flutter build apk --dart-define=DSH_APP_VERSION=1.2.0+7`.
 abstract final class AppInfo {
-  static const version = String.fromEnvironment('DSH_APP_VERSION', defaultValue: '1.0.19+1');
+  static const version = String.fromEnvironment('DSH_APP_VERSION', defaultValue: '1.0.20+1');
 
   /// "1.0.0 (1)" for display.
   static String get displayVersion {
@@ -21,6 +21,12 @@ abstract final class AppInfo {
   /// The in-app wordmark: the drawer's lockup, the welcome page and the brand mark's
   /// spoken label.
   static const wordmark = 'DSH';
+
+  /// Upstream release this port is synced with.
+  static const upstreamVersion = '1.0.11';
+
+  /// DSH version bundled by assets/runtime-macos (keep in sync with its manifest).
+  static const bundledEngineVersion = '0.2.2-rc.1';
 
   /// DSH Go Mac 的作者与仓库。
   static const author = 'BillWGong';

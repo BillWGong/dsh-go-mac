@@ -93,9 +93,7 @@ class MacRuntimeBridge implements RuntimeBridge {
     if (cached != null) return cached;
     // getApplicationSupportDirectory() 在 macOS 上已经是
     // ~/Library/Application Support/<bundle id>/，不用再套一层。
-    final base = _appSupportOverride != null
-        ? Directory(_appSupportOverride)
-        : await getApplicationSupportDirectory();
+    final base = _appSupportOverride != null ? Directory(_appSupportOverride) : await getApplicationSupportDirectory();
     await base.create(recursive: true);
     _support = base;
     return base;
@@ -263,8 +261,7 @@ class MacRuntimeBridge implements RuntimeBridge {
     _emit(RuntimeLogEvent(line, stream));
   }
 
-  void _progress(String step, int done, int total) =>
-      _emit(RuntimeProgressEvent(step: step, done: done, total: total));
+  void _progress(String step, int done, int total) => _emit(RuntimeProgressEvent(step: step, done: done, total: total));
 
   void _notice(String text) => _emit(RuntimeNoticeEvent(text));
 
@@ -369,6 +366,7 @@ class MacRuntimeBridge implements RuntimeBridge {
     _emit();
     final runtimeDir = await _runtimeDir();
     final staging = Directory('${runtimeDir.path}.staging');
+    final backup = Directory('${runtimeDir.path}.old');
     try {
       if (await staging.exists()) await staging.delete(recursive: true);
       await staging.create(recursive: true);
@@ -408,10 +406,56 @@ class MacRuntimeBridge implements RuntimeBridge {
       // tar 里有一个顶层目录 runtime/；把它挪成正式的 runtime/。
       final root = Directory('${unpack.path}/runtime');
       final source = await root.exists() ? root : unpack;
-      if (await runtimeDir.exists()) await runtimeDir.delete(recursive: true);
-      await _moveDirectory(source, runtimeDir);
-      _progress('extract', total, total);
 
+      // A crash between moving the old runtime aside and installing the new
+      // one leaves only the backup. Put it back before doing anything else.
+      if (await backup.exists()) {
+        if (await runtimeDir.exists()) {
+          await backup.delete(recursive: true);
+        } else {
+          await _moveDirectory(backup, runtimeDir);
+        }
+      }
+      final hadRuntime = await runtimeDir.exists();
+      Directory? homeKeep;
+      if (hadRuntime) {
+        // Move the old runtime aside and delete it only after the new one is in place.
+        await _moveDirectory(runtimeDir, backup);
+        final oldHome = Directory('${backup.path}/home');
+        if (await oldHome.exists()) {
+          // Keep only home; the old node/dsh binaries are disposable.
+          // APFS clone keeps this nearly free.
+          homeKeep = Directory('${staging.path}/old-home');
+          await _cloneDirectory(oldHome, homeKeep);
+        }
+      }
+      await _moveDirectory(source, runtimeDir);
+
+      if (homeKeep != null) {
+        final newHome = Directory('${runtimeDir.path}/home');
+        if (await newHome.exists()) await newHome.delete(recursive: true);
+        await _moveDirectory(homeKeep, newHome);
+        _log('[dsh-go] kept the previous engine home');
+      }
+
+      // Put reset-kept UI, skills, plugins and settings back into .dsh.
+      final pending = Directory('${(await _supportDir()).path}/pending-keep');
+      if (await pending.exists()) {
+        if (dropKept) {
+          await pending.delete(recursive: true);
+        } else {
+          try {
+            final dshHome = Directory('${runtimeDir.path}/home/.dsh');
+            await dshHome.create(recursive: true);
+            await _copyDirectory(pending, dshHome);
+            await pending.delete(recursive: true);
+          } catch (error) {
+            throw StateError('keep: $error');
+          }
+        }
+      }
+
+      _progress('extract', total, total);
       await _ensureRuntimeLayout(runtimeDir, manifest);
       _installedVersion = _bundledVersion ?? (manifest['runtimeVersion'] as String?) ?? 'macos';
       _dshVersion = manifest['dshVersion'] as String?;
@@ -422,7 +466,15 @@ class MacRuntimeBridge implements RuntimeBridge {
       await _saveState();
       _emit();
       _log('[dsh-go] runtime $_installedVersion installed');
+      try {
+        if (await backup.exists()) await backup.delete(recursive: true);
+      } catch (_) {}
     } catch (error) {
+      // The new runtime did not install: remove the partial tree and restore the old one.
+      try {
+        if (await runtimeDir.exists()) await runtimeDir.delete(recursive: true);
+        if (await backup.exists()) await _moveDirectory(backup, runtimeDir);
+      } catch (_) {}
       _phase = RuntimePhase.error;
       _error = 'install failed: $error';
       _emit();
@@ -574,16 +626,19 @@ class MacRuntimeBridge implements RuntimeBridge {
       if (safe) launchEnv['DSH_APP_SAFE_MODE'] = '1';
       final manifestEnv = (manifest['launchEnv'] as Map?) ?? const {};
       for (final entry in manifestEnv.entries) {
-        final value = '${entry.value}'
-            .replaceAll('{RUNTIME}', runtimeDir.path)
-            .replaceAll('{HOME}', home.path);
+        final value = '${entry.value}'.replaceAll('{RUNTIME}', runtimeDir.path).replaceAll('{HOME}', home.path);
         launchEnv['${entry.key}'] = value;
       }
       await Directory(launchEnv['TMPDIR']!).create(recursive: true);
       await Process.run('/usr/bin/xattr', <String>['-dr', 'com.apple.quarantine', runtimeDir.path]);
 
       _log('[dsh-go] starting ${argv.join(' ')}');
-      final process = await Process.start(argv.first, argv.sublist(1), environment: launchEnv, workingDirectory: home.path);
+      final process = await Process.start(
+        argv.first,
+        argv.sublist(1),
+        environment: launchEnv,
+        workingDirectory: home.path,
+      );
       _process = process;
       try {
         await File('${runtimeDir.path}/tmp/dsh-web.pid').writeAsString('${process.pid}');
@@ -591,21 +646,17 @@ class MacRuntimeBridge implements RuntimeBridge {
       _starting = false;
       _stopping = false;
 
-      process.stdout.transform(utf8.decoder).transform(const LineSplitter()).listen(
-        (line) {
-          if (identical(_process, process)) _onLine(line, 'stdout');
-        },
-        onError: (Object e) => _log('[dsh-go] stdout: $e', 'stderr'),
+      process.stdout.transform(utf8.decoder).transform(const LineSplitter()).listen((line) {
+        if (identical(_process, process)) _onLine(line, 'stdout');
+      }, onError: (Object e) => _log('[dsh-go] stdout: $e', 'stderr'));
+      process.stderr.transform(utf8.decoder).transform(const LineSplitter()).listen((line) {
+        if (identical(_process, process)) _onLine(line, 'stderr');
+      }, onError: (Object e) => _log('[dsh-go] stderr: $e', 'stderr'));
+      unawaited(
+        process.exitCode.then((code) {
+          if (identical(_process, process)) _onExit(code);
+        }),
       );
-      process.stderr.transform(utf8.decoder).transform(const LineSplitter()).listen(
-        (line) {
-          if (identical(_process, process)) _onLine(line, 'stderr');
-        },
-        onError: (Object e) => _log('[dsh-go] stderr: $e', 'stderr'),
-      );
-      unawaited(process.exitCode.then((code) {
-        if (identical(_process, process)) _onExit(code);
-      }));
     } catch (error) {
       _starting = false;
       _process = null;
@@ -622,13 +673,7 @@ class MacRuntimeBridge implements RuntimeBridge {
     required String home,
     required int port,
     required bool safe,
-  }) => expandMacLaunchArgs(
-    manifest,
-    runtimeDir: runtimeDir,
-    home: home,
-    port: port,
-    safe: safe,
-  );
+  }) => expandMacLaunchArgs(manifest, runtimeDir: runtimeDir, home: home, port: port, safe: safe);
 
   void _onLine(String line, String stream) {
     _log(line, stream);
@@ -693,12 +738,7 @@ class MacRuntimeBridge implements RuntimeBridge {
     await _fail(kind: kind, exitCode: code, summary: 'engine exited with $code', upSeconds: upSeconds);
   }
 
-  Future<void> _fail({
-    required FailureKind kind,
-    required int exitCode,
-    String? summary,
-    int? upSeconds,
-  }) async {
+  Future<void> _fail({required FailureKind kind, required int exitCode, String? summary, int? upSeconds}) async {
     final safeMode = _safeState != SafeModeState.off;
     final failure = RuntimeFailure(
       kind: kind,
@@ -1002,6 +1042,14 @@ whenToUse: 用户在 DSH Go Mac 上遇到连接、引擎、手机连接或更新
     if (result.exitCode != 0) throw StateError('cp failed: ${result.stderr}');
   }
 
+  /// Clone a directory on APFS; fall back to a full copy on other volumes.
+  Future<void> _cloneDirectory(Directory from, Directory to) async {
+    await to.create(recursive: true);
+    final clone = await Process.run('/bin/cp', <String>['-cR', '${from.path}/.', to.path]);
+    if (clone.exitCode == 0) return;
+    await _copyDirectory(from, to);
+  }
+
   @override
   Future<ManagedSkillInstallResponse> installManagedSkill({
     required String requestId,
@@ -1049,7 +1097,8 @@ whenToUse: 用户在 DSH Go Mac 上遇到连接、引擎、手机连接或更新
   @override
   Future<void> clearFailure() async {
     _failure = null;
-    if (_phase == RuntimePhase.error) _phase = _installedVersion == null ? RuntimePhase.notInstalled : RuntimePhase.installed;
+    if (_phase == RuntimePhase.error)
+      _phase = _installedVersion == null ? RuntimePhase.notInstalled : RuntimePhase.installed;
     _emit();
   }
 
@@ -1120,10 +1169,7 @@ List<String> expandMacLaunchArgs(
   final raw = (launch is Map ? launch['argv'] as List? : null)?.cast<Object?>() ?? const <Object?>[];
   final args = <String>[];
   for (final item in raw) {
-    var value = '$item'
-        .replaceAll('{RUNTIME}', runtimeDir)
-        .replaceAll('{HOME}', home)
-        .replaceAll('{PORT}', '$port');
+    var value = '$item'.replaceAll('{RUNTIME}', runtimeDir).replaceAll('{HOME}', home).replaceAll('{PORT}', '$port');
     if (value == '{DSH_PROFILE_ARGS}') {
       args.addAll(
         safe
@@ -1148,7 +1194,8 @@ List<String> expandMacLaunchArgs(
 }
 
 /// 正常启动的 overlay：插件安装走镜像 + 官方源，并加载 dsh-go-bridge。
-String macLaunchOverlay(String runtimeDir) => '''
+String macLaunchOverlay(String runtimeDir) =>
+    '''
 # dsh-app: overlay for `dsh web`, written by DSH Go for macOS (edits here do not survive a restart).
 - id: plugin-manager
   config:
@@ -1168,4 +1215,3 @@ const String macSafeOverlay = '''
 - id: tool-plugin-manager
   disabled: true
 ''';
-

@@ -72,16 +72,20 @@ jobs:
           path: |
             app/assets/runtime-macos/runtime-arm64.tar.gz
             app/assets/runtime-macos/manifest.json
-          key: runtime-${{ hashFiles('runtime/build-runtime-macos.sh', 'runtime/locks/**', 'runtime/bridge/**') }}
+          key: runtime-macos-r4-${{ hashFiles('runtime/build-runtime-macos.sh', 'runtime/locks/**', 'runtime/patches/**', 'runtime/bridge/**') }}
           restore-keys: |
-            runtime-
+            runtime-macos-r4-
 
       - name: build dmg
         run: |
           echo "DEVELOPER_DIR=$DEVELOPER_DIR"
           xcrun --sdk macosx --show-sdk-path
-          # 缓存可能只恢复了 tar；缺清单的包装上后「安装运行环境」会失败。
-          test -f app/assets/runtime-macos/manifest.json || bash runtime/build-runtime-macos.sh
+          # A restored archive from the previous engine must not be packaged.
+          manifest=app/assets/runtime-macos/manifest.json
+          if [[ ! -f "$manifest" ]] || ! grep -q '"dshVersion": "0.2.2-rc.1"' "$manifest"; then
+            bash runtime/build-runtime-macos.sh
+          fi
+          grep -q '"dshVersion": "0.2.2-rc.1"' "$manifest"
           bash tooling/build-macos.sh --dmg
         env:
           DEVELOPER_DIR: ${{ env.DEVELOPER_DIR }}

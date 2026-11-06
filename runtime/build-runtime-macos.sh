@@ -23,7 +23,7 @@ WORK="$HERE/.work/macos"
 OUT="${OUT:-$ROOT/app/assets/runtime-macos}"
 STAGE="$WORK/stage"
 
-DSH_VERSION="${DSH_VERSION:-0.2.1-rc.4}"
+DSH_VERSION="${DSH_VERSION:-0.2.2-rc.1}"
 NODE_VERSION="${NODE_VERSION:-24.22.1}"
 PNPM_VERSION="${PNPM_VERSION:-11.28.5}"
 
@@ -121,7 +121,7 @@ fi
 
 cat >"$STAGE/runtime/etc/dsh-app/runtime.json" <<EOF
 {
-  "runtimeVersion": "macos-r3",
+  "runtimeVersion": "macos-r4",
   "platform": "darwin-arm64",
   "dshVersion": "$DSH_VERSION",
   "nodeVersion": "$NODE_VERSION",
@@ -146,7 +146,7 @@ python3 - "$OUT" "$archive" "$bytes" "$sha" "$((unpacked * 1024))" "$DSH_VERSION
 import json, os, sys
 out, archive, size, sha, unpacked, dsh, node = sys.argv[1:8]
 manifest = {
-    "runtimeVersion": "macos-r3",
+    "runtimeVersion": "macos-r4",
     "abi": "arm64",
     "platform": "darwin-arm64",
     "archive": f"assets/runtime-macos/{archive}",
@@ -176,6 +176,18 @@ with open(os.path.join(out, "manifest.json"), "w") as f:
     json.dump(manifest, f, indent=2)
     f.write("\n")
 print(json.dumps({k: manifest[k] for k in ("runtimeVersion", "archiveBytes", "dshVersion", "nodeVersion")}, indent=2))
+PY
+
+say "校验 manifest"
+python3 - "$OUT/manifest.json" "$DSH_VERSION" <<'PY'
+import json, os, sys
+path, expected = sys.argv[1:3]
+manifest = json.load(open(path))
+assert manifest["runtimeVersion"] == "macos-r4", manifest["runtimeVersion"]
+assert manifest["dshVersion"] == expected, (manifest["dshVersion"], expected)
+archive = os.path.join(os.path.dirname(path), os.path.basename(manifest["archive"]))
+assert os.path.isfile(archive), archive
+print(f"manifest ok: {manifest['runtimeVersion']} / DSH {manifest['dshVersion']}")
 PY
 
 say "完成：$OUT/${archive}（$((bytes / 1048576)) MiB，解包 $((unpacked / 1024)) MiB）"
