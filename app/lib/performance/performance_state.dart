@@ -105,6 +105,8 @@ class PerformancePrefsController extends Notifier<PerformancePrefs> {
   static const modeKey = 'performance.mode';
   static const blurKey = 'performance.blur';
   static const animationsKey = 'performance.animations';
+  static const fluidKey = 'performance.fluid';
+  static const refreshRateKey = 'performance.refresh_rate';
   late Future<void> ready;
 
   @override
@@ -121,6 +123,8 @@ class PerformancePrefsController extends Notifier<PerformancePrefs> {
         mode: PerformanceMode.values.asNameMap()[prefs.getString(modeKey)] ?? PerformanceMode.auto,
         blur: prefs.getBool(blurKey),
         animations: prefs.getBool(animationsKey),
+        fluid: prefs.getBool(fluidKey),
+        refreshRate: RefreshRateMode.values.asNameMap()[prefs.getString(refreshRateKey)] ?? RefreshRateMode.auto,
         loaded: true,
       );
     } catch (_) {
@@ -147,9 +151,13 @@ class PerformancePrefsController extends Notifier<PerformancePrefs> {
   Future<void> setBlur(bool value) => _save((s) => s.copyWith(blur: value), (p) => p.setBool(blurKey, value));
   Future<void> setAnimations(bool value) =>
       _save((s) => s.copyWith(animations: value), (p) => p.setBool(animationsKey, value));
+  Future<void> setFluid(bool value) => _save((s) => s.copyWith(fluid: value), (p) => p.setBool(fluidKey, value));
+  Future<void> setRefreshRate(RefreshRateMode mode) =>
+      _save((s) => s.copyWith(refreshRate: mode), (p) => p.setString(refreshRateKey, mode.name));
   Future<void> resetEffects() => _save((s) => s.copyWith(resetEffects: true), (p) async {
     await p.remove(blurKey);
     await p.remove(animationsKey);
+    await p.remove(fluidKey);
   });
 }
 
@@ -172,7 +180,13 @@ Map<String, Object?> performanceDiagnostics(Ref ref) {
   final prefs = ref.read(performancePrefsProvider);
   return {
     ...ref.read(performanceProvider).toMap(),
-    'preferences': {'mode': prefs.mode.name, 'blurOverride': prefs.blur, 'animationsOverride': prefs.animations},
+    'preferences': {
+      'mode': prefs.mode.name,
+      'blurOverride': prefs.blur,
+      'animationsOverride': prefs.animations,
+      'fluidOverride': prefs.fluid,
+      'refreshRate': prefs.refreshRate.name,
+    },
     'defaults': ref.read(performanceDefaultsProvider).toMap(),
   };
 }

@@ -35,6 +35,7 @@ class _DshAppState extends ConsumerState<DshApp> with WidgetsBindingObserver {
   bool? _english;
   bool? _glassBlur;
   bool? _instantPages;
+  bool? _fluid;
   late ThemeData _light;
   late ThemeData _dark;
 
@@ -77,18 +78,37 @@ class _DshAppState extends ConsumerState<DshApp> with WidgetsBindingObserver {
   @override
   void didChangeAccessibilityFeatures() => setState(() {});
 
-  void _themesFor(AppAccent accent, bool english, bool glassBlur, bool instantPages) {
-    if (accent == _accent && english == _english && glassBlur == _glassBlur && instantPages == _instantPages) return;
+  void _themesFor(AppAccent accent, bool english, bool glassBlur, bool instantPages, bool fluid) {
+    if (accent == _accent &&
+        english == _english &&
+        glassBlur == _glassBlur &&
+        instantPages == _instantPages &&
+        fluid == _fluid) {
+      return;
+    }
     _accent = accent;
     _english = english;
     _glassBlur = glassBlur;
     _instantPages = instantPages;
+    _fluid = fluid;
     // Plugin views that ask for `accent: "app"` follow the palette.
     DshUiAppAccent.set(accent.seed.toARGB32());
     // English UI still shows Chinese content: keep its glyphs Chinese.
     final glyphs = english ? AppLocale.zhCN : null;
-    _light = buildLightTheme(accent: accent, glyphLocale: glyphs, glassBlur: glassBlur, instantPages: instantPages);
-    _dark = buildDarkTheme(accent: accent, glyphLocale: glyphs, glassBlur: glassBlur, instantPages: instantPages);
+    _light = buildLightTheme(
+      accent: accent,
+      glyphLocale: glyphs,
+      glassBlur: glassBlur,
+      instantPages: instantPages,
+      fluid: fluid,
+    );
+    _dark = buildDarkTheme(
+      accent: accent,
+      glyphLocale: glyphs,
+      glassBlur: glassBlur,
+      instantPages: instantPages,
+      fluid: fluid,
+    );
   }
 
   Locale _resolveLocale() {
@@ -125,7 +145,9 @@ class _DshAppState extends ConsumerState<DshApp> with WidgetsBindingObserver {
     final performance = ref.watch(performanceDefaultsProvider);
     final reduced =
         performance.reduceMotion || WidgetsBinding.instance.platformDispatcher.accessibilityFeatures.disableAnimations;
-    _themesFor(ref.watch(accentProvider), locale.languageCode == 'en', performance.blur, reduced);
+    final fluid = performance.fluidMotion && !reduced;
+    FrameClock.instance.enabled = fluid;
+    _themesFor(ref.watch(accentProvider), locale.languageCode == 'en', performance.blur, reduced, fluid);
     if (!waiting && !_settled) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _settled = true);
     }
@@ -136,7 +158,8 @@ class _DshAppState extends ConsumerState<DshApp> with WidgetsBindingObserver {
       darkTheme: _dark,
       themeMode: themeMode,
       // Palette and light / dark changes cross-fade the whole app (AppMotion).
-      themeAnimationStyle: _settled && !reduced
+      // A reveal from the finger brings the new colours in itself.
+      themeAnimationStyle: _settled && !reduced && !ThemeRevealHost.active
           ? AnimationStyle(duration: AppMotion.standard, curve: AppMotion.std)
           : AnimationStyle.noAnimation,
       // zh_CN, not bare zh: otherwise CJK falls back to Japanese glyph shapes
@@ -153,12 +176,17 @@ class _DshAppState extends ConsumerState<DshApp> with WidgetsBindingObserver {
           data: media.copyWith(disableAnimations: media.disableAnimations || performance.reduceMotion),
           // macOS 手机版式：窗口被拉宽时内容仍是手机那条，居中（其他平台原样）。
           child: MacWindowFrame(
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                MirroredSideInsets(child: child!),
-                const LaunchLayer(),
-              ],
+            child: AppMotionScope(
+              fluid: fluid,
+              child: ThemeRevealHost(
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    MirroredSideInsets(child: child!),
+                    const LaunchLayer(),
+                  ],
+                ),
+              ),
             ),
           ),
         );

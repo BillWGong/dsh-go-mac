@@ -14,6 +14,7 @@ import '../../macos/macos_support.dart';
 import '../../macos/window_chrome.dart';
 import '../../state/header_schedule_state.dart';
 import '../agents/header_agents.dart';
+import '../common/fluid_bits.dart';
 import '../common/smooth_size.dart';
 import '../common/status_dot.dart';
 import '../shell/adaptive/adaptive_scaffold.dart' show AdaptiveChrome;
@@ -47,12 +48,13 @@ class HeaderStatus {
 /// (≡) ( 每天的构建检查 (◷) )   ( ✦ V4 Pro ⌄ ) (+)
 ///     ( ● 本机             )
 /// ```
-class ChatHeader extends ConsumerWidget {
+class ChatHeader extends ConsumerStatefulWidget {
   const ChatHeader({
     super.key,
     required this.title,
     required this.status,
-    required this.trailing,
+    this.detail,
+    this.trailing,
     this.onOpenDrawer,
     this.onTitleTap,
     this.onNewChat,
@@ -62,9 +64,13 @@ class ChatHeader extends ConsumerWidget {
   final String title;
   final HeaderStatus status;
 
+  /// What follows the status under the title (a phone: the workspace). Shortens first.
+  final String? detail;
+
   /// 右侧件(模型胶囊 [ModelChip])。需要传 `grouped: true` 与顶栏共享一次
   /// 背景采样。顶栏按它的固有宽度(带不带「· 高」)和标题胶囊分地方。
-  final Widget trailing;
+  /// Null: the title has the room.
+  final Widget? trailing;
   final VoidCallback? onOpenDrawer;
   final VoidCallback? onTitleTap;
   final VoidCallback? onNewChat;
@@ -90,15 +96,39 @@ class ChatHeader extends ConsumerWidget {
   static double heightOf(BuildContext context) => MediaQuery.paddingOf(context).top + barHeightOf(context) + 8;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ChatHeader> createState() => _ChatHeaderState();
+}
+
+class _ChatHeaderState extends ConsumerState<ChatHeader> {
+  // Keep TextPainter's paragraph/layout cache across unrelated header rebuilds.
+  // Its setters invalidate layout when the label, metrics or direction change.
+  final _statusPainter = TextPainter(maxLines: 1);
+
+  @override
+  void initState() {
+    super.initState();
+    PaintingBinding.instance.systemFonts.addListener(_fontsChanged);
+  }
+
+  void _fontsChanged() => setState(_statusPainter.markNeedsLayout);
+
+  @override
+  void dispose() {
+    PaintingBinding.instance.systemFonts.removeListener(_fontsChanged);
+    _statusPainter.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = context.l10n;
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final dsh = DshColors.of(context);
     final mac = isMacDesktop;
     final top = MediaQuery.paddingOf(context).top;
-    final barHeight = mac ? 44.0 : barHeightOf(context);
-    final pillHeight = pillHeightOf(context);
+    final barHeight = mac ? 44.0 : ChatHeader.barHeightOf(context);
+    final pillHeight = ChatHeader.pillHeightOf(context);
     final titleStyle = theme.textTheme.titleSmall?.copyWith(fontSize: 15, height: 1.3);
     final statusStyle = theme.textTheme.labelSmall?.copyWith(fontSize: 11, height: 1.25);
     final titleFloor = _titleFloor(context, statusStyle);
@@ -118,21 +148,21 @@ class ChatHeader extends ConsumerWidget {
           left: 0,
           right: 0,
           top: 0,
-          child: scrolledUnder == null
+          child: widget.scrolledUnder == null
               ? const SizedBox.shrink()
               : ValueListenableBuilder<double>(
-                  valueListenable: scrolledUnder!,
+                  valueListenable: widget.scrolledUnder!,
                   builder: (context, t, child) => Opacity(opacity: t, child: child),
                   child: TopFade(height: top + barHeight + 12),
                 ),
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
-          child: BackdropGroup(
-            child: GestureDetector(
-              behavior: HitTestBehavior.translucent,
-              onPanStart: mac ? (_) => MacWindowChrome.drag() : null,
-              child: SizedBox(
+          child: GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onPanStart: mac ? (_) => MacWindowChrome.drag() : null,
+            child: BackdropGroup(
+            child: SizedBox(
               key: const ValueKey('chat-header-bar'),
               height: barHeight,
               child: _HeaderRow(
@@ -150,7 +180,7 @@ class ChatHeader extends ConsumerWidget {
                               tier: GlassTier.chrome,
                               circle: true,
                               grouped: true,
-                              onTap: onOpenDrawer,
+                              onTap: widget.onOpenDrawer,
                               child: Tooltip(
                                 message: chrome?.menuTooltip ?? l10n.chatChats,
                                 child: Center(child: Icon(AppIcons.menu, size: 22, color: colors.onSurface)),
@@ -159,13 +189,13 @@ class ChatHeader extends ConsumerWidget {
                           ),
                   ),
                   Semantics(
-                    button: onTitleTap != null,
-                    hint: onTitleTap == null ? null : l10n.chatViewChatDetails,
+                    button: widget.onTitleTap != null,
+                    hint: widget.onTitleTap == null ? null : l10n.chatViewChatDetails,
                     child: GlassSurface(
                       tier: GlassTier.chrome,
                       stadium: true,
                       grouped: true,
-                      onTap: onTitleTap,
+                      onTap: widget.onTitleTap,
                       // At least the 44 of the round key and the model
                       // chip beside it; 16 on the left, and on the right 16
                       // or the schedule clock, concentric with the end.
@@ -190,21 +220,37 @@ class ChatHeader extends ConsumerWidget {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    HeaderTitleText(title, style: titleStyle),
-                                    Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        StatusDot(tone: status.tone, size: _dot),
-                                        const SizedBox(width: _dotGap),
-                                        Flexible(
-                                          child: _StatusLabel(
-                                            status: status,
-                                            style: statusStyle?.copyWith(
-                                              color: status.tone == StatusTone.warn ? dsh.warning : dsh.textTertiary,
+                                    HeaderTitleText(widget.title, style: titleStyle),
+                                    _StatusLine(
+                                      status: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          StatusDot(tone: widget.status.tone, size: _dot),
+                                          const SizedBox(width: _dotGap),
+                                          Flexible(
+                                            child: _StatusLabel(
+                                              status: widget.status,
+                                              style: statusStyle?.copyWith(
+                                                color: widget.status.tone == StatusTone.warn
+                                                    ? dsh.warning
+                                                    : dsh.textTertiary,
+                                              ),
                                             ),
                                           ),
+                                        ],
+                                      ),
+                                      detail: switch (widget.detail) {
+                                        final detail? => FluidTextSwap(
+                                          value: detail,
+                                          child: Text(
+                                            ' · $detail',
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: statusStyle?.copyWith(color: dsh.textTertiary),
+                                          ),
                                         ),
-                                      ],
+                                        null => const SizedBox.shrink(),
+                                      },
                                     ),
                                   ],
                                 ),
@@ -220,7 +266,10 @@ class ChatHeader extends ConsumerWidget {
                   // conversation has no model chip). Flexible: the chip
                   // takes the width this row gives it.
                   HeaderTrailingSlot(
-                    trailing: Flexible(child: _ChipSlot(child: trailing)),
+                    trailing: switch (widget.trailing) {
+                      final trailing? => Flexible(child: _ChipSlot(child: trailing)),
+                      null => null,
+                    },
                   ),
                   // Mirrors the menu key; gone on the new-chat screen. On a
                   // wide window the key that unfolds 对话详情 follows it.
@@ -229,7 +278,7 @@ class ChatHeader extends ConsumerWidget {
                     children: [
                       SmoothSize(
                         duration: AppMotion.of(context, AppMotion.quick),
-                        child: onNewChat == null
+                        child: widget.onNewChat == null
                             ? const SizedBox.shrink()
                             : Padding(
                                 padding: const EdgeInsets.only(left: HeaderTrailingSlot.gap),
@@ -240,7 +289,7 @@ class ChatHeader extends ConsumerWidget {
                                     tier: GlassTier.chrome,
                                     circle: true,
                                     grouped: true,
-                                    onTap: onNewChat,
+                                    onTap: widget.onNewChat,
                                     child: Tooltip(
                                       message: l10n.commonNewChat,
                                       child: Center(child: Icon(AppIcons.newChat, size: 22, color: colors.onSurface)),
@@ -255,7 +304,7 @@ class ChatHeader extends ConsumerWidget {
                 ],
               ),
             ),
-            ),
+          ),
           ),
         ),
       ],
@@ -273,14 +322,12 @@ class ChatHeader extends ConsumerWidget {
   /// host's name included, up to eight characters' width.
   double _titleFloor(BuildContext context, TextStyle? statusStyle) {
     final scaler = MediaQuery.textScalerOf(context);
-    final painter = TextPainter(
-      text: TextSpan(text: status.label, style: DefaultTextStyle.of(context).style.merge(statusStyle)),
-      textDirection: Directionality.of(context),
-      textScaler: scaler,
-      maxLines: 1,
-    )..layout();
-    final statusLine = _dot + _dotGap + painter.width;
-    painter.dispose();
+    _statusPainter
+      ..text = TextSpan(text: widget.status.label, style: DefaultTextStyle.of(context).style.merge(statusStyle))
+      ..textDirection = Directionality.of(context)
+      ..textScaler = scaler
+      ..layout();
+    final statusLine = _dot + _dotGap + _statusPainter.width;
     final title = scaler.scale(15);
     return _pillPadding * 2 + math.max(title * 5, math.min(statusLine, title * 8));
   }
@@ -510,7 +557,7 @@ class _RenderPillContent extends RenderBox
   RenderBox get _end => lastChild!;
 
   @override
-  double computeMinIntrinsicWidth(double height) => _text.getMinIntrinsicWidth(height) + ChatHeader._pillPadding;
+  double computeMinIntrinsicWidth(double height) => _text.getMinIntrinsicWidth(height) + _ChatHeaderState._pillPadding;
 
   @override
   double computeMaxIntrinsicWidth(double height) =>
@@ -535,11 +582,11 @@ class _RenderPillContent extends RenderBox
     final end = _end;
     final height = constraints.maxHeight;
     final endWhole = end.getMaxIntrinsicWidth(height);
-    final clock = endWhole > ChatHeader._pillPadding + _slack;
+    final clock = endWhole > _ChatHeaderState._pillPadding + _slack;
     final textFloor = math.min(_textFloor, text.getMaxIntrinsicWidth(height));
     _showsEnd = !clock || textFloor + endWhole <= constraints.maxWidth + _slack;
     end.layout(BoxConstraints(maxHeight: height), parentUsesSize: true);
-    final endWidth = _showsEnd ? end.size.width : ChatHeader._pillPadding;
+    final endWidth = _showsEnd ? end.size.width : _ChatHeaderState._pillPadding;
     text.layout(
       BoxConstraints(maxWidth: math.max(0.0, constraints.maxWidth - endWidth), maxHeight: height),
       parentUsesSize: true,
@@ -581,6 +628,77 @@ class _RenderPillContent extends RenderBox
 }
 
 /// 状态文字;读屏的实时区域,变了就播报 [HeaderStatus.spoken] 或文字本身。
+/// The line under the title: the status first, whatever it needs, and the detail in what
+/// is left. A flex would hold back a share for each, cutting one with room beside it.
+class _StatusLine extends MultiChildRenderObjectWidget {
+  _StatusLine({required Widget status, required Widget detail}) : super(children: [status, detail]);
+
+  @override
+  RenderObject createRenderObject(BuildContext context) => _RenderStatusLine();
+}
+
+class _StatusLineParentData extends ContainerBoxParentData<RenderBox> {}
+
+class _RenderStatusLine extends RenderBox
+    with
+        ContainerRenderObjectMixin<RenderBox, _StatusLineParentData>,
+        RenderBoxContainerDefaultsMixin<RenderBox, _StatusLineParentData> {
+  @override
+  void setupParentData(RenderBox child) {
+    if (child.parentData is! _StatusLineParentData) child.parentData = _StatusLineParentData();
+  }
+
+  @override
+  double computeMinIntrinsicWidth(double height) =>
+      getChildrenAsList().fold(0.0, (sum, child) => sum + child.getMinIntrinsicWidth(height));
+
+  @override
+  double computeMaxIntrinsicWidth(double height) =>
+      getChildrenAsList().fold(0.0, (sum, child) => sum + child.getMaxIntrinsicWidth(height));
+
+  @override
+  double computeMinIntrinsicHeight(double width) =>
+      getChildrenAsList().fold(0.0, (most, child) => math.max(most, child.getMinIntrinsicHeight(width)));
+
+  @override
+  double computeMaxIntrinsicHeight(double width) =>
+      getChildrenAsList().fold(0.0, (most, child) => math.max(most, child.getMaxIntrinsicHeight(width)));
+
+  (Size, Size) _measure(BoxConstraints constraints, ChildLayouter layoutChild) {
+    final width = constraints.maxWidth;
+    final status = layoutChild(firstChild!, BoxConstraints(maxWidth: width));
+    final detail = layoutChild(lastChild!, BoxConstraints(maxWidth: math.max(0.0, width - status.width)));
+    return (status, detail);
+  }
+
+  Size _sizeOf(BoxConstraints constraints, Size status, Size detail) =>
+      constraints.constrain(Size(status.width + detail.width, math.max(status.height, detail.height)));
+
+  @override
+  Size computeDryLayout(covariant BoxConstraints constraints) {
+    final (status, detail) = _measure(constraints, ChildLayoutHelper.dryLayoutChild);
+    return _sizeOf(constraints, status, detail);
+  }
+
+  @override
+  void performLayout() {
+    final (status, detail) = _measure(constraints, ChildLayoutHelper.layoutChild);
+    size = _sizeOf(constraints, status, detail);
+    (firstChild!.parentData! as _StatusLineParentData).offset = Offset(0, (size.height - status.height) / 2);
+    (lastChild!.parentData! as _StatusLineParentData).offset = Offset(
+      status.width,
+      (size.height - detail.height) / 2,
+    );
+  }
+
+  @override
+  void paint(PaintingContext context, Offset offset) => defaultPaint(context, offset);
+
+  @override
+  bool hitTestChildren(BoxHitTestResult result, {required Offset position}) =>
+      defaultHitTestChildren(result, position: position);
+}
+
 class _StatusLabel extends StatelessWidget {
   const _StatusLabel({required this.status, required this.style});
 
@@ -593,6 +711,9 @@ class _StatusLabel extends StatelessWidget {
     liveRegion: true,
     label: status.spoken ?? status.label,
     excludeSemantics: true,
-    child: Text(status.label, maxLines: 1, overflow: TextOverflow.ellipsis, style: style),
+    child: FluidTextSwap(
+      value: status.label,
+      child: Text(status.label, maxLines: 1, overflow: TextOverflow.ellipsis, style: style),
+    ),
   );
 }

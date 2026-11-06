@@ -40,25 +40,54 @@ class PerformanceSnapshot {
   Map<String, Object?> toMap() => {'available': available, 'loaded': loaded, 'device': device, 'thermal': thermal};
 }
 
+/// 屏幕刷新率(设置 → 性能)。有些系统把第三方 App 默认压在 60Hz;App 一旦声明
+/// 自己管刷新率,系统就会把开关显示成「应用内设置」——所以这里必须真的给用户一个
+/// 选择,包括「跟随系统」把决定权还回去。
+enum RefreshRateMode {
+  /// 动画、滚动、流式输出时用屏幕最高刷新率;停下来交回系统。
+  auto,
+
+  /// 一直用最高刷新率。
+  max,
+
+  /// 不声明偏好,完全由系统的刷新率设置决定。
+  system,
+}
+
 /// Null per-feature values mean "use the current profile". Defaults are never persisted.
 class PerformancePrefs {
-  const PerformancePrefs({this.mode = PerformanceMode.auto, this.blur, this.animations, this.loaded = false});
+  const PerformancePrefs({
+    this.mode = PerformanceMode.auto,
+    this.blur,
+    this.animations,
+    this.fluid,
+    this.refreshRate = RefreshRateMode.auto,
+    this.loaded = false,
+  });
 
   final PerformanceMode mode;
   final bool? blur;
   final bool? animations;
+
+  /// 灵动动效(见 `AppMotion.fluid`)。
+  final bool? fluid;
+  final RefreshRateMode refreshRate;
   final bool loaded;
 
   PerformancePrefs copyWith({
     PerformanceMode? mode,
     bool? blur,
     bool? animations,
+    bool? fluid,
+    RefreshRateMode? refreshRate,
     bool? loaded,
     bool resetEffects = false,
   }) => PerformancePrefs(
     mode: mode ?? this.mode,
     blur: resetEffects ? null : blur ?? this.blur,
     animations: resetEffects ? null : animations ?? this.animations,
+    fluid: resetEffects ? null : fluid ?? this.fluid,
+    refreshRate: refreshRate ?? this.refreshRate,
     loaded: loaded ?? this.loaded,
   );
 }
@@ -68,6 +97,7 @@ class PerformanceDefaults {
     required this.lightweight,
     required this.blur,
     required this.reduceMotion,
+    required this.fluidMotion,
     required this.petEnabled,
     required this.autoStartLocal,
     required this.recommendRemote,
@@ -81,10 +111,12 @@ class PerformanceDefaults {
           PerformanceMode.full => false,
           PerformanceMode.light => true,
         };
+    final reduceMotion = !(prefs.animations ?? !light);
     return PerformanceDefaults(
       lightweight: light,
       blur: prefs.blur ?? !light,
-      reduceMotion: !(prefs.animations ?? !light),
+      reduceMotion: reduceMotion,
+      fluidMotion: !reduceMotion && (prefs.fluid ?? !light),
       petEnabled: !light,
       autoStartLocal: !light,
       recommendRemote: light || snapshot.tier == DeviceTier.low,
@@ -94,6 +126,9 @@ class PerformanceDefaults {
   final bool lightweight;
   final bool blur;
   final bool reduceMotion;
+
+  /// 灵动档:动效没关,且用户选了或当前档位默认开(低端机、发热时默认关)。
+  final bool fluidMotion;
   final bool petEnabled;
   final bool autoStartLocal;
   final bool recommendRemote;
@@ -105,6 +140,7 @@ class PerformanceDefaults {
     'lightweight': lightweight,
     'blur': blur,
     'reduceMotion': reduceMotion,
+    'fluidMotion': fluidMotion,
     'petEnabledDefault': petEnabled,
     'autoStartLocalDefault': autoStartLocal,
     'recommendRemote': recommendRemote,
