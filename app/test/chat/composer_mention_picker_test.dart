@@ -46,7 +46,7 @@ class _Setup {
         _Sessions(local),
         session: session,
         states: {?session: const ChatState(loading: false)},
-        settings: AppSettings(loaded: true, apiKey: testKey, sendOnEnter: enterSends),
+        settings: AppSettings(loaded: true, apiKey: testKey, hardwareEnterSends: enterSends),
       ),
       carrier = referenceHost(now: DateTime.now());
 
@@ -144,6 +144,23 @@ void main() {
     await tester.tap(find.byIcon(AppIcons.send));
     await pumpFrames(tester, 2);
     expect(setup.harness.controllers['main']!.sent, ['看看 @lib/main.dart 为什么报错']);
+  });
+
+  testWidgets('sending a changed query without current results preserves literal sending', (tester) async {
+    final setup = _Setup();
+    await setup.pump(tester);
+    await _type(tester, '@mai');
+    expect(find.text('main.dart'), findsOneWidget);
+
+    // Before the new lookup's debounce: the previous row has no authority
+    // over this query. As on a first lookup, Send can send the literal text.
+    await tester.enterText(find.byType(TextField), '@missing');
+    await tester.pump();
+    await tester.tap(find.byIcon(AppIcons.send));
+    await pumpFrames(tester, 2);
+    expect(setup.harness.controllers['main']!.sent, ['@missing']);
+    expect(_draft(tester).text, isEmpty);
+    expect(setup.recents.entries, isEmpty);
   });
 
   testWidgets('a conversation goes in as its canonical mention', (tester) async {
