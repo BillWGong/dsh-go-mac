@@ -282,7 +282,7 @@ class FakeSessions extends SessionsController {
   Future<List<SessionSummary>> build() async => const [];
 
   @override
-  Future<String> create() async {
+  Future<String> create({bool autoApprove = false}) async {
     creates++;
     return created;
   }
