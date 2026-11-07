@@ -396,9 +396,13 @@ enum MacStubs {
     register("dsh/update", messenger) { call, result in
       switch call.method {
       case "info":
+        let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
+        let build = Int(Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1") ?? 1
         result([
-          "version": Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0",
-          "build": Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1",
+          "versionName": version,
+          "versionCode": build,
+          "abi": "arm64",
+          "canRequestInstalls": false,
         ])
       case "canRequestInstalls":
         result(false)

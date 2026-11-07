@@ -46,6 +46,22 @@ void main() {
       expect(armOnly.apkFor(ApkFlavor.x64), isNull);
     });
 
+    test('parses the macOS DMG as the installer', () {
+      final json = jsonDecode(fixture('github_release.json')) as Map<String, Object?>;
+      (json['assets']! as List).add({
+        'name': 'dsh-go-mac-1.2.0-macos-arm64.dmg',
+        'browser_download_url':
+            'https://github.com/BillWGong/dsh-go-mac/releases/download/v1.2.0/dsh-go-mac-1.2.0-macos-arm64.dmg',
+        'size': 272429952,
+        'digest': 'sha256:${'b' * 64}',
+      });
+      final mac = parseGithubRelease(json);
+      expect(mac.diskImage, isNotNull);
+      expect(mac.diskImage!.isDiskImage, isTrue);
+      expect(mac.diskImage!.name, 'dsh-go-mac-1.2.0-macos-arm64.dmg');
+      expect(mac.assetFor(null)?.name, mac.diskImage!.name);
+    });
+
     test('drafts, odd tags and non-objects are refused', () {
       final json = jsonDecode(fixture('github_release.json')) as Map<String, Object?>;
       expect(() => parseGithubRelease({...json, 'draft': true}), throwsFormatException);
@@ -104,6 +120,24 @@ void main() {
       }
     });
 
+    test('round-trips the macOS DMG manifest entry', () {
+      final original = parseGithubRelease({
+        'tag_name': 'v1.4.0',
+        'assets': [
+          {
+            'name': 'dsh-go-mac-1.4.0-macos-arm64.dmg',
+            'browser_download_url': 'https://example.com/dsh-go-mac-1.4.0-macos-arm64.dmg',
+            'size': 123,
+            'digest': 'sha256:${'c' * 64}',
+          },
+        ],
+      });
+      final copy = parseUpdateManifest(original.toManifestJson());
+      expect(copy.diskImage?.name, original.diskImage?.name);
+      expect(copy.diskImage?.sha256, original.diskImage?.sha256);
+      expect(copy.diskImage?.size, 123);
+    });
+
     test('future schemas and bad versions are refused', () {
       expect(() => parseUpdateManifest({'schema': 2, 'version': '1.0.0'}), throwsFormatException);
       expect(() => parseUpdateManifest({'version': 'soon'}), throwsFormatException);
@@ -112,6 +146,11 @@ void main() {
   });
 
   group('names and checksums', () {
+    test('SHA256SUMS accepts the ./ prefix used by the release script', () {
+      final sums = parseSha256Sums('${'d' * 64}  ./dsh-go-mac-1.0.0-macos-arm64.dmg\n');
+      expect(sums['dsh-go-mac-1.0.0-macos-arm64.dmg'], 'd' * 64);
+    });
+
     test('asset name follows the convention, without the build number', () {
       final version = AppVersion.tryParse('1.3.0-beta.2+40')!;
       expect(apkAssetName(version, ApkFlavor.arm64), 'dsh-go-1.3.0-beta.2-arm64.apk');

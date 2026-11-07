@@ -388,6 +388,14 @@ class UpdateSheet extends ConsumerWidget {
       case UpdateTaskPhase.installing:
         return busy(l10n.updateInstallingBusy);
       case UpdateTaskPhase.ready:
+        if (update.asset?.isDiskImage == true) {
+          return pair(l10n.commonLater, close, l10n.updateInstallWithSystem, () async {
+            final messenger = ScaffoldMessenger.maybeOf(context);
+            if (!await controller.installWithSystem()) {
+              messenger?.showSnackBar(SnackBar(content: Text(appL10n.updateSystemInstallerFailed)));
+            }
+          });
+        }
         final install = pair(l10n.commonLater, close, l10n.commonInstall, () => unawaited(controller.install()));
         return update.problem == UpdateProblem.installCancelled ? withSystemInstaller(install) : install;
       case UpdateTaskPhase.needsPermission:

@@ -121,7 +121,7 @@ class AppUpdateState {
 
   bool get hasUpdate => latest != null;
   bool get isSkipped => latest != null && skippedVersion == latest!.version.toString();
-  ReleaseAsset? get asset => latest?.apkFor(flavor);
+  ReleaseAsset? get asset => latest?.assetFor(flavor);
 
   /// 0..1 while downloading with a known size.
   double? get progress => total == null || total == 0 ? null : (received / total!).clamp(0.0, 1.0);
@@ -398,8 +398,8 @@ class AppUpdateController extends Notifier<AppUpdateState> {
   _Answer _compare(ReleaseInfo? a, ReleaseInfo? b) {
     if (a == null || b == null) return a == null && b == null ? _Answer.same : _Answer.changed;
     if (a.version.toString() != b.version.toString()) return _Answer.changed;
-    final x = a.apkFor(state.flavor);
-    final y = b.apkFor(state.flavor);
+    final x = a.assetFor(state.flavor);
+    final y = b.assetFor(state.flavor);
     if (x == null || y == null) return x == null && y == null ? _Answer.same : _Answer.changed;
     if (x.name != y.name) return _Answer.changed;
     if (x.sha256 != null && y.sha256 != null && x.sha256 != y.sha256) return _Answer.conflict;
@@ -409,10 +409,10 @@ class AppUpdateController extends Notifier<AppUpdateState> {
   /// [offer] (the same APK as on screen) with the digest on screen when it
   /// names none itself.
   ReleaseInfo? _keepDigest(ReleaseInfo? offer) {
-    final flavor = state.flavor;
-    final known = state.asset?.sha256;
-    if (offer == null || flavor == null || known == null || offer.apkFor(flavor)?.sha256 != null) return offer;
-    return offer.withApkSha256(flavor, known);
+    final current = state.asset;
+    final known = current?.sha256;
+    if (offer == null || current == null || known == null || offer.assetFor(state.flavor)?.sha256 != null) return offer;
+    return offer.withAssetSha256(current.name, known);
   }
 
   /// The offer on screen now names another digest for the same version and
@@ -447,11 +447,10 @@ class AppUpdateController extends Notifier<AppUpdateState> {
   /// names another digest for this file, or is no longer this file.
   bool _pin(AppVersion version, String asset, String sha256) {
     final latest = state.latest;
-    final flavor = state.flavor;
-    if (latest == null || flavor == null || !_offers(state, version, asset)) return false;
+    if (latest == null || !_offers(state, version, asset)) return false;
     final named = state.asset!.sha256;
     if (named != null) return named == sha256;
-    final pinned = latest.withApkSha256(flavor, sha256);
+    final pinned = latest.withAssetSha256(asset, sha256);
     state = state.copyWith(latest: () => pinned);
     unawaited(_prefs?.setString(_latestKey, jsonEncode(pinned.toManifestJson())));
     return true;
@@ -604,6 +603,12 @@ class AppUpdateController extends Notifier<AppUpdateState> {
   Future<void> install() async {
     final apk = _apk;
     if (!ref.mounted || apk == null || state.busy) return;
+    // A disk image is opened for the person to drag into Applications; the
+    // app does not replace its own running bundle.
+    if (state.asset?.isDiskImage == true) {
+      await installWithSystem();
+      return;
+    }
     if (!apk.isFile(state)) {
       // Downloaded for an offer that's no longer on screen: never installed in
       // its place. (The same file under another digest fails below.)

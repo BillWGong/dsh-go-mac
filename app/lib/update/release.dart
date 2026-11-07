@@ -27,6 +27,7 @@ enum ApkFlavor {
 String apkAssetName(AppVersion version, ApkFlavor flavor) => 'dsh-go-${version.name}-${flavor.name}.apk';
 
 final _apkAssetPattern = RegExp(r'^dsh-go-(.+)-(arm64|x64)\.apk$');
+final _dmgAssetPattern = RegExp(r'^dsh-go-mac-(.+)-macos-arm64\.dmg$');
 
 /// One downloadable APK.
 class ReleaseAsset {
@@ -41,6 +42,8 @@ class ReleaseAsset {
   /// Lowercase hex; null until resolved (GitHub API without a digest).
   final String? sha256;
 
+  bool get isDiskImage => name.endsWith('.dmg');
+
   ReleaseAsset withSha256(String sha256) => ReleaseAsset(name: name, url: url, size: size, sha256: sha256);
 }
 
@@ -50,6 +53,7 @@ class ReleaseInfo {
     required this.version,
     required this.tag,
     required this.apks,
+    this.diskImage,
     this.notes = '',
     this.notesByLocale = const {},
     this.title,
@@ -61,6 +65,9 @@ class ReleaseInfo {
   final AppVersion version;
   final String tag;
   final Map<ApkFlavor, ReleaseAsset> apks;
+
+  /// The macOS disk image, when the release carries one.
+  final ReleaseAsset? diskImage;
 
   /// Markdown.
   final String notes;
@@ -77,22 +84,40 @@ class ReleaseInfo {
 
   ReleaseAsset? apkFor(ApkFlavor? flavor) => flavor == null ? null : apks[flavor];
 
+  /// The installer this build can use: macOS DMG first, otherwise its APK.
+  ReleaseAsset? assetFor(ApkFlavor? flavor) => diskImage ?? apkFor(flavor);
+
+  /// This release with [name]'s asset under [sha256]; unchanged when no such
+  /// asset is known.
+  ReleaseInfo withAssetSha256(String name, String sha256) {
+    if (diskImage?.name == name) {
+      return _copy(diskImage: diskImage!.withSha256(sha256));
+    }
+    for (final MapEntry(key: flavor, value: asset) in apks.entries) {
+      if (asset.name == name) return _copy(apks: {...apks, flavor: asset.withSha256(sha256)});
+    }
+    return this;
+  }
+
+  ReleaseInfo _copy({Map<ApkFlavor, ReleaseAsset>? apks, ReleaseAsset? diskImage}) => ReleaseInfo(
+    version: version,
+    tag: tag,
+    apks: apks ?? this.apks,
+    diskImage: diskImage ?? this.diskImage,
+    notes: notes,
+    notesByLocale: notesByLocale,
+    title: title,
+    publishedAt: publishedAt,
+    pageUrl: pageUrl,
+    checksumsUrl: checksumsUrl,
+  );
+
   /// This release with [flavor]'s APK under [sha256] (one taken from
   /// `SHA256SUMS`, or kept from an earlier answer). Unchanged without that APK.
   ReleaseInfo withApkSha256(ApkFlavor flavor, String sha256) {
     final apk = apks[flavor];
     if (apk == null) return this;
-    return ReleaseInfo(
-      version: version,
-      tag: tag,
-      apks: {...apks, flavor: apk.withSha256(sha256)},
-      notes: notes,
-      notesByLocale: notesByLocale,
-      title: title,
-      publishedAt: publishedAt,
-      pageUrl: pageUrl,
-      checksumsUrl: checksumsUrl,
-    );
+    return _copy(apks: {...apks, flavor: apk.withSha256(sha256)});
   }
 
   /// `update.json` (schema 1): what the release script writes and what a
@@ -109,6 +134,8 @@ class ReleaseInfo {
     'assets': {
       for (final MapEntry(key: flavor, value: asset) in apks.entries)
         flavor.name: {'name': asset.name, 'url': asset.url.toString(), 'size': ?asset.size, 'sha256': ?asset.sha256},
+      if (diskImage case final asset?)
+        'macos-arm64': {'name': asset.name, 'url': asset.url.toString(), 'size': ?asset.size, 'sha256': ?asset.sha256},
     },
   };
 }
@@ -131,6 +158,7 @@ ReleaseInfo parseGithubRelease(Object? json) {
   final version = tag is String ? AppVersion.tryParse(tag) : null;
   if (version == null) throw FormatException('unrecognised tag: $tag');
   final apks = <ApkFlavor, ReleaseAsset>{};
+  ReleaseAsset? diskImage;
   Uri? checksums;
   for (final asset in (json['assets'] as List?)?.whereType<Map>() ?? const <Map>[]) {
     final name = asset['name'];
@@ -138,6 +166,16 @@ ReleaseInfo parseGithubRelease(Object? json) {
     if (name is! String || url == null || !url.hasScheme) continue;
     if (name == checksumsName) {
       checksums = url;
+      continue;
+    }
+    final dmg = _dmgAssetPattern.firstMatch(name);
+    if (dmg != null) {
+      diskImage = ReleaseAsset(
+        name: name,
+        url: url,
+        size: (asset['size'] as num?)?.toInt(),
+        sha256: normalizeSha256(asset['digest']),
+      );
       continue;
     }
     final match = _apkAssetPattern.firstMatch(name);
@@ -155,6 +193,7 @@ ReleaseInfo parseGithubRelease(Object? json) {
     version: version,
     tag: tag as String,
     apks: apks,
+    diskImage: diskImage,
     // Release bodies edited on github.com come with CRLF line ends.
     notes: (json['body'] as String? ?? '').replaceAll('\r\n', '\n'),
     title: title is String && title.trim().isNotEmpty ? title.trim() : null,
@@ -175,21 +214,31 @@ ReleaseInfo parseUpdateManifest(Object? json, {Uri? base}) {
   if (version == null) throw FormatException('unrecognised version: ${json['version']}');
   final tag = json['tag'] as String? ?? 'v${version.name}';
   final apks = <ApkFlavor, ReleaseAsset>{};
+  ReleaseAsset? diskImage;
   final assets = json['assets'];
   if (assets is Map) {
     for (final MapEntry(:key, :value) in assets.entries) {
-      final flavor = ApkFlavor.fromName(key as String?);
-      if (flavor == null || value is! Map) continue;
-      final name = value['name'] as String? ?? apkAssetName(version, flavor);
+      if (value is! Map) continue;
+      final keyName = key is String ? key : '';
+      final rawName = value['name'] as String?;
+      final isDmg = keyName == 'macos-arm64' || (rawName?.endsWith('.dmg') ?? false);
+      final flavor = isDmg ? null : ApkFlavor.fromName(keyName);
+      if (!isDmg && flavor == null) continue;
+      final name = rawName ?? (isDmg ? 'dsh-go-mac-${version.name}-macos-arm64.dmg' : apkAssetName(version, flavor!));
       final raw = value['url'] as String?;
       final url = raw == null ? githubReleaseAsset(tag, name) : (base?.resolve(raw) ?? Uri.tryParse(raw));
       if (url == null || !url.hasScheme) continue;
-      apks[flavor] = ReleaseAsset(
+      final parsed = ReleaseAsset(
         name: name,
         url: url,
         size: (value['size'] as num?)?.toInt(),
         sha256: normalizeSha256(value['sha256']),
       );
+      if (isDmg) {
+        diskImage = parsed;
+      } else {
+        apks[flavor!] = parsed;
+      }
     }
   }
   final page = json['page'] as String?;
@@ -197,6 +246,7 @@ ReleaseInfo parseUpdateManifest(Object? json, {Uri? base}) {
     version: version,
     tag: tag,
     apks: apks,
+    diskImage: diskImage,
     notes: json['notes'] as String? ?? '',
     notesByLocale: {
       if (json['notesByLocale'] case final Map<String, Object?> byLocale)
@@ -214,7 +264,11 @@ Map<String, String> parseSha256Sums(String text) {
   final out = <String, String>{};
   for (final line in text.split('\n')) {
     final m = RegExp(r'^\s*([0-9a-fA-F]{64})\s+\*?(.+?)\s*$').firstMatch(line);
-    if (m != null) out[m.group(2)!] = m.group(1)!.toLowerCase();
+    if (m != null) {
+      var name = m.group(2)!;
+      if (name.startsWith('./')) name = name.substring(2);
+      out[name] = m.group(1)!.toLowerCase();
+    }
   }
   return out;
 }

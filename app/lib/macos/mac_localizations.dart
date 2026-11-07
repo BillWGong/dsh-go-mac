@@ -16,8 +16,7 @@ import '../l10n/gen/app_localizations_zh.dart';
 
 /// macOS 文案是否生效。`flutter test` 里固定为 false：既有测试和 golden 都是按
 /// 手机文案写的，跑在 Mac 上也不该变。
-bool get macTextActive =>
-    !kIsWeb && Platform.isMacOS && Platform.environment['FLUTTER_TEST'] != 'true';
+bool get macTextActive => !kIsWeb && Platform.isMacOS && Platform.environment['FLUTTER_TEST'] != 'true';
 
 /// 中文 macOS 文案。
 class MacL10nZh extends L10nZh {
@@ -82,8 +81,7 @@ class MacL10nZh extends L10nZh {
       '插件以 DSH 的权限运行：能读写文件、执行命令、读取 API Key 和已授权的本机存储，不受工作区沙箱限制。由第三方提供，DSH 官方未审核。';
 
   @override
-  String get pluginsPermissionLocalTrusted =>
-      '插件以 DSH 的权限运行：能读写文件、执行命令、读取 API Key 和已授权的本机存储，不受工作区沙箱限制。只装你信任的插件。';
+  String get pluginsPermissionLocalTrusted => '插件以 DSH 的权限运行：能读写文件、执行命令、读取 API Key 和已授权的本机存储，不受工作区沙箱限制。只装你信任的插件。';
 
   @override
   String get plugslotsVoiceWhen => '朗读时你一开口就停。声音只在这台 Mac 上判断，不保存、不上传';
@@ -92,8 +90,7 @@ class MacL10nZh extends L10nZh {
   String phoneControlRemoteHint(String host) => '「$host」上的 DSH 操作不了这台 Mac，切回「本机」后可用';
 
   @override
-  String get phoneAppRulesSkipStepsBody =>
-      '微信这类 App 有风控，曾有自动化操作后账号被强制下线。改成照常后，只有发消息这类操作还会先问你。';
+  String get phoneAppRulesSkipStepsBody => '微信这类 App 有风控，曾有自动化操作后账号被强制下线。改成照常后，只有发消息这类操作还会先问你。';
 
   @override
   String get phoneDirectHint => '实验功能，默认关闭，下次启动生效。部分系统会拦截直接启动，届时自动改用兼容启动，数据不受影响。';
@@ -106,6 +103,15 @@ class MacL10nZh extends L10nZh {
 
   @override
   String get updateIncompatibleMessage => '安装包要求的系统版本或处理器架构和这台 Mac 不符。';
+
+  @override
+  String get updateReadyToInstall => '安装包已下载并校验。打开后把 DSH Go Mac 拖进 Applications 覆盖旧版。';
+
+  @override
+  String get updateInstallWithSystem => '打开安装包';
+
+  @override
+  String get updateInstallKeepsData => '覆盖安装后对话和设置会保留；内置引擎在 设置 › 引擎 更新。';
 
   @override
   String get botsMobileUnsupportedTitle => 'DS Bot 暂不支持桌面端';
@@ -138,8 +144,7 @@ class MacL10nZh extends L10nZh {
   String get askAiQuestionPhoneFiles => '「访问本机文件」打开后，AI 能读写哪些文件？怎么关掉？';
 
   @override
-  String get phoneBackgroundGuideBody =>
-      '需要你确认时，会显示 DSH Go 卡片。卡片不可用时会尝试通知或回到 App。请在系统设置中允许 Mac 操控通知和弹出提醒。';
+  String get phoneBackgroundGuideBody => '需要你确认时，会显示 DSH Go 卡片。卡片不可用时会尝试通知或回到 App。请在系统设置中允许 Mac 操控通知和弹出提醒。';
 
   @override
   String get phoneBackgroundNotificationBlocked => '请允许 Mac 操控通知的弹出提醒';
@@ -315,7 +320,8 @@ class MacL10nEn extends L10nEn {
       'Plugins run with DSH’s permissions: read and write files, run commands, read API keys and authorised local storage, outside the workspace sandbox. Only install ones you trust.';
 
   @override
-  String get plugslotsVoiceWhen => 'Reading stops when you speak. Audio is judged only on this Mac; never saved or uploaded';
+  String get plugslotsVoiceWhen =>
+      'Reading stops when you speak. Audio is judged only on this Mac; never saved or uploaded';
 
   @override
   String phoneControlRemoteHint(String host) => 'DSH on “$host” cannot control this Mac; switch back to This Mac';
@@ -339,6 +345,17 @@ class MacL10nEn extends L10nEn {
   String get updateIncompatibleMessage => 'The package needs a different macOS version or CPU architecture.';
 
   @override
+  String get updateReadyToInstall =>
+      'The installer is downloaded and verified. Open it, then drag DSH Go Mac into Applications to replace the old version.';
+
+  @override
+  String get updateInstallWithSystem => 'Open installer';
+
+  @override
+  String get updateInstallKeepsData =>
+      'Replacing the app keeps your conversations and settings. Update the bundled engine from Settings › Engine.';
+
+  @override
   String get botsMobileUnsupportedTitle => 'DS Bot is not supported on desktop yet';
 
   @override
@@ -360,13 +377,16 @@ class MacL10nEn extends L10nEn {
   String get askAiQuestionPhoneControl => 'How does Mac control work, and what are the risks?';
 
   @override
-  String get askAiQuestionPhoneAlways => 'What happens with “always allow” in Mac control, and how does it compare with asking every time?';
+  String get askAiQuestionPhoneAlways =>
+      'What happens with “always allow” in Mac control, and how does it compare with asking every time?';
 
   @override
-  String get askAiQuestionAppRules => 'What is the app list in Mac control for, and what are the risks of allowing banking and payment apps?';
+  String get askAiQuestionAppRules =>
+      'What is the app list in Mac control for, and what are the risks of allowing banking and payment apps?';
 
   @override
-  String get askAiQuestionPhoneFiles => 'With “access local files” on, which files can the AI read and write? How do I turn it off?';
+  String get askAiQuestionPhoneFiles =>
+      'With “access local files” on, which files can the AI read and write? How do I turn it off?';
 
   @override
   String get phoneBackgroundGuideBody =>
@@ -419,7 +439,8 @@ class MacL10nEn extends L10nEn {
   String get remoteThisPhoneDsh => 'DSH on this Mac';
 
   @override
-  String get remoteKeyStorageHelp => 'Saved only on this Mac, encrypted by the Keychain. Supports Ed25519, RSA and ECDSA.';
+  String get remoteKeyStorageHelp =>
+      'Saved only on this Mac, encrypted by the Keychain. Supports Ed25519, RSA and ECDSA.';
 
   @override
   String get remotePasswordStorageHelp => 'Saved only on this Mac, encrypted by the Keychain';
