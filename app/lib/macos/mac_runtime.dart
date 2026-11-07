@@ -556,7 +556,7 @@ class MacRuntimeBridge implements RuntimeBridge {
     await etc.create(recursive: true);
     // overlay 里是绝对路径（bridge 在运行时的安装位置），所以每次启动前重写。
     final patch = File('${etc.path}/dsh-web.patch.yml');
-    await patch.writeAsString(macLaunchOverlay(runtimeDir.path));
+    await patch.writeAsString(macLaunchOverlay(runtimeDir.path, peekaboo: await peekabooHelperPath(runtimeDir)));
     final safe = File('${etc.path}/safe-mode.patch.yml');
     await safe.writeAsString(macSafeOverlay);
   }
@@ -1194,9 +1194,50 @@ List<String> expandMacLaunchArgs(
   return args;
 }
 
+/// Peekaboo's Mac control helper, when this Mac can run it and the person
+/// turned Mac control on. The file sits next to the runtime directory.
+Future<String?> peekabooHelperPath(Directory runtimeDir) async {
+  if (!Platform.isMacOS) return null;
+  final major =
+      int.tryParse(RegExp(r'^Version\s+(\d+)').firstMatch(Platform.operatingSystemVersion)?.group(1) ?? '') ?? 0;
+  if (major < 15) return null;
+  final config = File('${runtimeDir.parent.path}/mac-peekaboo.json');
+  if (!await config.exists()) return null;
+  try {
+    final json = jsonDecode(await config.readAsString());
+    if (json is! Map || json['enabled'] != true) return null;
+  } catch (_) {
+    return null;
+  }
+  final helper = File('${runtimeDir.parent.path}/peekaboo/peekaboo');
+  if (!await helper.exists()) return null;
+  return helper.path;
+}
+
 /// 正常启动的 overlay：插件安装走镜像 + 官方源，并加载 dsh-go-bridge。
-String macLaunchOverlay(String runtimeDir) =>
-    '''
+String macLaunchOverlay(String runtimeDir, {String? peekaboo}) {
+  final helper = peekaboo;
+  final home = File(runtimeDir).parent.path;
+  final extra = helper == null
+      ? ''
+      : '''
+    - id: mcp-peekaboo
+      name: '@deepseek-ai/dsh-mcp-client'
+      config:
+        serverName: peekaboo
+        transport: stdio
+        command: '$helper'
+        args: [mcp]
+        env:
+          PEEKABOO_ALLOW_TOOLS: 'see,app,window,menu,click,type,set_value,action,scroll,press,verify_state,sleep'
+          PEEKABOO_DISABLE_TOOLS: 'shell,browser,agent,dialog_click,dialog_input,capture,paste,clipboard'
+          PEEKABOO_AI_PROVIDERS: ''
+          PEEKABOO_LOG_LEVEL: 'error'
+          PEEKABOO_CONFIG_DIR: '$home/peekaboo/config'
+          PEEKABOO_DAEMON_SOCKET: '$home/peekaboo/daemon.sock'
+        failOnStartupError: false
+''';
+  return '''
 # dsh-app: overlay for `dsh web`, written by DSH Go for macOS (edits here do not survive a restart).
 - id: plugin-manager
   config:
@@ -1206,7 +1247,8 @@ String macLaunchOverlay(String runtimeDir) =>
 - insert:
     - id: dsh-go-bridge
       name: $runtimeDir/bridge/lib/index.js
-''';
+$extra''';
+}
 
 /// 安全模式 overlay：不加载插件管理。
 const String macSafeOverlay = '''

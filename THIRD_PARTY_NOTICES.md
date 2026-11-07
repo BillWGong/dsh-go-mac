@@ -216,6 +216,19 @@ DS Bot 的 NOTICE 原文附在文末。
 
 ## 三、随 App 分发的原生库
 
+### Peekaboo（macOS 15+ Mac 操控）
+
+| 项 | 内容 |
+|---|---|
+| 项目 | Peekaboo，https://github.com/openclaw/Peekaboo |
+| 版本 | 4.9.8，`peekaboo-macos-arm64.tar.gz` |
+| 版权人 | Copyright (c) 2025 Peter Steinberger |
+| 许可 | MIT |
+| 用途 | Mac 操控的辅助功能读取、截图、点击、输入、滚动、窗口和菜单；以 `peekaboo mcp` 通过本地 MCP 提供工具 |
+
+该二进制及其 `libswiftCompatibilitySpan.dylib` 原样随 App 分发，未修改；完整 MIT 文本见 `app/macos/Resources/peekaboo/LICENSE`。
+
+
 以下库作为 Gradle 依赖打包进 APK，未复制进源码。
 
 | 库 | 版本 | 许可 | 版权人 | 用途 |

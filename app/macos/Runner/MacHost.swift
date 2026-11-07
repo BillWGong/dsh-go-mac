@@ -71,6 +71,7 @@ final class MacHost: NSObject {
     MacVoice.shared.attach(messenger: messenger)
     MacPetOverlay.shared.attach(messenger: messenger)
     MacStubs.attach(messenger: messenger)
+    MacPeekaboo.shared.attach(messenger: messenger)
 
     mode = MacWindowMode(rawValue: UserDefaults.standard.string(forKey: Self.modeKey) ?? "") ?? .adaptive
     DispatchQueue.main.async { [weak self] in
@@ -638,5 +639,264 @@ private final class MacMenuBarPanel: NSViewController {
   @objc private func tapped(_ sender: NSButton) {
     guard let name = sender.identifier?.rawValue else { return }
     onAction?(name)
+  }
+}
+
+// MARK: - Mac control (Peekaboo)
+
+/// The Mac control settings page talks to Peekaboo, a macOS 15+ automation CLI.
+/// This bridge only owns configuration, helper extraction and permission
+/// reporting; the model-facing tools come from `peekaboo mcp`.
+final class MacPeekaboo {
+  static let shared = MacPeekaboo()
+
+  private let fm = FileManager.default
+  private var channel: FlutterMethodChannel?
+
+  private var support: URL {
+    let base = fm.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+    return base.appendingPathComponent(
+      Bundle.main.bundleIdentifier ?? "io.github.billwgong.dshgomac",
+      isDirectory: true
+    )
+  }
+
+  private var helperDir: URL { support.appendingPathComponent("peekaboo", isDirectory: true) }
+  private var helper: URL { helperDir.appendingPathComponent("peekaboo") }
+  private var configFile: URL { support.appendingPathComponent("mac-peekaboo.json") }
+
+  private var osVersion: String {
+    let v = ProcessInfo.processInfo.operatingSystemVersion
+    return "\(v.majorVersion).\(v.minorVersion).\(v.patchVersion)"
+  }
+
+  private var supported: Bool {
+    ProcessInfo.processInfo.isOperatingSystemAtLeast(
+      OperatingSystemVersion(majorVersion: 15, minorVersion: 0, patchVersion: 0)
+    )
+  }
+
+  private var enabled: Bool {
+    guard supported,
+          let data = try? Data(contentsOf: configFile),
+          let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
+    else { return false }
+    return object["enabled"] as? Bool ?? false
+  }
+
+  func attach(messenger: FlutterBinaryMessenger) {
+    channel = FlutterMethodChannel(name: "dsh/mac_peekaboo", binaryMessenger: messenger)
+    channel?.setMethodCallHandler { [weak self] call, result in
+      guard let self else { return result(nil) }
+      switch call.method {
+      case "status":
+        DispatchQueue.global(qos: .userInitiated).async {
+          let payload = self.payload()
+          DispatchQueue.main.async { result(payload) }
+        }
+      case "setEnabled":
+        let value = (call.arguments as? [String: Any])?["enabled"] as? Bool ?? false
+        DispatchQueue.global(qos: .userInitiated).async {
+          do {
+            try self.writeEnabled(value)
+            if !value { self.stopDaemon() }
+            let payload = self.payload()
+            DispatchQueue.main.async { result(payload) }
+          } catch {
+            DispatchQueue.main.async { result(FlutterError(code: "helper", message: error.localizedDescription, details: nil)) }
+          }
+        }
+      case "requestPermission":
+        let kind = (call.arguments as? [String: Any])?["kind"] as? String ?? ""
+        DispatchQueue.global(qos: .userInitiated).async {
+          let ok = self.requestPermission(kind)
+          DispatchQueue.main.async { result(ok) }
+        }
+      case "openSettings":
+        let kind = (call.arguments as? [String: Any])?["kind"] as? String ?? ""
+        self.openSettings(kind)
+        result(true)
+      default:
+        result(FlutterMethodNotImplemented)
+      }
+    }
+  }
+
+  private func payload() -> [String: Any] {
+    let osSupported = supported
+    if !osSupported {
+      return [
+        "supported": false,
+        "osVersion": osVersion,
+        "enabled": false,
+        "helperReady": false,
+        "helperVersion": NSNull(),
+        "permissions": ["screenRecording": false, "accessibility": false, "eventSynthesizing": false],
+      ]
+    }
+
+    var helperError: String?
+    do {
+      try ensureHelper()
+    } catch {
+      helperError = error.localizedDescription
+    }
+    let permissions = helperFilesPresent ? self.permissionStatus() : [:]
+    return [
+      "supported": true,
+      "osVersion": osVersion,
+      "enabled": enabled,
+      "helperReady": helperFilesPresent,
+      "helperVersion": helperVersion ?? NSNull(),
+      "permissions": [
+        "screenRecording": permissions["screenRecording"] ?? false,
+        "accessibility": permissions["accessibility"] ?? false,
+        "eventSynthesizing": permissions["eventSynthesizing"] ?? false,
+      ],
+      "error": helperError ?? NSNull(),
+    ]
+  }
+
+  private var helperFilesPresent: Bool {
+    fm.isExecutableFile(atPath: helper.path) &&
+      fm.fileExists(atPath: helperDir.appendingPathComponent("libswiftCompatibilitySpan.dylib").path)
+  }
+
+  private var helperVersion: String? {
+    guard let data = try? String(contentsOf: helperDir.appendingPathComponent("VERSION"), encoding: .utf8) else {
+      return nil
+    }
+    return data.trimmingCharacters(in: .whitespacesAndNewlines)
+  }
+
+  private func ensureHelper() throws {
+    guard supported else { throw NSError(domain: "dsh.mac.peekaboo", code: 1, userInfo: [NSLocalizedDescriptionKey: "需要 macOS 15 或更高版本"]) }
+    try fm.createDirectory(at: helperDir, withIntermediateDirectories: true)
+    guard let source = assetURL() else {
+      throw NSError(domain: "dsh.mac.peekaboo", code: 2, userInfo: [NSLocalizedDescriptionKey: "安装包缺少 Peekaboo"])
+    }
+    for name in ["peekaboo", "libswiftCompatibilitySpan.dylib", "VERSION", "LICENSE"] {
+      let from = source.appendingPathComponent(name)
+      let to = helperDir.appendingPathComponent(name)
+      guard fm.fileExists(atPath: from.path) else { continue }
+      if fm.fileExists(atPath: to.path) {
+        // Copy only when the bundled file changed (an app update).
+        if let a = try? Data(contentsOf: from), let b = try? Data(contentsOf: to), a == b { continue }
+        try? fm.removeItem(at: to)
+      }
+      try fm.copyItem(at: from, to: to)
+    }
+    try fm.setAttributes([.posixPermissions: 0o755], ofItemAtPath: helper.path)
+    try fm.setAttributes([.posixPermissions: 0o755], ofItemAtPath: helperDir.appendingPathComponent("libswiftCompatibilitySpan.dylib").path)
+    // The app may itself be quarantined; do not let that block the extracted helper.
+    for path in [helper.path, helperDir.appendingPathComponent("libswiftCompatibilitySpan.dylib").path] {
+      let xattr = Process()
+      xattr.executableURL = URL(fileURLWithPath: "/usr/bin/xattr")
+      xattr.arguments = ["-d", "com.apple.quarantine", path]
+      try? xattr.run()
+      xattr.waitUntilExit()
+    }
+  }
+
+  private func assetURL() -> URL? {
+    let bases = [
+      Bundle.main.resourceURL?.appendingPathComponent("peekaboo", isDirectory: true),
+      Bundle.main.privateFrameworksURL?.appendingPathComponent("App.framework/Resources/flutter_assets/assets/peekaboo"),
+    ]
+    return bases.compactMap { $0 }.first { fm.fileExists(atPath: $0.appendingPathComponent("peekaboo").path) }
+  }
+
+  private func environment() -> [String: String] {
+    var env = ProcessInfo.processInfo.environment
+    env["PEEKABOO_CONFIG_DIR"] = helperDir.appendingPathComponent("config").path
+    env["PEEKABOO_DAEMON_SOCKET"] = helperDir.appendingPathComponent("daemon.sock").path
+    env["PEEKABOO_AI_PROVIDERS"] = ""
+    env["PEEKABOO_LOG_LEVEL"] = "error"
+    return env
+  }
+
+  private func runHelper(_ args: [String], timeout: TimeInterval = 12) -> String? {
+    guard helperFilesPresent else { return nil }
+    let process = Process()
+    process.executableURL = helper
+    process.arguments = args
+    process.environment = environment()
+    let out = Pipe()
+    process.standardOutput = out
+    process.standardError = Pipe()
+    do { try process.run() } catch { return nil }
+    let deadline = Date().addingTimeInterval(timeout)
+    while process.isRunning && Date() < deadline { usleep(50_000) }
+    if process.isRunning { process.terminate() }
+    let data = out.fileHandleForReading.readDataToEndOfFile()
+    return String(data: data, encoding: .utf8)
+  }
+
+  private func permissionStatus() -> [String: Bool] {
+    guard let raw = runHelper(["permissions", "status", "--json", "--no-remote"]),
+          let data = raw.data(using: .utf8),
+          let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+          let body = object["data"] as? [String: Any],
+          let rows = body["permissions"] as? [[String: Any]]
+    else { return [:] }
+    var out: [String: Bool] = [:]
+    for row in rows {
+      guard let name = row["name"] as? String else { continue }
+      let granted = row["isGranted"] as? Bool ?? false
+      switch name.lowercased() {
+      case "screen recording": out["screenRecording"] = granted
+      case "accessibility": out["accessibility"] = granted
+      case "event synthesizing": out["eventSynthesizing"] = granted
+      default: break
+      }
+    }
+    return out
+  }
+
+  private func writeEnabled(_ value: Bool) throws {
+    try fm.createDirectory(at: support, withIntermediateDirectories: true)
+    if value { try ensureHelper() }
+    let data = try JSONSerialization.data(withJSONObject: ["enabled": value], options: [.prettyPrinted, .sortedKeys])
+    let temp = configFile.appendingPathExtension("tmp")
+    try data.write(to: temp, options: .atomic)
+    if fm.fileExists(atPath: configFile.path) { try? fm.removeItem(at: configFile) }
+    try fm.moveItem(at: temp, to: configFile)
+    try fm.setAttributes([.posixPermissions: 0o600], ofItemAtPath: configFile.path)
+  }
+
+  private func requestPermission(_ kind: String) -> Bool {
+    guard supported else { return false }
+    do { try ensureHelper() } catch { return false }
+    let mapped: String
+    let url: String
+    switch kind {
+    case "accessibility":
+      mapped = "accessibility"
+      url = "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility"
+    case "eventSynthesizing":
+      mapped = "event-synthesizing"
+      url = "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility"
+    default:
+      mapped = "screen-recording"
+      url = "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture"
+    }
+    _ = runHelper(["permissions", "request", mapped, "--no-remote"], timeout: 20)
+    if let link = URL(string: url) { NSWorkspace.shared.open(link) }
+    return true
+  }
+
+  private func openSettings(_ kind: String) {
+    let url: String
+    switch kind {
+    case "accessibility", "eventSynthesizing":
+      url = "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility"
+    default:
+      url = "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture"
+    }
+    if let link = URL(string: url) { NSWorkspace.shared.open(link) }
+  }
+
+  private func stopDaemon() {
+    _ = runHelper(["daemon", "stop"], timeout: 8)
   }
 }

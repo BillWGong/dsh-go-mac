@@ -199,11 +199,9 @@ cd app && flutter run -d macos
 
 1. **官方 DSH 连接是实验性的**：依赖 `~/.dsh/.credentials.yaml` 的会话密钥；官方升级改了格式就会
    退回「未连上」，不会改官方数据。官方 App 退出后，本机官方 DSH 会显示未运行。
-2. **手机操控（唯一没移植的大块）**：原版是「引擎里的 MCP 工具 → 原生无障碍服务 → 屏幕/
-   点按」一整套（Kotlin 约 5700 行，含 relay、审批、敏感词、包名策略、不打扰模式）。
-   Mac 上的等价物是 ScreenCaptureKit + AXUIElement + CGEvent，但工具协议、审批界面和
-   敏感信息拦截都要按同一套语义重写。当前入口保留，页面显示「未就绪」，不会误导。
-3. **应用内更新**：Mac 走 DMG；`dsh/update` 目前只报告版本、不提供自安装。
+2. **Mac 操控**：直接使用 Peekaboo（macOS 15+）；12–14 显示「未就绪」。设置、权限和工具策略见
+   `docs/macos/mac-control.md`。
+3. **应用内更新**：Mac 走 DMG；下载完成后打开安装包，由用户覆盖安装。
 4. **App Store**：当前关闭 App Sandbox（本机引擎要启动自带 Node、读写工作区）。上架需要
    迁移到 XPC 服务 + 沙盒，属于另一条分发路径。
 5. **Intel Mac**：`build-runtime-macos.sh` 目前只做 arm64；要支持 Intel 需再产一份 x64 运行时

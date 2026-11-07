@@ -5,7 +5,7 @@
 // 做法是继承 gen-l10n 生成的 L10nZh / L10nEn 覆盖少数 getter，而不是改 ARB：
 //   - 不动 740 个界面文件里的任何调用点；
 //   - 不生成第二套 l10n，Android 构建不受影响；
-//   - 以后接 Mac 操控时，把 phoneControl* 也在这里覆盖即可。
+//   - Mac 操控（Peekaboo）的专用文案在 MacPeekabooPage；phoneControl* 仍覆盖“未就绪”。
 
 import 'dart:io';
 

@@ -14,6 +14,7 @@ void registerThirdPartyLicenses() {
       // Code copied or adapted into the source.
       LicenseEntryWithLineBreaks(<String>['PiPilot'], _pipilotMit),
       LicenseEntryWithLineBreaks(<String>['DeepSeek Harness'], _dshMit),
+      LicenseEntryWithLineBreaks(<String>['Peekaboo'], _peekabooMit),
       LicenseEntryWithLineBreaks(<String>['Phase'], _phaseNotice),
       LicenseEntryWithLineBreaks(<String>['DS Bot'], _dsBotNotice + _apache2),
       LicenseEntryWithLineBreaks(<String>['ds-harness-remote'], _dshRemoteMit),
@@ -81,6 +82,14 @@ const _dshMit = '''
 MIT License
 
 Copyright (c) 2026 DeepSeek
+
+$_mitTerms''';
+
+/// Peekaboo's macOS automation CLI, bundled as a macOS 15+ helper.
+const _peekabooMit = '''
+MIT License
+
+Copyright (c) 2025 Peter Steinberger
 
 $_mitTerms''';
 

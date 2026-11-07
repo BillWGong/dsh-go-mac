@@ -73,6 +73,21 @@ cd "$APP"
 out="$APP/build/macos/Build/Products/$(tr '[:lower:]' '[:upper:]' <<<"${mode:0:1}")${mode:1}/dsh_go.app"
 [[ -d "$out" ]] || die "构建完成但没找到 $out"
 
+# Peekaboo 是 macOS 15+ 的原生 helper，作为 App 资源分发，不进入 Flutter 资源
+# （否则 Android APK 也会多背 35 MB）。App 启动时再复制到 Application Support。
+peekaboo_src="$APP/macos/Resources/peekaboo"
+peekaboo_dst="$out/Contents/Resources/peekaboo"
+if [[ ! -x "$peekaboo_src/peekaboo" ]]; then
+  bash "$ROOT/tooling/fetch-peekaboo.sh"
+fi
+[[ -x "$peekaboo_src/peekaboo" ]] || die "缺少 Peekaboo helper：$peekaboo_src"
+rm -rf "$peekaboo_dst"
+cp -R "$peekaboo_src" "$peekaboo_dst"
+chmod +x "$peekaboo_dst/peekaboo"
+for f in peekaboo libswiftCompatibilitySpan.dylib VERSION LICENSE; do
+  [[ -f "$peekaboo_dst/$f" ]] || die "Peekaboo 资源不完整：缺少 $f"
+done
+
 # 运行时要完整：tar 和 manifest 必须都在 App 里，否则装上后「安装运行环境」会失败。
 runtime_assets="$out/Contents/Frameworks/App.framework/Resources/flutter_assets/assets/runtime-macos"
 for f in runtime-arm64.tar.gz manifest.json; do

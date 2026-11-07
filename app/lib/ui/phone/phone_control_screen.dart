@@ -13,6 +13,8 @@ import '../../state/hosts_state.dart';
 import '../../state/phone_overlay_prefs.dart';
 import '../../state/phone_state.dart';
 import '../../state/phone_turn_end.dart';
+import '../../macos/mac_peekaboo_page.dart';
+import '../../macos/macos_support.dart';
 import '../common/app_sheet.dart';
 import '../common/ask_ai.dart';
 import '../common/brief_notice.dart';
@@ -261,6 +263,7 @@ class _PhoneControlScreenState extends ConsumerState<PhoneControlScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (isMacDesktop) return const MacPeekabooPage();
     final l10n = context.l10n;
     final state = ref.watch(phoneProvider);
     final blocker = ref.watch(phoneBlockerProvider);

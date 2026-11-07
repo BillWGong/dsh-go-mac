@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dsh_app/macos/mac_runtime.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -18,13 +20,8 @@ void main() {
     },
   };
 
-  List<String> expand({bool safe = false}) => expandMacLaunchArgs(
-    manifest,
-    runtimeDir: '/R',
-    home: '/H',
-    port: 4123,
-    safe: safe,
-  );
+  List<String> expand({bool safe = false}) =>
+      expandMacLaunchArgs(manifest, runtimeDir: '/R', home: '/H', port: 4123, safe: safe);
 
   test('正常启动：web + 正常 overlay', () {
     expect(expand(), <String>[
@@ -62,6 +59,29 @@ void main() {
   test('overlay 里是运行时的绝对路径，DSH 才能按路径加载 bridge', () {
     expect(macLaunchOverlay('/R'), contains('name: /R/bridge/lib/index.js'));
     expect(macLaunchOverlay('/R'), contains('- id: plugin-manager'));
+    final peekaboo = macLaunchOverlay('/R', peekaboo: '/P/peekaboo');
+    expect(peekaboo, contains('mcp-peekaboo'));
+    expect(peekaboo, contains("command: '/P/peekaboo'"));
+    expect(peekaboo, contains('PEEKABOO_ALLOW_TOOLS'));
+  });
+
+  test('Peekaboo helper is only injected when enabled and executable', () async {
+    final root = await Directory.systemTemp.createTemp('dsh-peekaboo-gate-');
+    addTearDown(() => root.delete(recursive: true));
+    final runtime = Directory('${root.path}/runtime')..createSync();
+    final helper = File('${root.path}/peekaboo/peekaboo');
+    await helper.create(recursive: true);
+    await Process.run('chmod', ['+x', helper.path]);
+    final config = File('${root.path}/mac-peekaboo.json');
+
+    expect(await peekabooHelperPath(runtime), isNull);
+    await config.writeAsString('{"enabled":true}');
+    expect(await peekabooHelperPath(runtime), helper.path);
+    await config.writeAsString('{"enabled":false}');
+    expect(await peekabooHelperPath(runtime), isNull);
+  });
+
+  test('安全模式 overlay 不加载 bridge', () {
     expect(macSafeOverlay, contains('disabled: true'));
     expect(macSafeOverlay, isNot(contains('dsh-go-bridge')));
   });
