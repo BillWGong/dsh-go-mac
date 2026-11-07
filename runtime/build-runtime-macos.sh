@@ -109,19 +109,14 @@ mkdir -p "$STAGE/runtime/etc/dsh-app" "$STAGE/runtime/home/.dsh" "$STAGE/runtime
 chmod 700 "$STAGE/runtime/home" "$STAGE/runtime/home/.dsh"
 
 say "应用 dsh 补丁"
-for diff in "$HERE"/patches/*.diff; do
-  echo "  - $(basename "$diff")"
-  patch --batch -N -s -p1 -d "$STAGE/runtime/dsh" <"$diff" || { echo "补丁失败：$diff" >&2; exit 1; }
-done
-# 删除补丁的伴随模块：上游由 rtbuild.py 复制，macOS 脚本需要自己放进去。
-if [[ -f "$HERE/session-deletion/core.mjs" ]]; then
-  install -m 644 "$HERE/session-deletion/core.mjs" \
-    "$STAGE/runtime/dsh/node_modules/@deepseek-ai/dsh-session-persistence-jsonl/lib/dsh-go-deletion.mjs"
-fi
+# Use the same pinned, strict patch chain as the Android runtime. Plain `patch`
+# can fuzz a hunk into the wrong context and silently break the next patch.
+python3 -I "$HERE/lib/rtbuild.py" patch-dsh \
+  --prefix "$STAGE/runtime/dsh" --dsh-version "$DSH_VERSION" --patches "$HERE/patches"
 
 cat >"$STAGE/runtime/etc/dsh-app/runtime.json" <<EOF
 {
-  "runtimeVersion": "macos-r4",
+  "runtimeVersion": "macos-r5",
   "platform": "darwin-arm64",
   "dshVersion": "$DSH_VERSION",
   "nodeVersion": "$NODE_VERSION",
@@ -146,7 +141,7 @@ python3 - "$OUT" "$archive" "$bytes" "$sha" "$((unpacked * 1024))" "$DSH_VERSION
 import json, os, sys
 out, archive, size, sha, unpacked, dsh, node = sys.argv[1:8]
 manifest = {
-    "runtimeVersion": "macos-r4",
+    "runtimeVersion": "macos-r5",
     "abi": "arm64",
     "platform": "darwin-arm64",
     "archive": f"assets/runtime-macos/{archive}",
@@ -183,7 +178,7 @@ python3 - "$OUT/manifest.json" "$DSH_VERSION" <<'PY'
 import json, os, sys
 path, expected = sys.argv[1:3]
 manifest = json.load(open(path))
-assert manifest["runtimeVersion"] == "macos-r4", manifest["runtimeVersion"]
+assert manifest["runtimeVersion"] == "macos-r5", manifest["runtimeVersion"]
 assert manifest["dshVersion"] == expected, (manifest["dshVersion"], expected)
 archive = os.path.join(os.path.dirname(path), os.path.basename(manifest["archive"]))
 assert os.path.isfile(archive), archive

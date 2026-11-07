@@ -17,7 +17,7 @@ void main() {
     // 干净 clone 里没有运行时包（manifest 是生成物）；跑过
     // runtime/build-runtime-macos.sh 后才会出现。
     if (status.bundledVersion != null) {
-      expect(status.bundledVersion, 'macos-r4');
+      expect(status.bundledVersion, 'macos-r5');
       expect(status.dshVersion, '0.2.2-rc.1');
     }
   });
@@ -25,18 +25,18 @@ void main() {
   test('an installed older runtime is marked as outdated', () {
     const current = RuntimeStatus(
       phase: RuntimePhase.installed,
-      installedVersion: 'macos-r4',
-      bundledVersion: 'macos-r4',
+      installedVersion: 'macos-r5',
+      bundledVersion: 'macos-r5',
     );
     const outdated = RuntimeStatus(
       phase: RuntimePhase.installed,
-      installedVersion: 'macos-r3',
-      bundledVersion: 'macos-r4',
+      installedVersion: 'macos-r4',
+      bundledVersion: 'macos-r5',
     );
     const official = RuntimeStatus(
       phase: RuntimePhase.installed,
-      installedVersion: 'macos-r3',
-      bundledVersion: 'macos-r4',
+      installedVersion: 'macos-r4',
+      bundledVersion: 'macos-r5',
       official: true,
     );
     expect(current.runtimeOutdated, isFalse);
