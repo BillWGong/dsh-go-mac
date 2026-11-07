@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'companion/companion_initiative_owner.dart' show companionInitiativeProvider;
 import 'l10n/l10n.dart';
 import 'macos/window_mode.dart';
 import 'performance/performance_state.dart';
@@ -58,6 +59,8 @@ class _DshAppState extends ConsumerState<DshApp> with WidgetsBindingObserver {
     ref.read(usageStatsProvider);
     // 公测版: the star prompt counts time in front from launch, in either 界面.
     if (ref.read(starPromptGateProvider)) ref.read(starPromptProvider);
+    // 伙伴小屋: her invitation ledger is read now, so it is known before the room opens.
+    ref.read(companionInitiativeProvider);
     WidgetsBinding.instance.addObserver(this);
   }
 
