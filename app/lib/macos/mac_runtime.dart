@@ -1097,8 +1097,9 @@ whenToUse: 用户在 DSH Go Mac 上遇到连接、引擎、手机连接或更新
   @override
   Future<void> clearFailure() async {
     _failure = null;
-    if (_phase == RuntimePhase.error)
+    if (_phase == RuntimePhase.error) {
       _phase = _installedVersion == null ? RuntimePhase.notInstalled : RuntimePhase.installed;
+    }
     _emit();
   }
 
