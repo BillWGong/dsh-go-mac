@@ -1,3 +1,21 @@
+## 1.0.21 · 2026-11-08
+
+### 中文
+
+- 同步上游 DSH Go 1.0.12，内置运行时升级到 macos-r5。
+- 新增 Mac 操控：集成 Peekaboo 4.9.8；macOS 15+ 可在「设置 › Mac 操控」开启，macOS 12–14 显示未就绪。
+- Mac 操控以后台方式提供截图、辅助功能元素、点击、输入、滚动、窗口和菜单工具；不开放 Shell、浏览器、对话框和剪贴板，不逐次确认。
+- 修复 macOS 应用内更新：下载 DMG、校验后直接打开安装包。
+- 权限引导覆盖屏幕录制、辅助功能和事件合成，系统里显示的授权对象是 dsh_go。
+
+### English
+
+- Synced with upstream DSH Go 1.0.12 and moved the bundled runtime to macos-r5.
+- Added Mac control with Peekaboo 4.9.8. macOS 15+ can enable it from Settings › Mac Control; macOS 12–14 shows it as not ready.
+- Mac control provides background screen capture, accessibility elements, click, type, scroll, window and menu tools. Shell, browser, dialogs and the clipboard remain closed, and actions are not confirmed one by one.
+- Fixed in-app updates on macOS: the DMG is downloaded, verified, and opened directly.
+- Permission guidance covers Screen Recording, Accessibility and Event Synthesizing; macOS shows the grant under dsh_go.
+
 # 更新日志 · Changelog
 
 ## 1.0.20 · 2026-11-06

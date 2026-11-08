@@ -5,7 +5,7 @@
 <p><b>把「运行」当成界面。</b><br/>
 DeepSeek Harness 的 macOS 客户端。同一个引擎，零迁移。</p>
 
-<p><sub>当前版本 <b>v1.0.20</b> · 内置引擎 DSH 0.2.2-rc.1 · 同步上游 DSH Go 1.0.11</sub></p>
+<p><sub>当前版本 <b>v1.0.21</b> · 内置引擎 DSH 0.2.2-rc.1 · 同步上游 DSH Go 1.0.12</sub></p>
 
 <p><a href="https://github.com/BillWGong/dsh-go-mac/releases/latest"><b>下载 DMG</b></a> ·
 <a href="https://github.com/BillWGong/homebrew-tap">brew install --cask BillWGong/tap/dsh-go-mac</a> ·
@@ -82,8 +82,9 @@ xattr -dr com.apple.quarantine "/Applications/DSH Go Mac.app"
 
 | | |
 | :--- | :--- |
-| ✅ 可以日常用 | 本机引擎、官方直连、远程、通知审批、文件/PDF/语音、桌宠、手机连接、分享卡 |
-| 🚧 还没做 | Mac 操控（[设计稿](docs/macos/mac-control.md)）、应用内更新、签名/公证 |
+| ✅ 可以日常用 | 本机引擎、官方直连、远程、通知审批、文件/PDF/语音、桌宠、手机连接、分享卡、应用内更新 |
+| ✅ macOS 15+ | Mac 操控（内置 Peekaboo，见 [说明](docs/macos/mac-control.md)） |
+| 🚧 还没做 | 签名/公证、Intel 构建 |
 | ❌ 不做 | Intel Mac、Windows |
 
 <details>
@@ -91,7 +92,7 @@ xattr -dr com.apple.quarantine "/Applications/DSH Go Mac.app"
 
 **和官方客户端是什么关系？** 同一个引擎的另一个客户端。连官方时共用对话、模型和插件，不迁移数据。
 
-**为什么 App 255 MB，还要 750 MB？** App 自带 193 MB 压缩的 Node + DSH 运行时；首次用内置引擎才解包。只用官方模式可以不装。
+**为什么 App 约 290 MB，还要 750 MB？** App 自带 193 MB 压缩的 Node + DSH 运行时和 macOS 15+ 的 Peekaboo helper；首次用内置引擎才解包运行时。Mac 操控走内置引擎，官方模式不安装这组工具。
 
 **SSH 主机保存失败？** 1.0.16 起远程密钥改用 0600 文件存储（ad-hoc 签名没有 Keychain entitlement），路径在 `~/Library/Application Support/io.github.billwgong.dshgomac/remote-secrets.json`。
 

@@ -5,7 +5,7 @@
 <p><b>Treat the run as the interface.</b><br/>
 A macOS client for DeepSeek Harness. Same engine, no migration.</p>
 
-<p><sub>Current release <b>v1.0.20</b> · bundled engine DSH 0.2.2-rc.1 · synced with upstream DSH Go 1.0.11</sub></p>
+<p><sub>Current release <b>v1.0.21</b> · bundled engine DSH 0.2.2-rc.1 · synced with upstream DSH Go 1.0.12</sub></p>
 
 <p><a href="https://github.com/BillWGong/dsh-go-mac/releases/latest"><b>Download DMG</b></a> ·
 <a href="https://github.com/BillWGong/homebrew-tap">brew install --cask BillWGong/tap/dsh-go-mac</a> ·
@@ -83,8 +83,9 @@ On first launch:
 
 | | |
 | :--- | :--- |
-| ✅ Daily-driver ready | Bundled engine, official attach, remote, notification approvals, files/PDF/speech, pet, phone link, share card |
-| 🚧 Not yet | Mac control ([design](docs/macos/mac-control.md)), in-app updates, signing/notarization |
+| ✅ Daily-driver ready | Bundled engine, official attach, remote, notification approvals, files/PDF/speech, pet, phone link, share card, in-app updates |
+| ✅ macOS 15+ | Mac control (bundled Peekaboo, see [notes](docs/macos/mac-control.md)) |
+| 🚧 Not yet | Signing/notarization |
 | ❌ Not planned | Intel Mac, Windows |
 
 <details>
@@ -92,7 +93,7 @@ On first launch:
 
 **How is this related to the official client?** Another client for the same engine. When attached, chats, models and plugins are shared; no data migration.
 
-**Why 255 MB, and another 750 MB?** The app ships a 193 MB compressed Node + DSH runtime. The first bundled-engine run unpacks it. Official-only use skips it entirely.
+**Why about 290 MB, and another 750 MB?** The app ships a 193 MB compressed Node + DSH runtime and the macOS 15+ Peekaboo helper. The first bundled-engine run unpacks the runtime. Mac control runs through the bundled engine; official-only mode does not install its tools.
 
 **Saving an SSH host fails?** Since 1.0.16, remote secrets use a 0600 file (ad-hoc signing has no Keychain entitlement) at `~/Library/Application Support/io.github.billwgong.dshgomac/remote-secrets.json`.
 

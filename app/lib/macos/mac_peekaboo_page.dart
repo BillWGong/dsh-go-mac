@@ -99,6 +99,7 @@ class _MacPeekabooPageState extends ConsumerState<MacPeekabooPage> with WidgetsB
     final l10n = context.l10n;
     final status = _status;
     final english = AppLocale.isEnglish;
+    final official = ref.watch(localRuntimeProvider.select((s) => s.status.official));
     return AppPage.list(
       title: l10n.phoneControlTitle,
       subtitle: Text(english ? 'Powered by Peekaboo · macOS 15+' : '由 Peekaboo 提供 · macOS 15+'),
@@ -114,6 +115,18 @@ class _MacPeekabooPageState extends ConsumerState<MacPeekabooPage> with WidgetsB
                 subtitle: english
                     ? 'Mac control needs macOS 15. This Mac is running macOS ${status?.osVersion ?? '?'}.'
                     : 'Mac 操控需要 macOS 15，这台 Mac 是 ${status?.osVersion ?? '?'}。',
+              ),
+            ],
+          )
+        else if (official)
+          ListPageCard(
+            children: [
+              ListPageRow(
+                icon: AppIcons.phoneControl,
+                title: english ? 'Switch to the bundled engine first' : '请先切换到内置引擎',
+                subtitle: english
+                    ? 'Mac control runs through the bundled engine. Official DSH mode does not load the Peekaboo tools.'
+                    : 'Mac 操控通过内置引擎运行；官方 DSH 模式不会加载 Peekaboo 工具。',
               ),
             ],
           )
