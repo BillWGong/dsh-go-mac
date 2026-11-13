@@ -1,3 +1,21 @@
+## 1.0.22 · 2026-11-13
+
+### 中文
+
+- 同步上游 DSH Go 1.0.16，内置运行时升级到 macos-r6。
+- 上游新增酒馆角色扮演、创意工坊、悬浮伙伴、长工具输出折叠、tawcroot 实验启动等能力；Mac 端沿用原生窗口、菜单栏和本地/远程主机。
+- Mac 操控继续使用 Peekaboo 4.9.8：macOS 15+ 可在「设置 › Mac 操控」开启，macOS 12–14 显示未就绪。
+- macOS 应用内更新继续支持下载 DMG、校验后直接打开安装包。
+- 对话、插件和设置保留；运行时升级会替换 App 管理的引擎部分。
+
+### English
+
+- Synced with upstream DSH Go 1.0.16 and moved the bundled runtime to macos-r6.
+- Upstream adds the tavern role-play mode, workshop, floating companion, collapsible long tool output, and experimental tawcroot launch; the Mac port keeps its native window, menu bar, and local/remote host flows.
+- Mac control remains on Peekaboo 4.9.8: macOS 15+ can enable it from Settings › Mac Control; macOS 12–14 shows it as not ready.
+- In-app updates on macOS still download, verify, and open the DMG directly.
+- Conversations, plugins and settings are kept; the runtime upgrade replaces the App-managed engine parts.
+
 ## 1.0.21 · 2026-11-08
 
 ### 中文

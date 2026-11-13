@@ -129,7 +129,7 @@ export function Hero({ ready }: { ready: boolean }) {
               animate={ready ? { opacity: 1 } : {}}
               transition={{ duration: 0.9, delay: 1.05 }}
             >
-              <span>macOS 12+</span><span>Apple Silicon</span><span>AGPL-3.0</span><span>v1.0.21</span><span>UPSTREAM 1.0.12</span>
+              <span>macOS 12+</span><span>Apple Silicon</span><span>AGPL-3.0</span><span>v1.0.22</span><span>UPSTREAM 1.0.16</span>
             </motion.div>
 
             <motion.p
