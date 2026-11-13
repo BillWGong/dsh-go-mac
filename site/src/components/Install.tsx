@@ -19,7 +19,7 @@ export function Install() {
         <span className="kicker">05 / INSTALL</span>
         <RevealTitle>装上，<em>再评判</em>。</RevealTitle>
         <p className="install-note">
-          1.0.22 的内置引擎是 DSH 0.2.2-rc.1，同步上游 DSH Go 1.0.16。升级会替换运行时；对话、插件和设置保留，运行时里手动安装的依赖需要重装。macOS 15+ 可在「设置 › Mac 操控」开启由 Peekaboo 提供的本机操控。
+          1.0.23 的内置引擎是 DSH 0.2.2-rc.1，同步上游 DSH Go 1.0.16。升级会替换运行时；对话、插件和设置保留，运行时里手动安装的依赖需要重装。macOS 15+ 可在「设置 › Mac 操控」开启由 Peekaboo 提供的本机操控。
         </p>
 
         <div className="install-grid">
