@@ -41,6 +41,14 @@ const pluginSkillName = 'dsh-go-plugin';
 /// how to use the app. Read-only; installed and kept current the same way.
 const guideSkillName = 'dsh-go-guide';
 
+/// The fourth: troubleshooting and bug-report playbook. Reads the diagnostics
+/// snapshot the app writes into the engine (`$DSH_HOME/dsh-app/diagnostics.md`)
+/// and turns a symptom into a redacted environment summary / issue draft.
+const supportSkillName = 'dsh-go-support';
+
+/// Uses the same report, prompt and checked adapter as companion light mode.
+const companionAdaptSkillName = 'companion-adapt';
+
 /// The managed line inside SKILL.md's front matter.
 const uiSkillManagedMarker = '# dsh-go:managed';
 
@@ -150,7 +158,12 @@ final uiSkillBundleLoaderProvider = Provider<UiSkillBundleLoader>((ref) => loadU
 
 /// The other skills installed next to [uiSkillName] on each engine start.
 final extraSkillLoadersProvider = Provider<List<UiSkillBundleLoader>>(
-  (ref) => [() => loadUiSkillBundle(null, pluginSkillName), () => loadUiSkillBundle(null, guideSkillName)],
+  (ref) => [
+    () => loadUiSkillBundle(null, pluginSkillName),
+    () => loadUiSkillBundle(null, guideSkillName),
+    () => loadUiSkillBundle(null, supportSkillName),
+    () => loadUiSkillBundle(null, companionAdaptSkillName),
+  ],
 );
 
 /// Installs the skill each time the on-device engine comes up (and at launch

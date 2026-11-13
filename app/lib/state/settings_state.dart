@@ -21,6 +21,8 @@ class AppSettings {
     this.autoApproveCommands = false,
     this.phoneStorage = false,
     this.webPhoneLayout = true,
+    this.chatSuggestions = true,
+    this.hardwareEnterSends = false,
     this.chatTextScale = 1.0,
     this.foldCompletedTurns = true,
     this.sendOnEnter = false,
@@ -48,6 +50,12 @@ class AppSettings {
   /// Fit the embedded DSH Web to a phone (`assets/web/`). Off shows the
   /// official layout untouched, e.g. to check a plugin that restyles it.
   final bool webPhoneLayout;
+
+  /// Show the fixed suggestion cards on the native chat's start page.
+  final bool chatSuggestions;
+
+  /// Hardware Enter sends; Shift+Enter and the software keyboard still insert newlines.
+  final bool hardwareEnterSends;
 
   /// Size of chat content relative to the system setting (header and
   /// composer keep theirs). One of [chatTextScales].
@@ -85,6 +93,8 @@ class AppSettings {
     bool? autoApproveCommands,
     bool? phoneStorage,
     bool? webPhoneLayout,
+    bool? chatSuggestions,
+    bool? hardwareEnterSends,
     double? chatTextScale,
     bool? foldCompletedTurns,
     bool? sendOnEnter,
@@ -99,6 +109,8 @@ class AppSettings {
     autoApproveCommands: autoApproveCommands ?? this.autoApproveCommands,
     phoneStorage: phoneStorage ?? this.phoneStorage,
     webPhoneLayout: webPhoneLayout ?? this.webPhoneLayout,
+    chatSuggestions: chatSuggestions ?? this.chatSuggestions,
+    hardwareEnterSends: hardwareEnterSends ?? this.hardwareEnterSends,
     chatTextScale: chatTextScale ?? this.chatTextScale,
     foldCompletedTurns: foldCompletedTurns ?? this.foldCompletedTurns,
     sendOnEnter: sendOnEnter ?? this.sendOnEnter,
@@ -123,6 +135,8 @@ class SettingsController extends Notifier<AppSettings> {
   static const _autoApproveKey = 'auto_approve_commands';
   static const _phoneStorageKey = 'phone_storage';
   static const _webPhoneLayoutKey = 'web_phone_layout';
+  static const _chatSuggestionsKey = 'chat_suggestions';
+  static const _hardwareEnterKey = 'hardware_enter_sends';
   static const _chatTextScaleKey = 'chat_text_scale';
   static const _foldTurnsKey = 'fold_completed_turns';
   static const _sendOnEnterKey = 'send_on_enter';
@@ -172,6 +186,8 @@ class SettingsController extends Notifier<AppSettings> {
       // window that left the page stuck on its boot frame. The Mac default is
       // the desktop layout (the setting still overrides it).
       webPhoneLayout: prefs.getBool(_webPhoneLayoutKey) ?? !isMacDesktop,
+      chatSuggestions: prefs.getBool(_chatSuggestionsKey) ?? true,
+      hardwareEnterSends: prefs.getBool(_hardwareEnterKey) ?? false,
       chatTextScale: _knownScale(prefs.getDouble(_chatTextScaleKey)),
       foldCompletedTurns: prefs.getBool(_foldTurnsKey) ?? true,
       sendOnEnter: prefs.getBool(_sendOnEnterKey) ?? false,
@@ -256,6 +272,22 @@ class SettingsController extends Notifier<AppSettings> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_webPhoneLayoutKey, value);
     state = state.copyWith(webPhoneLayout: value);
+  }
+
+  Future<void> setHardwareEnterSends(bool value) async {
+    await _loaded;
+    if (!ref.mounted) return;
+    state = state.copyWith(hardwareEnterSends: value);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_hardwareEnterKey, value);
+  }
+
+  Future<void> setChatSuggestions(bool value) async {
+    await _loaded;
+    if (!ref.mounted) return;
+    state = state.copyWith(chatSuggestions: value);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_chatSuggestionsKey, value);
   }
 
   Future<void> setAutoStartLocal(bool value) async {

@@ -144,3 +144,10 @@ class LocalRuntimeController extends Notifier<LocalRuntimeState> {
 }
 
 final localRuntimeProvider = NotifierProvider<LocalRuntimeController, LocalRuntimeState>(LocalRuntimeController.new);
+
+/// The log tail currently held by [LocalRuntimeState]. Newer UI pieces watch
+/// this provider; the Mac bridge keeps the canonical copy in the state so the
+/// engine screen, safe mode and diagnostics all read the same lines.
+final localRuntimeLogsProvider = Provider<List<String>>(
+  (ref) => ref.watch(localRuntimeProvider.select((s) => s.logs)),
+);

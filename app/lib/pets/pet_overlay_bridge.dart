@@ -5,6 +5,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../companion/companion_float.dart';
 import 'overlay_channel.dart';
 import 'pet_overlay_actions.dart';
 import 'pet_prefs.dart';
@@ -21,6 +22,7 @@ final petOverlayPushProvider = Provider<Future<void> Function(PetState state)>(
 /// change (equal states are not pushed twice). Failures are dropped: no
 /// native side in tests, or the overlay is off.
 final petOverlayBridgeProvider = Provider<void>((ref) {
+  ref.watch(companionFloatProvider.notifier);
   ref.watch(petOverlayActionBridgeProvider);
   // 大小 / 主题这类偏好不一定会改变 mood state，单独补一次推送。
   ref.listen<PetSize>(petPrefsProvider.select((p) => p.size), (previous, next) {

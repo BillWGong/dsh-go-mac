@@ -1116,6 +1116,16 @@ whenToUse: 用户在 DSH Go Mac 上遇到连接、引擎、手机连接或更新
   }
 
   @override
+  Future<void> setWorkspaceRecovery(bool enabled) async {
+    // macOS 不需要 Android 的 workspace index 恢复路径。
+  }
+
+  @override
+  Future<void> setTawcEngine(bool enabled) async {
+    // tawcroot 只适用于 Android 的 PRoot 启动方式。
+  }
+
+  @override
   Future<List<String>> failureLog() async =>
       _failure?.recent ?? (_logs.length > 40 ? _logs.sublist(_logs.length - 40) : List<String>.of(_logs));
 

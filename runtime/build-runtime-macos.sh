@@ -116,7 +116,7 @@ python3 -I "$HERE/lib/rtbuild.py" patch-dsh \
 
 cat >"$STAGE/runtime/etc/dsh-app/runtime.json" <<EOF
 {
-  "runtimeVersion": "macos-r5",
+  "runtimeVersion": "macos-r6",
   "platform": "darwin-arm64",
   "dshVersion": "$DSH_VERSION",
   "nodeVersion": "$NODE_VERSION",
@@ -141,7 +141,7 @@ python3 - "$OUT" "$archive" "$bytes" "$sha" "$((unpacked * 1024))" "$DSH_VERSION
 import json, os, sys
 out, archive, size, sha, unpacked, dsh, node = sys.argv[1:8]
 manifest = {
-    "runtimeVersion": "macos-r5",
+    "runtimeVersion": "macos-r6",
     "abi": "arm64",
     "platform": "darwin-arm64",
     "archive": f"assets/runtime-macos/{archive}",
@@ -178,7 +178,7 @@ python3 - "$OUT/manifest.json" "$DSH_VERSION" <<'PY'
 import json, os, sys
 path, expected = sys.argv[1:3]
 manifest = json.load(open(path))
-assert manifest["runtimeVersion"] == "macos-r5", manifest["runtimeVersion"]
+assert manifest["runtimeVersion"] == "macos-r6", manifest["runtimeVersion"]
 assert manifest["dshVersion"] == expected, (manifest["dshVersion"], expected)
 archive = os.path.join(os.path.dirname(path), os.path.basename(manifest["archive"]))
 assert os.path.isfile(archive), archive

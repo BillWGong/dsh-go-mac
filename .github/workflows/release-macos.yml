@@ -72,9 +72,9 @@ jobs:
           path: |
             app/assets/runtime-macos/runtime-arm64.tar.gz
             app/assets/runtime-macos/manifest.json
-          key: runtime-macos-r5-${{ hashFiles('runtime/build-runtime-macos.sh', 'runtime/locks/**', 'runtime/patches/**', 'runtime/bridge/**') }}
+          key: runtime-macos-r6-${{ hashFiles('runtime/build-runtime-macos.sh', 'runtime/locks/**', 'runtime/patches/**', 'runtime/bridge/**') }}
           restore-keys: |
-            runtime-macos-r5-
+            runtime-macos-r6-
 
       - name: build dmg
         run: |
@@ -82,11 +82,11 @@ jobs:
           xcrun --sdk macosx --show-sdk-path
           # A restored archive from the previous engine must not be packaged.
           manifest=app/assets/runtime-macos/manifest.json
-          if [[ ! -f "$manifest" ]] || ! grep -q '"dshVersion": "0.2.2-rc.1"' "$manifest" || ! grep -q '"runtimeVersion": "macos-r5"' "$manifest"; then
+          if [[ ! -f "$manifest" ]] || ! grep -q '"dshVersion": "0.2.2-rc.1"' "$manifest" || ! grep -q '"runtimeVersion": "macos-r6"' "$manifest"; then
             bash runtime/build-runtime-macos.sh
           fi
           grep -q '"dshVersion": "0.2.2-rc.1"' "$manifest"
-          grep -q '"runtimeVersion": "macos-r5"' "$manifest"
+          grep -q '"runtimeVersion": "macos-r6"' "$manifest"
           bash tooling/build-macos.sh --dmg
         env:
           DEVELOPER_DIR: ${{ env.DEVELOPER_DIR }}
